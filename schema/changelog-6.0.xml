@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-6.0">
+
+  <changeSet id="changelog-6.0" author="author">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="tc_trips" />
+      </not>
+    </preConditions>
+
+    <createTable tableName="tc_trips">
+      <column name="id" type="INT" autoIncrement="true">
+        <constraints primaryKey="true" />
+      </column>
+      <column name="title" type="VARCHAR(64)">
+        <constraints nullable="false" />
+      </column>
+      <column name="description" type="VARCHAR(256)">
+        <constraints nullable="true" />
+      </column>
+      <column name="startinglatitude" type="DOUBLE" />
+      <column name="startinglongitude" type="DOUBLE" />
+      <column name="finallatitude" type="DOUBLE" />
+      <column name="finallongitude" type="DOUBLE" />
+      <column name="deviceid" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="geofenceid" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="driverid" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="calendarid" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="attributes" type="VARCHAR(4000)">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_trips" baseColumnNames="deviceid" constraintName="fk_trip_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_trips" baseColumnNames="geofenceid" constraintName="fk_trip_geofenceid" referencedTableName="tc_geofences" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_trips" baseColumnNames="driverid" constraintName="fk_trip_driverid" referencedTableName="tc_drivers" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_trips" baseColumnNames="calendarid" constraintName="fk_trip_calendarid" referencedTableName="tc_calendars" referencedColumnNames="id" onDelete="CASCADE" />
+
+    <createIndex tableName="tc_trips" indexName="trip_device_id">
+      <column name="deviceid" />
+    </createIndex>
+    <createIndex tableName="tc_trips" indexName="trip_geofence_id">
+      <column name="geofenceid" />
+    </createIndex>
+    <createIndex tableName="tc_trips" indexName="trip_driver_id">
+      <column name="driverid" />
+    </createIndex>
+    <createIndex tableName="tc_trips" indexName="trip_calendar_id">
+      <column name="calendarid" />
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>
