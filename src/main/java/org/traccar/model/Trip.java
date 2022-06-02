@@ -8,8 +8,17 @@ public class Trip extends ScheduledModel {
   public Trip() {
   }
 
-  public Trip(String title, String description, long deviceId, long driverId, long geofenceId, double startingLatitude,
-      double startingLongitude, double finalLatitude, double finalLongitude) {
+  public Trip(
+      String title,
+      String description,
+      long deviceId,
+      long driverId,
+      long geofenceId,
+      double startingLatitude,
+      double startingLongitude,
+      double finalLatitude,
+      double finalLongitude) {
+
     this.title = title;
     this.description = description;
     this.deviceId = deviceId;

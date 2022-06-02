@@ -80,7 +80,8 @@ public class NotificationManager extends ExtendedObjectManager<Notification> {
             if ((event.getGeofenceId() == 0
                     || Context.getGeofenceManager().checkItemPermission(userId, event.getGeofenceId()))
                     && (event.getMaintenanceId() == 0
-                    || Context.getMaintenancesManager().checkItemPermission(userId, event.getMaintenanceId()))) {
+                            || Context.getMaintenancesManager().checkItemPermission(userId,
+                                    event.getMaintenanceId()))) {
                 if (usersToForward != null) {
                     usersToForward.add(userId);
                 }

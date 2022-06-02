@@ -41,6 +41,7 @@ import org.traccar.database.MediaManager;
 import org.traccar.database.NotificationManager;
 import org.traccar.database.OrderManager;
 import org.traccar.database.PermissionsManager;
+import org.traccar.database.TripManager;
 import org.traccar.database.UsersManager;
 import org.traccar.geocoder.Geocoder;
 import org.traccar.helper.Log;
@@ -56,6 +57,7 @@ import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
 import org.traccar.model.Notification;
 import org.traccar.model.Order;
+import org.traccar.model.Trip;
 import org.traccar.model.User;
 import org.traccar.notification.EventForwarder;
 import org.traccar.notification.NotificatorManager;
@@ -188,6 +190,12 @@ public final class Context {
 
     public static CalendarManager getCalendarManager() {
         return calendarManager;
+    }
+
+    private static TripManager tripManager;
+
+    public static TripManager getTripManager() {
+        return tripManager;
     }
 
     private static NotificationManager notificationManager;
@@ -368,6 +376,7 @@ public final class Context {
         calendarManager = new CalendarManager(dataManager);
         maintenancesManager = new MaintenancesManager(dataManager);
         notificationManager = new NotificationManager(dataManager);
+        tripManager = new TripManager(dataManager);
         notificatorManager = new NotificatorManager();
         Properties velocityProperties = new Properties();
         velocityProperties.setProperty("file.resource.loader.path",
@@ -422,6 +431,8 @@ public final class Context {
             return (BaseObjectManager<T>) notificationManager;
         } else if (clazz.equals(Order.class)) {
             return (BaseObjectManager<T>) orderManager;
+        } else if (clazz.equals(Trip.class)) {
+            return (BaseObjectManager<T>) tripManager;
         }
         return null;
     }
