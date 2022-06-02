@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-6.1">
+
+  <changeSet id="changelog-6.1" author="author">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="tc_trips" />
+    </preConditions>
+
+    <createTable tableName="tc_user_trip">
+      <column name="userid" type="int">
+        <constraints nullable="false" />
+      </column>
+      <column name="tripid" type="int">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_user_trip" baseColumnNames="userid" constraintName="tc_user_trip_userid" referencedTableName="tc_users" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_user_trip" baseColumnNames="tripid" constraintName="tc_user_trip_tripid" referencedTableName="tc_trips" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_user_trip" indexName="tc_user_trip_user_id">
+      <column name="userid" />
+    </createIndex>
+    <createIndex tableName="tc_user_trip" indexName="tc_user_trip_trip_id">
+      <column name="tripid" />
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

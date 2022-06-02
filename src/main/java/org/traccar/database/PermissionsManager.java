@@ -32,6 +32,7 @@ import org.traccar.model.Notification;
 import org.traccar.model.Order;
 import org.traccar.model.Permission;
 import org.traccar.model.Server;
+import org.traccar.model.Trip;
 import org.traccar.model.User;
 import org.traccar.storage.StorageException;
 
@@ -309,7 +310,7 @@ public class PermissionsManager {
         User user = getUser(userId);
         if (user != null && user.getExpirationTime() != null
                 && (after.getExpirationTime() == null
-                || user.getExpirationTime().compareTo(after.getExpirationTime()) < 0)) {
+                        || user.getExpirationTime().compareTo(after.getExpirationTime()) < 0)) {
             checkAdmin(userId);
         }
         if (before.getReadonly() != after.getReadonly()
@@ -388,6 +389,8 @@ public class PermissionsManager {
             manager = Context.getNotificationManager();
         } else if (object.equals(Order.class)) {
             manager = Context.getOrderManager();
+        } else if (object.equals(Trip.class)) {
+            manager = Context.getTripManager();
         } else {
             throw new IllegalArgumentException("Unknown object type");
         }
@@ -452,6 +455,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(Notification.class)
                     && Context.getNotificationManager() != null) {
                 Context.getNotificationManager().refreshUserItems();
+            } else if (permission.getPropertyClass().equals(Trip.class)
+                    && Context.getTripManager() != null) {
+                Context.getTripManager().refreshUserItems();
             }
         } else if (permission.getOwnerClass().equals(Device.class) || permission.getOwnerClass().equals(Group.class)) {
             if (permission.getPropertyClass().equals(Geofence.class) && Context.getGeofenceManager() != null) {
@@ -469,6 +475,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(Notification.class)
                     && Context.getNotificationManager() != null) {
                 Context.getNotificationManager().refreshExtendedPermissions();
+            } else if (permission.getPropertyClass().equals(Trip.class)
+                    && Context.getTripManager() != null) {
+                Context.getTripManager().refreshExtendedPermissions();
             }
         }
     }
