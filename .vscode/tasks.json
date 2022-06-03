@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "gradle",
+			"id": "/home/mepowerleo10/Work/traccarbuildtracker-server",
+			"script": "build",
+			"description": "Assembles and tests this project.",
+			"group": "build",
+			"project": "tracker-server",
+			"buildFile": "/home/mepowerleo10/Work/traccar/build.gradle",
+			"rootProject": "tracker-server",
+			"projectFolder": "/home/mepowerleo10/Work/traccar",
+			"workspaceFolder": "/home/mepowerleo10/Work/traccar",
+			"args": "",
+			"javaDebug": false,
+			"problemMatcher": [
+				"$gradle"
+			],
+			"label": "gradle: build"
+		},
+		{
+			"label": "run traccar",
+			"type": "shell",
+			"command": "java",
+			"args": [
+				"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:1044",
+				"-jar",
+				"${workspaceFolder}/target/tracker-server.jar",
+				"debug.xml"
+			]
+		},
+		{
+			"label": "build and run traccar",
+			"dependsOn": [
+				"gradle: build",
+				"run traccar"
+			]
+		},
+	],
+}
