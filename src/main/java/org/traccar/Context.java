@@ -31,6 +31,7 @@ import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
 import org.traccar.database.DeviceManager;
 import org.traccar.database.DriversManager;
+import org.traccar.database.FuelSensorManager;
 import org.traccar.database.GeofenceManager;
 import org.traccar.database.GroupsManager;
 import org.traccar.database.IdentityManager;
@@ -52,6 +53,7 @@ import org.traccar.model.Calendar;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.Driver;
+import org.traccar.model.FuelSensor;
 import org.traccar.model.Geofence;
 import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
@@ -196,6 +198,12 @@ public final class Context {
 
     public static TripManager getTripManager() {
         return tripManager;
+    }
+
+    private static FuelSensorManager fuelSensorManager;
+
+    public static FuelSensorManager getFuelSensorManager() {
+        return fuelSensorManager;
     }
 
     private static NotificationManager notificationManager;
@@ -377,6 +385,7 @@ public final class Context {
         maintenancesManager = new MaintenancesManager(dataManager);
         notificationManager = new NotificationManager(dataManager);
         tripManager = new TripManager(dataManager);
+        fuelSensorManager = new FuelSensorManager(dataManager);
         notificatorManager = new NotificatorManager();
         Properties velocityProperties = new Properties();
         velocityProperties.setProperty("file.resource.loader.path",
@@ -433,6 +442,8 @@ public final class Context {
             return (BaseObjectManager<T>) orderManager;
         } else if (clazz.equals(Trip.class)) {
             return (BaseObjectManager<T>) tripManager;
+        } else if (clazz.equals(FuelSensor.class)) {
+            return (BaseObjectManager<T>) fuelSensorManager;
         }
         return null;
     }

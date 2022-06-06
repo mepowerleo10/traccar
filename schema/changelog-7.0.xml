@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.0">
+
+    <changeSet id="changelog-7.0" author="author">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tc_fuel_sensors" />
+            </not>
+        </preConditions>
+        <createTable tableName="tc_fuel_sensors">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="VARCHAR(64)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="VARCHAR(256)">
+                <constraints nullable="false" />
+            </column>
+            <column name="readingtypeid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="fuelconsumedportid" type="INT">
+                <constraints nullable="true" />
+            </column>
+            <column name="fuellevelportid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="fuelrateportid" type="INT">
+                <constraints nullable="true" />
+            </column>
+            <column name="attributes" type="VARCHAR(256)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+        <createTable tableName="tc_reading_types">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="measurementmetric" type="VARCHAR(30)">
+                <constraints nullable="false" />
+            </column>
+            <column name="metricsymbol" type="VARCHAR(3)">
+                <constraints nullable="false" />
+            </column>
+            <column name="conversionmultiplier" type="DOUBLE" defaultValue="1.0">
+                <constraints nullable="false" />
+            </column>
+            <column name="attributes" type="VARCHAR(256)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+        <createTable tableName="tc_fuel_ports">
+            <column name="id" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="portname" type="VARCHAR(6)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="VARCHAR(64)">
+                <constraints nullable="true" />
+            </column>
+            <column name="attributes" type="VARCHAR(256)">
+                <constraints nullable="true" />
+            </column>
+            <column name="attributes" type="VARCHAR(256)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="tc_fuel_sensors" baseColumnNames="readingtypeid" constraintName="fk_fuel_sensor_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" onDelete="RESTRICT" onUpdate="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_fuel_sensors" baseColumnNames="fuelconsumedportid" constraintName="fk_fuel_sensor_fuelconsumedportid" referencedTableName="tc_fuel_ports" referencedColumnNames="id" onDelete="RESTRICT" onUpdate="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_fuel_sensors" baseColumnNames="fuellevelportid" constraintName="fk_fuel_sensor_fuellevelportid" referencedTableName="tc_fuel_ports" referencedColumnNames="id" onDelete="RESTRICT" onUpdate="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_fuel_sensors" baseColumnNames="fuelrateportid" constraintName="fk_fuel_sensor_fuelrateportid" referencedTableName="tc_fuel_ports" referencedColumnNames="id" onDelete="RESTRICT" onUpdate="CASCADE" />
+
+        <createIndex tableName="tc_fuel_sensors" indexName="fuel_sensor_readingtype_id">
+            <column name="readingtypeid" />
+        </createIndex>
+        <createIndex tableName="tc_fuel_sensors" indexName="fuel_sensor_fuelconsumedport_id">
+            <column name="fuelconsumedportid" />
+        </createIndex>
+        <createIndex tableName="tc_fuel_sensors" indexName="fuel_sensor_fuellevelport_id">
+            <column name="fuellevelportid" />
+        </createIndex>
+        <createIndex tableName="tc_fuel_sensors" indexName="fuel_sensor_fuelrateport_id">
+            <column name="fuelrateportid" />
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

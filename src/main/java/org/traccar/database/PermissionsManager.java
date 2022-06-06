@@ -24,6 +24,7 @@ import org.traccar.model.Calendar;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.Driver;
+import org.traccar.model.FuelSensor;
 import org.traccar.model.Geofence;
 import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
@@ -391,6 +392,8 @@ public class PermissionsManager {
             manager = Context.getOrderManager();
         } else if (object.equals(Trip.class)) {
             manager = Context.getTripManager();
+        } else if (object.equals(FuelSensor.class)) {
+            manager = Context.getFuelSensorManager();
         } else {
             throw new IllegalArgumentException("Unknown object type");
         }
@@ -458,6 +461,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(Trip.class)
                     && Context.getTripManager() != null) {
                 Context.getTripManager().refreshUserItems();
+            } else if (permission.getPropertyClass().equals(FuelSensor.class)
+                    && Context.getFuelSensorManager() != null) {
+                Context.getFuelSensorManager().refreshUserItems();
             }
         } else if (permission.getOwnerClass().equals(Device.class) || permission.getOwnerClass().equals(Group.class)) {
             if (permission.getPropertyClass().equals(Geofence.class) && Context.getGeofenceManager() != null) {
@@ -478,6 +484,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(Trip.class)
                     && Context.getTripManager() != null) {
                 Context.getTripManager().refreshExtendedPermissions();
+            } else if (permission.getPropertyClass().equals(FuelSensor.class)
+                    && Context.getFuelSensorManager() != null) {
+                Context.getFuelSensorManager().refreshExtendedPermissions();
             }
         }
     }
