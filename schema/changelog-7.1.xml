@@ -2,30 +2,30 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.1">
 
-<changeSet id="changelog-7.1" author="author">
-    <preConditions onFail="MARK_RAN">
-        <not>
-            <tableExists tableName="tc_fuel_calibrations" />
-        </not>
-    </preConditions>
-    <createTable tableName="tc_fuel_calibrations">
-        <column name="id" type="INT" autoIncrement="true">
-            <constraints primaryKey="true"/>
-        </column>
-        <column name="deviceid" type="INT">
-            <constraints nullable="false"/>
-        </column>
-        <column name="voltage" type="DOUBLE">
-            <constraints nullable="false"/>
-        </column>
-        <column name="fuellevel" type="DOUBLE">
-            <constraints nullable="false"/>
-        </column>
-    </createTable>
+    <changeSet id="changelog-7.1" author="author">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tc_fuel_calibrations" />
+            </not>
+        </preConditions>
+        <createTable tableName="tc_fuel_calibrations">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="deviceid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="voltage" type="DOUBLE">
+                <constraints nullable="false" />
+            </column>
+            <column name="fuellevel" type="DOUBLE">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_fuel_calibrations" baseColumnNames="deviceid" constraintName="fk_fuel_calibration_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="SET NULL" onUpdate="CASCADE"/>
-    <createIndex tableName="tc_fuel_calibrations" indexName="fuel_calibration_device_id">
-        <column name="deviceid"/>
-    </createIndex>
-</changeSet>
+        <addForeignKeyConstraint baseTableName="tc_fuel_calibrations" baseColumnNames="deviceid" constraintName="fk_fuel_calibration_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="SET NULL" />
+        <createIndex tableName="tc_fuel_calibrations" indexName="fuel_calibration_device_id">
+            <column name="deviceid" />
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

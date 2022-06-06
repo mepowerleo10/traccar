@@ -32,6 +32,7 @@ import org.traccar.model.ManagedUser;
 import org.traccar.model.Notification;
 import org.traccar.model.Order;
 import org.traccar.model.Permission;
+import org.traccar.model.ReadingType;
 import org.traccar.model.Server;
 import org.traccar.model.Trip;
 import org.traccar.model.User;
@@ -464,6 +465,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(FuelSensor.class)
                     && Context.getFuelSensorManager() != null) {
                 Context.getFuelSensorManager().refreshUserItems();
+            } else if (permission.getPropertyClass().equals(ReadingType.class)
+                    && Context.getReadingTypeManager() != null) {
+                Context.getReadingTypeManager().refreshUserItems();
             }
         } else if (permission.getOwnerClass().equals(Device.class) || permission.getOwnerClass().equals(Group.class)) {
             if (permission.getPropertyClass().equals(Geofence.class) && Context.getGeofenceManager() != null) {
@@ -487,6 +491,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(FuelSensor.class)
                     && Context.getFuelSensorManager() != null) {
                 Context.getFuelSensorManager().refreshExtendedPermissions();
+            } else if (permission.getPropertyClass().equals(ReadingType.class)
+                    && Context.getReadingTypeManager() != null) {
+                Context.getReadingTypeManager().refreshExtendedPermissions();
             }
         }
     }

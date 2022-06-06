@@ -36,5 +36,7 @@
 
   <include file="changelog-7.0.xml" relativeToChangelogFile="true" />
   <include file="changelog-7.1.xml" relativeToChangelogFile="true" />
+  <include file="changelog-7.2.xml" relativeToChangelogFile="true" />
+  <include file="changelog-7.3.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog>

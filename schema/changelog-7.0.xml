@@ -54,16 +54,13 @@
         </createTable>
 
         <createTable tableName="tc_fuel_ports">
-            <column name="id" autoIncrement="true">
+            <column name="id" type="INT" autoIncrement="true">
                 <constraints primaryKey="true" />
             </column>
             <column name="portname" type="VARCHAR(6)">
                 <constraints nullable="false" />
             </column>
             <column name="description" type="VARCHAR(64)">
-                <constraints nullable="true" />
-            </column>
-            <column name="attributes" type="VARCHAR(256)">
                 <constraints nullable="true" />
             </column>
             <column name="attributes" type="VARCHAR(256)">

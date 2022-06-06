@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.3">
+
+  <changeSet id="changelog-7.3" author="author">
+    <createTable tableName="tc_user_readingType">
+      <column name="userid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="readingtypeid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_user_readingType" baseColumnNames="userid" constraintName="fk_user_reading_type_userid" referencedTableName="tc_users" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_user_readingType" baseColumnNames="readingtypeid" constraintName="fk_user_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
+
+    <createTable tableName="tc_group_readingType">
+      <column name="groupid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="readingtypeid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_group_readingType" baseColumnNames="groupid" constraintName="fk_group_reading_type_groupid" referencedTableName="tc_groups" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_group_readingType" baseColumnNames="readingtypeid" constraintName="fk_group_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
+
+    <createTable tableName="tc_device_readingType">
+      <column name="deviceid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="readingtypeid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_device_readingType" baseColumnNames="deviceid" constraintName="fk_device_reading_type_groupid" referencedTableName="tc_devices" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_device_readingType" baseColumnNames="readingtypeid" constraintName="fk_device_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
+
+  </changeSet>
+</databaseChangeLog>
