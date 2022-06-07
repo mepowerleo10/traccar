@@ -24,6 +24,7 @@ import org.traccar.model.Calendar;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.Driver;
+import org.traccar.model.FuelPort;
 import org.traccar.model.FuelSensor;
 import org.traccar.model.Geofence;
 import org.traccar.model.Group;
@@ -468,6 +469,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(ReadingType.class)
                     && Context.getReadingTypeManager() != null) {
                 Context.getReadingTypeManager().refreshUserItems();
+            } else if (permission.getPropertyClass().equals(FuelPort.class)
+                    && Context.getFuelPortManager() != null) {
+                Context.getFuelPortManager().refreshUserItems();
             }
         } else if (permission.getOwnerClass().equals(Device.class) || permission.getOwnerClass().equals(Group.class)) {
             if (permission.getPropertyClass().equals(Geofence.class) && Context.getGeofenceManager() != null) {
@@ -494,6 +498,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(ReadingType.class)
                     && Context.getReadingTypeManager() != null) {
                 Context.getReadingTypeManager().refreshExtendedPermissions();
+            } else if (permission.getPropertyClass().equals(FuelPort.class)
+                    && Context.getFuelPortManager() != null) {
+                Context.getFuelPortManager().refreshExtendedPermissions();
             }
         }
     }

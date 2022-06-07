@@ -31,6 +31,7 @@ import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
 import org.traccar.database.DeviceManager;
 import org.traccar.database.DriversManager;
+import org.traccar.database.FuelPortManager;
 import org.traccar.database.FuelSensorManager;
 import org.traccar.database.GeofenceManager;
 import org.traccar.database.GroupsManager;
@@ -211,6 +212,12 @@ public final class Context {
 
     public static ReadingTypeManager getReadingTypeManager() {
         return readingTypeManager;
+    }
+
+    private static FuelPortManager fuelPortManager;
+
+    public static FuelPortManager getFuelPortManager() {
+        return fuelPortManager;
     }
 
     private static NotificationManager notificationManager;
@@ -394,6 +401,7 @@ public final class Context {
         tripManager = new TripManager(dataManager);
         fuelSensorManager = new FuelSensorManager(dataManager);
         readingTypeManager = new ReadingTypeManager(dataManager);
+        fuelPortManager = new FuelPortManager(dataManager);
         notificatorManager = new NotificatorManager();
         Properties velocityProperties = new Properties();
         velocityProperties.setProperty("file.resource.loader.path",
@@ -454,6 +462,8 @@ public final class Context {
             return (BaseObjectManager<T>) fuelSensorManager;
         } else if (clazz.equals(ReadingTypeManager.class)) {
             return (BaseObjectManager<T>) readingTypeManager;
+        } else if (clazz.equals(FuelPortManager.class)) {
+            return (BaseObjectManager<T>) fuelPortManager;
         }
         return null;
     }
