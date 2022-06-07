@@ -68,4 +68,14 @@ public class FuelSensor extends ExtendedModel {
     this.fuelRatePortId = fuelRatePortId;
   }
 
+  private Boolean calibrated;
+
+  public Boolean isCalibrated() {
+    return calibrated;
+  }
+
+  public void setCalibrated(Boolean calibrated) {
+    this.calibrated = calibrated;
+  }
+
 }
