@@ -48,6 +48,10 @@ public class Device extends GroupedModel {
     public static final String STATUS_UNKNOWN = "unknown";
     public static final String STATUS_ONLINE = "online";
     public static final String STATUS_OFFLINE = "offline";
+    public static final String FUEL_SENSORID = "fuelSensorId";
+    public static final String FUEL_SLOPE = "fuelSlope";
+    public static final String FUEL_CONSTANT = "fuelConstant";
+    public static final String FUEL_CALIBRATIONS = "fuelCalibrations";
 
     private String status;
 
