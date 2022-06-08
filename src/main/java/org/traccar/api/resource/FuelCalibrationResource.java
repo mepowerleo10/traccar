@@ -1,29 +1,20 @@
 package org.traccar.api.resource;
 
-import java.util.Collection;
-
-import javax.ws.rs.GET;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import org.traccar.api.ExtendedObjectResource;
-import org.traccar.model.Device;
 import org.traccar.model.FuelCalibration;
 
 @Path("calibrations")
-public class FuelCalibrationResource extends ExtendedObjectResource<Device> {
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class FuelCalibrationResource extends ExtendedObjectResource<FuelCalibration> {
 
   public FuelCalibrationResource() {
-    super(Device.class);
-  }
-
-  @GET
-  public Collection<FuelCalibration> get(
-      @QueryParam("all") boolean all,
-      @QueryParam("id") long id,
-      @QueryParam("deviceId") long deviceId) {
-
+    super(FuelCalibration.class);
   }
 
 }
