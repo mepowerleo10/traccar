@@ -3,7 +3,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.1">
 
     <changeSet id="changelog-7.1" author="author">
-        <preConditions onFail="MARK_RAN">
+        <preConditions onFail="HALT">
             <not>
                 <tableExists tableName="tc_fuel_calibrations" />
             </not>
@@ -13,7 +13,7 @@
                 <constraints primaryKey="true" />
             </column>
             <column name="deviceid" type="INT">
-                <constraints nullable="false" />
+                <constraints nullable="true" />
             </column>
             <column name="voltage" type="DOUBLE">
                 <constraints nullable="false" />
@@ -21,9 +21,12 @@
             <column name="fuellevel" type="DOUBLE">
                 <constraints nullable="false" />
             </column>
+            <column name="attributes" type="VARCHAR(256)">
+                <constraints nullable="true" />
+            </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="tc_fuel_calibrations" baseColumnNames="deviceid" constraintName="fk_fuel_calibration_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="SET NULL" />
+        <addForeignKeyConstraint baseTableName="tc_fuel_calibrations" baseColumnNames="deviceid" constraintName="fk_fuel_calibrations_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="SET NULL" />
         <createIndex tableName="tc_fuel_calibrations" indexName="fuel_calibration_device_id">
             <column name="deviceid" />
         </createIndex>
