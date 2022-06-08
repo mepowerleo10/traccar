@@ -18,15 +18,18 @@ package org.traccar.api.resource;
 import org.traccar.Context;
 import org.traccar.api.BaseObjectResource;
 import org.traccar.database.DeviceManager;
+import org.traccar.database.FuelCalibrationManager;
 import org.traccar.helper.LogAction;
 import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
+import org.traccar.model.FuelCalibration;
 import org.traccar.storage.StorageException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -94,6 +97,25 @@ public class DeviceResource extends BaseObjectResource<Device> {
         Context.getDeviceManager().resetDeviceAccumulators(entity);
         LogAction.resetDeviceAccumulators(getUserId(), entity.getDeviceId());
         return Response.noContent().build();
+    }
+
+    @Path("{id}/calibrations")
+    @GET
+    public Collection<FuelCalibration> getDeviceFuelCalibrations(@PathParam("deviceId") long deviceId) {
+        Set<Long> result;
+        FuelCalibrationManager fuelCalibrationManager = Context.getFuelCalibrationManager();
+
+        if (!Context.getPermissionsManager().getUserAdmin(getUserId())) {
+            Context.getPermissionsManager().checkManager(getUserId());
+        }
+
+        if (deviceId > 0) {
+            result = fuelCalibrationManager.getDeviceItems(deviceId);
+        } else {
+            result = fuelCalibrationManager.getAllItems();
+        }
+
+        return fuelCalibrationManager.getItems(result);
     }
 
 }
