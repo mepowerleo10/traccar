@@ -2679,6 +2679,102 @@
         "x-codegen-request-body-name": "body"
       }
     },
+    "/fuel-sensors/readings": {
+      "get": {
+        "summary": "Fetch a list of Fuel Readings",
+        "description": "Without params, it returns a list of Fuel Readings the user has access to",
+        "tags": [
+          "Fuel",
+          "Readings"
+        ],
+        "parameters": [
+          {
+            "name": "all",
+            "in": "query",
+            "description": "Can only be used by admins or managers to fetch all entities",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Standard users can use this only with their own _userId_",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "Standard users can use this only with _deviceId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "query",
+            "description": "Standard users can use this only with _groupId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReadingType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a Fuel Reading",
+        "tags": [
+          "Fuel",
+          "Readings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingType"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingType"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
     "/fuel-sensors/ports": {
       "get": {
         "summary": "Fetch a list of Fuel Ports",
@@ -3705,6 +3801,27 @@
           }
         }
       },
+      "ReadingType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "measurementMetric": {
+            "type": "string"
+          },
+          "metricSymbol": {
+            "type": "string"
+          },
+          "conversionMultiplier": {
+            "type": "double"
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
       "FuelPort": {
         "type": "object",
         "properties": {
@@ -3987,6 +4104,16 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Trip"
+            }
+          }
+        },
+        "required": true
+      },
+      "ReadingType": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ReadingType"
             }
           }
         },
