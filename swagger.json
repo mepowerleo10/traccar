@@ -3230,6 +3230,15 @@
               "type": "integer"
             }
           },
+          "fuelSensorId": {
+            "type": "integer"
+          },
+          "fuelConstant": {
+            "type": "double"
+          },
+          "fuelSlope": {
+            "type": "double"
+          },
           "attributes": {
             "type": "object",
             "properties": {}

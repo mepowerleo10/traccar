@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.7">
+
+
+  <changeSet id="changelog-7.7" author="author">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="tc_fuel_sensors" />
+      <tableExists tableName="tc_devices" />
+    </preConditions>
+
+    <addColumn tableName="tc_devices">
+      <column name="fuelsensorid" type="INT">
+        <constraints nullable="true" />
+      </column>
+      <column name="fuelslope" type="DOUBLE">
+        <constraints nullable="true" />
+      </column>
+      <column name="fuelconstant" type="DOUBLE">
+        <constraints nullable="true" />
+      </column>
+    </addColumn>
+
+    <addForeignKeyConstraint baseTableName="tc_devices" baseColumnNames="fuelsensorid" constraintName="fk_tc_devices_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_devices" indexName="tc_devices_fuelsensorid">
+      <column name="fuelsensorid" />
+    </createIndex>
+
+  </changeSet>
+</databaseChangeLog>
