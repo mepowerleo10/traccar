@@ -15,6 +15,11 @@
     <addForeignKeyConstraint baseTableName="tc_user_readingType" baseColumnNames="userid" constraintName="fk_user_reading_type_userid" referencedTableName="tc_users" referencedColumnNames="id" />
     <addForeignKeyConstraint baseTableName="tc_user_readingType" baseColumnNames="readingtypeid" constraintName="fk_user_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
 
+    <createIndex tableName="tc_user_readingType" indexName="tc_user_readingType_index">
+      <column name="userid" />
+      <column name="readingtypeid" />
+    </createIndex>
+
     <createTable tableName="tc_group_readingType">
       <column name="groupid" type="INT">
         <constraints nullable="false" />
@@ -27,6 +32,11 @@
     <addForeignKeyConstraint baseTableName="tc_group_readingType" baseColumnNames="groupid" constraintName="fk_group_reading_type_groupid" referencedTableName="tc_groups" referencedColumnNames="id" />
     <addForeignKeyConstraint baseTableName="tc_group_readingType" baseColumnNames="readingtypeid" constraintName="fk_group_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
 
+    <createIndex tableName="tc_group_readingType" indexName="tc_group_readingType_index">
+      <column name="groupid" />
+      <column name="readingtypeid" />
+    </createIndex>
+
     <createTable tableName="tc_device_readingType">
       <column name="deviceid" type="INT">
         <constraints nullable="false" />
@@ -38,6 +48,11 @@
 
     <addForeignKeyConstraint baseTableName="tc_device_readingType" baseColumnNames="deviceid" constraintName="fk_device_reading_type_groupid" referencedTableName="tc_devices" referencedColumnNames="id" />
     <addForeignKeyConstraint baseTableName="tc_device_readingType" baseColumnNames="readingtypeid" constraintName="fk_device_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_device_readingType" indexName="tc_device_readingType_index">
+      <column name="deviceid" />
+      <column name="readingtypeid" />
+    </createIndex>
 
   </changeSet>
 </databaseChangeLog>

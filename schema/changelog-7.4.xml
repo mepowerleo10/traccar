@@ -16,6 +16,11 @@
     <addForeignKeyConstraint baseTableName="tc_user_fuelPort" baseColumnNames="userid" constraintName="fk_user_fuel_port_userid" referencedTableName="tc_users" referencedColumnNames="id" />
     <addForeignKeyConstraint baseTableName="tc_user_fuelPort" baseColumnNames="fuelportid" constraintName="fk_user_fuel_port_fuelportid" referencedTableName="tc_fuel_ports" referencedColumnNames="id" />
 
+    <createIndex tableName="tc_user_fuelPort" indexName="tc_user_fuelPort_index">
+      <column name="userid" />
+      <column name="fuelportid" />
+    </createIndex>
+
     <createTable tableName="tc_group_fuelPort">
       <column name="groupid" type="INT">
         <constraints nullable="false" />
@@ -28,6 +33,11 @@
     <addForeignKeyConstraint baseTableName="tc_group_fuelPort" baseColumnNames="groupid" constraintName="fk_group_fuel_port_groupid" referencedTableName="tc_groups" referencedColumnNames="id" />
     <addForeignKeyConstraint baseTableName="tc_group_fuelPort" baseColumnNames="fuelportid" constraintName="fk_group_fuel_port_fuelportid" referencedTableName="tc_fuel_ports" referencedColumnNames="id" />
 
+    <createIndex tableName="tc_group_fuelPort" indexName="tc_group_fuelPort_index">
+      <column name="groupid" />
+      <column name="fuelportid" />
+    </createIndex>
+
     <createTable tableName="tc_device_fuelPort">
       <column name="deviceid" type="INT">
         <constraints nullable="false" />
@@ -39,6 +49,11 @@
 
     <addForeignKeyConstraint baseTableName="tc_device_fuelPort" baseColumnNames="deviceid" constraintName="fk_device_fuel_port_groupid" referencedTableName="tc_devices" referencedColumnNames="id" />
     <addForeignKeyConstraint baseTableName="tc_device_fuelPort" baseColumnNames="fuelportid" constraintName="fk_device_fuel_port_fuelportid" referencedTableName="tc_fuel_ports" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_device_fuelPort" indexName="tc_device_fuelPort_index">
+      <column name="deviceid" />
+      <column name="fuelportid" />
+    </createIndex>
 
   </changeSet>
 </databaseChangeLog>
