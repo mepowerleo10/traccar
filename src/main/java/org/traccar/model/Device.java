@@ -150,4 +150,34 @@ public class Device extends GroupedModel {
         this.disabled = disabled;
     }
 
+    private long fuelSensorId;
+
+    public long getFuelSensorId() {
+        return fuelSensorId;
+    }
+
+    public void setFuelSensorId(long fuelSensorId) {
+        this.fuelSensorId = fuelSensorId;
+    }
+
+    private double fuelSlope;
+
+    public double getFuelSlope() {
+        return fuelSlope;
+    }
+
+    public void setFuelSlope(double fuelSlope) {
+        this.fuelSlope = fuelSlope;
+    }
+
+    private double fuelConstant;
+
+    public double getFuelConstant() {
+        return fuelConstant;
+    }
+
+    public void setFuelConstant(double fuelConstant) {
+        this.fuelConstant = fuelConstant;
+    }
+
 }
