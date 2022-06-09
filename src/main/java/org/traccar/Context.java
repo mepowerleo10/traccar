@@ -56,12 +56,15 @@ import org.traccar.model.Calendar;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.Driver;
+import org.traccar.model.FuelCalibration;
+import org.traccar.model.FuelPort;
 import org.traccar.model.FuelSensor;
 import org.traccar.model.Geofence;
 import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
 import org.traccar.model.Notification;
 import org.traccar.model.Order;
+import org.traccar.model.ReadingType;
 import org.traccar.model.Trip;
 import org.traccar.model.User;
 import org.traccar.notification.EventForwarder;
@@ -468,11 +471,11 @@ public final class Context {
             return (BaseObjectManager<T>) tripManager;
         } else if (clazz.equals(FuelSensor.class)) {
             return (BaseObjectManager<T>) fuelSensorManager;
-        } else if (clazz.equals(ReadingTypeManager.class)) {
+        } else if (clazz.equals(ReadingType.class)) {
             return (BaseObjectManager<T>) readingTypeManager;
-        } else if (clazz.equals(FuelPortManager.class)) {
+        } else if (clazz.equals(FuelPort.class)) {
             return (BaseObjectManager<T>) fuelPortManager;
-        } else if (clazz.equals(FuelCalibrationManager.class)) {
+        } else if (clazz.equals(FuelCalibration.class)) {
             return (BaseObjectManager<T>) fuelCalibrationManager;
         }
         return null;
