@@ -2679,7 +2679,7 @@
         "x-codegen-request-body-name": "body"
       }
     },
-    "/fuel-ports": {
+    "/fuel-sensors/ports": {
       "get": {
         "summary": "Fetch a list of Fuel Ports",
         "description": "Without params, it returns a list of Fuel Ports the user has access to",
