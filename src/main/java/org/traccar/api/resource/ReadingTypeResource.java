@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 import org.traccar.api.ExtendedObjectResource;
 import org.traccar.model.ReadingType;
 
-@Path("reading-types")
+@Path("fuel-sensors/readings")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ReadingTypeResource extends ExtendedObjectResource<ReadingType> {

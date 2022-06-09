@@ -28,13 +28,13 @@ public class ReadingType extends ExtendedModel {
     this.metricSymbol = metricSymbol;
   }
 
-  private String conversionMultiplier;
+  private double conversionMultiplier;
 
-  public String getConversionMultiplier() {
+  public double getConversionMultiplier() {
     return conversionMultiplier;
   }
 
-  public void setConversionMultiplier(String conversionMultiplier) {
+  public void setConversionMultiplier(double conversionMultiplier) {
     this.conversionMultiplier = conversionMultiplier;
   }
 
