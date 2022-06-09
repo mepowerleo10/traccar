@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.5">
+
+
+  <changeSet id="changelog-7.5" author="author">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="tc_fuel_sensors" />
+      <not>
+        <tableExists tableName="tc_user_fuelCalibration" />
+        <tableExists tableName="tc_group_fuelCalibration" />
+      </not>
+
+    </preConditions>
+
+    <addColumn tableName="tc_fuel_sensors">
+      <column name="calibrated" type="BOOLEAN" defaultValue="FALSE">
+        <constraints nullable="false" />
+      </column>
+    </addColumn>
+
+    <createTable tableName="tc_user_fuelCalibration">
+      <column name="userid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="fuelcalibrationid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_user_fuelCalibration" baseColumnNames="userid" constraintName="fk_tc_user_fuel_calibration_userid" referencedTableName="tc_users" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_user_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_user_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_user_fuelCalibration" indexName="tc_user_fuelCalibration_index">
+      <column name="userid" />
+      <column name="fuelcalibrationid" />
+    </createIndex>
+
+    <createTable tableName="tc_group_fuelCalibration">
+      <column name="groupid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="fuelcalibrationid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_group_fuelCalibration" baseColumnNames="groupid" constraintName="fk_tc_group_fuel_calibration_groupid" referencedTableName="tc_groups" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_group_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_group_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_group_fuelCalibration" indexName="tc_group_fuelCalibration_index">
+      <column name="groupid" />
+      <column name="fuelcalibrationid" />
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

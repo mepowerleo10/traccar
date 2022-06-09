@@ -121,6 +121,10 @@
     {
       "name": "Statistics",
       "description": "Retrieving server statistics"
+    },
+    {
+      "name": "Trips",
+      "description": "Trips Management"
     }
   ],
   "paths": {
@@ -2580,6 +2584,384 @@
           }
         }
       }
+    },
+    "/trips": {
+      "get": {
+        "summary": "Fetch a list of Tripss",
+        "description": "Without params, it returns a list of Trips the user has access to",
+        "tags": [
+          "Trips"
+        ],
+        "parameters": [
+          {
+            "name": "all",
+            "in": "query",
+            "description": "Can only be used by admins or managers to fetch all entities",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Standard users can use this only with their own _userId_",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "Standard users can use this only with _deviceId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "query",
+            "description": "Standard users can use this only with _groupId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Trip"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a Trip",
+        "tags": [
+          "Trips"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Trip"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trip"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/fuel-ports": {
+      "get": {
+        "summary": "Fetch a list of Fuel Ports",
+        "description": "Without params, it returns a list of Fuel Ports the user has access to",
+        "tags": [
+          "FuelPorts"
+        ],
+        "parameters": [
+          {
+            "name": "all",
+            "in": "query",
+            "description": "Can only be used by admins or managers to fetch all entities",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Standard users can use this only with their own _userId_",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "Standard users can use this only with _deviceId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "query",
+            "description": "Standard users can use this only with _groupId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FuelPort"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a Fuel Port",
+        "tags": [
+          "FuelPorts"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FuelPort"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FuelPort"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/fuel-sensors": {
+      "get": {
+        "summary": "Fetch a list of Fuel Sensors",
+        "description": "Without params, it returns a list of Fuel Sensors the user has access to",
+        "tags": [
+          "FuelSensors"
+        ],
+        "parameters": [
+          {
+            "name": "all",
+            "in": "query",
+            "description": "Can only be used by admins or managers to fetch all entities",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Standard users can use this only with their own _userId_",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "Standard users can use this only with _deviceId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "query",
+            "description": "Standard users can use this only with _groupId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FuelSensor"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a Fuel Sensor",
+        "tags": [
+          "FuelSensors"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FuelSensor"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FuelSensor"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/calibrations": {
+      "get": {
+        "summary": "Fetch a list of Fuel Calibrations",
+        "description": "Without params, it returns a list of Fuel Calibrations the user has access to",
+        "tags": [
+          "Fuel",
+          "Calibrations"
+        ],
+        "parameters": [
+          {
+            "name": "all",
+            "in": "query",
+            "description": "Can only be used by admins or managers to fetch all entities",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Standard users can use this only with their own _userId_",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "Standard users can use this only with _deviceId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "query",
+            "description": "Standard users can use this only with _groupId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FuelCalibration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a Fuel Calibrations",
+        "tags": [
+          "Fuel",
+          "Calibrations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FuelCalibration"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FuelCalibration"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
     }
   },
   "components": {
@@ -3271,6 +3653,120 @@
             "properties": {}
           }
         }
+      },
+      "Trip": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "deviceId": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startingLatitude": {
+            "type": "number"
+          },
+          "startingLongitude": {
+            "type": "number"
+          },
+          "finaleLatitude": {
+            "type": "number"
+          },
+          "finalLongitude": {
+            "type": "number"
+          },
+          "geofenceId": {
+            "type": "number"
+          },
+          "driverId": {
+            "type": "number"
+          },
+          "calendarId": {
+            "type": "number"
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
+      "FuelPort": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "portName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
+      "FuelSensor": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "readingTypeId": {
+            "type": "integer"
+          },
+          "fuelConsumedPortId": {
+            "type": "string"
+          },
+          "fuelLevelPortId": {
+            "type": "string"
+          },
+          "fuelRatePortId": {
+            "type": "string"
+          },
+          "calibrated": {
+            "type": "boolean"
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
+      "FuelCalibration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "deviceId": {
+            "type": "integer"
+          },
+          "voltage": {
+            "type": "double"
+          },
+          "fuelLevel": {
+            "type": "double"
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {}
+          }
+        }
       }
     },
     "parameters": {
@@ -3472,6 +3968,46 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/Maintenance"
+            }
+          }
+        },
+        "required": true
+      },
+      "Trip": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Trip"
+            }
+          }
+        },
+        "required": true
+      },
+      "FuelPort": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FuelPort"
+            }
+          }
+        },
+        "required": true
+      },
+      "FuelSensor": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FuelSensor"
+            }
+          }
+        },
+        "required": true
+      },
+      "FuelCalibration": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/FuelCalibration"
             }
           }
         },

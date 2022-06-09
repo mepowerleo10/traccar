@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.6">
+
+
+  <changeSet id="changelog-7.6" author="author">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="tc_fuel_calibrations" />
+      <tableExists tableName="tc_devices" />
+      <not>
+        <tableExists tableName="tc_device_fuelCalibration" />
+      </not>
+    </preConditions>
+
+    <createTable tableName="tc_device_fuelCalibration">
+      <column name="deviceid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="fuelcalibrationid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_device_fuelCalibration" baseColumnNames="deviceid" constraintName="fk_tc_device_fuel_calibration_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_device_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_device_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_device_fuelCalibration" indexName="tc_device_fuelCalibration_index">
+      <column name="deviceid" />
+      <column name="fuelcalibrationid" />
+    </createIndex>
+
+  </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.2">
+  <changeSet id="changelog-7.2" author="author">
+    <createTable tableName="tc_user_fuelSensor">
+      <column name="userid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="fuelsensorid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_user_fuelSensor" baseColumnNames="userid" constraintName="fk_user_fuel_sensor_userid" referencedTableName="tc_users" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_user_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_user_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_user_fuelSensor" indexName="tc_user_fuelSensor_index">
+      <column name="userid" />
+      <column name="fuelsensorid" />
+    </createIndex>
+
+    <createTable tableName="tc_group_fuelSensor">
+      <column name="groupid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="fuelsensorid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_group_fuelSensor" baseColumnNames="groupid" constraintName="fk_group_fuel_sensor_groupid" referencedTableName="tc_groups" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_group_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_group_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_group_fuelSensor" indexName="tc_group_fuelSensor_index">
+      <column name="groupid" />
+      <column name="fuelsensorid" />
+    </createIndex>
+
+    <createTable tableName="tc_device_fuelSensor">
+      <column name="deviceid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="fuelsensorid" type="INT">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="tc_device_fuelSensor" baseColumnNames="deviceid" constraintName="fk_device_fuel_sensor_groupid" referencedTableName="tc_devices" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_device_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_device_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" />
+
+    <createIndex tableName="tc_device_fuelSensor" indexName="tc_device_fuelSensor_index">
+      <column name="deviceid" />
+      <column name="fuelsensorid" />
+    </createIndex>
+
+  </changeSet>
+</databaseChangeLog>
