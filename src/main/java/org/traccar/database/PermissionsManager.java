@@ -24,6 +24,7 @@ import org.traccar.model.Calendar;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.Driver;
+import org.traccar.model.FuelCalibration;
 import org.traccar.model.FuelPort;
 import org.traccar.model.FuelSensor;
 import org.traccar.model.Geofence;
@@ -394,8 +395,14 @@ public class PermissionsManager {
             manager = Context.getOrderManager();
         } else if (object.equals(Trip.class)) {
             manager = Context.getTripManager();
+        } else if (object.equals(ReadingType.class)) {
+            manager = Context.getReadingTypeManager();
+        } else if (object.equals(FuelPort.class)) {
+            manager = Context.getFuelPortManager();
         } else if (object.equals(FuelSensor.class)) {
             manager = Context.getFuelSensorManager();
+        } else if (object.equals(FuelCalibration.class)) {
+            manager = Context.getFuelCalibrationManager();
         } else {
             throw new IllegalArgumentException("Unknown object type");
         }
