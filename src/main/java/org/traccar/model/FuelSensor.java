@@ -28,53 +28,53 @@ public class FuelSensor extends ExtendedModel {
     this.description = description;
   }
 
-  private Long readingTypeId;
+  private long readingTypeId;
 
-  public Long getReadingTypeId() {
+  public long getReadingTypeId() {
     return readingTypeId;
   }
 
-  public void setReadingTypeId(Long readingTypeId) {
+  public void setReadingTypeId(long readingTypeId) {
     this.readingTypeId = readingTypeId;
   }
 
-  private Long fuelConsumedPortId;
+  private long fuelConsumedPortId;
 
-  public Long getFuelConsumedPortId() {
+  public long getFuelConsumedPortId() {
     return fuelConsumedPortId;
   }
 
-  public void setFuelConsumedPortId(Long fuelConsumedPortId) {
+  public void setFuelConsumedPortId(long fuelConsumedPortId) {
     this.fuelConsumedPortId = fuelConsumedPortId;
   }
 
-  private Long fuelLevelPortId;
+  private long fuelLevelPortId;
 
-  public Long getFuelLevelPortId() {
+  public long getFuelLevelPortId() {
     return fuelLevelPortId;
   }
 
-  public void setFuelLevelPortId(Long fuelLevelPortId) {
+  public void setFuelLevelPortId(long fuelLevelPortId) {
     this.fuelLevelPortId = fuelLevelPortId;
   }
 
-  private Long fuelRatePortId;
+  private long fuelRatePortId;
 
-  public Long getFuelRatePortId() {
+  public long getFuelRatePortId() {
     return fuelRatePortId;
   }
 
-  public void setFuelRatePortId(Long fuelRatePortId) {
+  public void setFuelRatePortId(long fuelRatePortId) {
     this.fuelRatePortId = fuelRatePortId;
   }
 
-  private Boolean calibrated;
+  private boolean calibrated;
 
-  public Boolean isCalibrated() {
+  public boolean getCalibrated() {
     return calibrated;
   }
 
-  public void setCalibrated(Boolean calibrated) {
+  public void setCalibrated(boolean calibrated) {
     this.calibrated = calibrated;
   }
 
