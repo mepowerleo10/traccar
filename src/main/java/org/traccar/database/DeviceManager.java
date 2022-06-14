@@ -24,15 +24,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.traccar.config.Config;
 import org.traccar.Context;
+import org.traccar.config.Config;
 import org.traccar.config.Keys;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
-import org.traccar.model.DeviceState;
 import org.traccar.model.DeviceAccumulators;
+import org.traccar.model.DeviceState;
+import org.traccar.model.FuelCalibration;
 import org.traccar.model.Group;
 import org.traccar.model.Position;
 import org.traccar.model.Server;
@@ -248,7 +250,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
     protected void addNewItem(Device device) {
         super.addNewItem(device);
         addByUniqueId(device);
-        if (device.getPhone() != null  && !device.getPhone().isEmpty()) {
+        if (device.getPhone() != null && !device.getPhone().isEmpty()) {
             addByPhone(device);
         }
         if (Context.getGeofenceManager() != null) {
@@ -351,7 +353,8 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
         if (Context.getPermissionsManager() != null) {
             for (long deviceId : Context.getPermissionsManager().getUserAdmin(userId)
-                    ? getAllUserItems(userId) : getUserItems(userId)) {
+                    ? getAllUserItems(userId)
+                    : getUserItems(userId)) {
                 if (positions.containsKey(deviceId)) {
                     result.add(positions.get(deviceId));
                 }
@@ -465,6 +468,21 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
     public void setDeviceState(long deviceId, DeviceState deviceState) {
         deviceStates.put(deviceId, deviceState);
+    }
+
+    public void updateFuelSlopeAndConstant(long deviceId) throws StorageException {
+        Device device = getById(deviceId);
+        SimpleRegression regression = new SimpleRegression(true);
+        List<FuelCalibration> fuelCalibrations = Context.getFuelCalibrationManager()
+                .getDeviceFuelCalibrations(device.getId());
+
+        for (FuelCalibration calibration : fuelCalibrations) {
+            regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
+        }
+
+        device.setFuelSlope(regression.getSlope());
+        device.setFuelConstant(regression.getIntercept());
+        Context.getDeviceManager().updateItem(device);
     }
 
 }

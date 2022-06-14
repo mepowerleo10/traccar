@@ -15,16 +15,10 @@
  */
 package org.traccar.api.resource;
 
-import org.apache.commons.math3.stat.regression.SimpleRegression;
-import org.traccar.Context;
-import org.traccar.api.BaseObjectResource;
-import org.traccar.database.DeviceManager;
-import org.traccar.database.FuelCalibrationManager;
-import org.traccar.helper.LogAction;
-import org.traccar.model.Device;
-import org.traccar.model.DeviceAccumulators;
-import org.traccar.model.FuelCalibration;
-import org.traccar.storage.StorageException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -36,13 +30,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import org.traccar.Context;
+import org.traccar.api.BaseObjectResource;
+import org.traccar.database.DeviceManager;
+import org.traccar.database.FuelCalibrationManager;
+import org.traccar.helper.LogAction;
+import org.traccar.model.Device;
+import org.traccar.model.DeviceAccumulators;
+import org.traccar.model.FuelCalibration;
+import org.traccar.storage.StorageException;
 
 @Path("devices")
 @Produces(MediaType.APPLICATION_JSON)
@@ -110,12 +107,9 @@ public class DeviceResource extends BaseObjectResource<Device> {
             @PathParam("deviceId") long deviceId,
             List<FuelCalibration> calibrations) throws StorageException {
 
-        SimpleRegression regression = new SimpleRegression(true);
-
         Context.getPermissionsManager().checkAdmin(getUserId());
         FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
         for (FuelCalibration calibration : calibrations) {
-            regression.addData(calibration.getVoltage(), calibration.getVoltage());
             calibration.setDeviceId(deviceId);
             if (calibration.getId() == 0) {
                 calibrationManager.addItem(calibration);
@@ -127,46 +121,16 @@ public class DeviceResource extends BaseObjectResource<Device> {
 
         }
 
-        DeviceManager deviceManager = Context.getDeviceManager();
-        Device device = deviceManager.getById(deviceId);
-        device.setFuelSlope(regression.getSlope());
-        device.setFuelConstant(regression.getIntercept());
-        deviceManager.updateItem(device);
+        Context.getDeviceManager().updateFuelSlopeAndConstant(deviceId);
 
         return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }
 
     @Path("{deviceId}/calibrations")
     @GET
-    public List<FuelCalibration> getDeviceFuelCalibrations(
+    public Collection<FuelCalibration> getDeviceFuelCalibrations(
             @PathParam("deviceId") long deviceId) throws StorageException {
 
-        FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
-        List<FuelCalibration> fuelCalibrations = calibrationManager.getDeviceFuelCalibrations(deviceId);
-        if (fuelCalibrations == null) {
-            return new LinkedList<>();
-        }
-
-        return fuelCalibrations;
-    }
-
-    @Path("{deviceId}/slope")
-    @GET
-    public Map<String, Double> getSlopeAndConstant(@PathParam("deviceId") long deviceId) throws StorageException {
-
-        SimpleRegression regression = new SimpleRegression();
-        List<FuelCalibration> fuelCalibrations = Context.getFuelCalibrationManager()
-                .getDeviceFuelCalibrations(deviceId);
-
-        Map<String, Double> result = new HashMap<>();
-
-        for (FuelCalibration calibration : fuelCalibrations) {
-            regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
-        }
-
-        result.put("slope", regression.getSlope());
-        result.put("intercept", regression.getIntercept());
-
-        return result;
+        return Context.getFuelCalibrationManager().getDeviceFuelCalibrations(deviceId);
     }
 }
