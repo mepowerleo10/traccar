@@ -15,6 +15,7 @@
  */
 package org.traccar.api.resource;
 
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.traccar.Context;
 import org.traccar.api.BaseObjectResource;
 import org.traccar.database.DeviceManager;
@@ -27,6 +28,7 @@ import org.traccar.storage.StorageException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -35,8 +37,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Path("devices")
@@ -99,23 +104,69 @@ public class DeviceResource extends BaseObjectResource<Device> {
         return Response.noContent().build();
     }
 
-    @Path("{id}/calibrations")
-    @GET
-    public Collection<FuelCalibration> getDeviceFuelCalibrations(@PathParam("deviceId") long deviceId) {
-        Set<Long> result;
-        FuelCalibrationManager fuelCalibrationManager = Context.getFuelCalibrationManager();
+    @Path("{deviceId}/calibrations")
+    @POST
+    public Collection<FuelCalibration> addDeviceCalibrations(
+            @PathParam("deviceId") long deviceId,
+            List<FuelCalibration> calibrations) throws StorageException {
 
-        if (!Context.getPermissionsManager().getUserAdmin(getUserId())) {
-            Context.getPermissionsManager().checkManager(getUserId());
+        SimpleRegression regression = new SimpleRegression(true);
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
+        for (FuelCalibration calibration : calibrations) {
+            regression.addData(calibration.getVoltage(), calibration.getVoltage());
+            calibration.setDeviceId(deviceId);
+            if (calibration.getId() == 0) {
+                calibrationManager.addItem(calibration);
+                LogAction.create(getUserId(), calibration);
+            } else {
+                calibrationManager.updateItem(calibration);
+                LogAction.edit(getUserId(), calibration);
+            }
+
         }
 
-        if (deviceId > 0) {
-            result = fuelCalibrationManager.getDeviceItems(deviceId);
-        } else {
-            result = fuelCalibrationManager.getAllItems();
-        }
+        DeviceManager deviceManager = Context.getDeviceManager();
+        Device device = deviceManager.getById(deviceId);
+        device.setFuelSlope(regression.getSlope());
+        device.setFuelConstant(regression.getIntercept());
+        deviceManager.updateItem(device);
 
-        return fuelCalibrationManager.getItems(result);
+        return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }
 
+    @Path("{deviceId}/calibrations")
+    @GET
+    public List<FuelCalibration> getDeviceFuelCalibrations(
+            @PathParam("deviceId") long deviceId) throws StorageException {
+
+        FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
+        List<FuelCalibration> fuelCalibrations = calibrationManager.getDeviceFuelCalibrations(deviceId);
+        if (fuelCalibrations == null) {
+            return new LinkedList<>();
+        }
+
+        return fuelCalibrations;
+    }
+
+    @Path("{deviceId}/slope")
+    @GET
+    public Map<String, Double> getSlopeAndConstant(@PathParam("deviceId") long deviceId) throws StorageException {
+
+        SimpleRegression regression = new SimpleRegression();
+        List<FuelCalibration> fuelCalibrations = Context.getFuelCalibrationManager()
+                .getDeviceFuelCalibrations(deviceId);
+
+        Map<String, Double> result = new HashMap<>();
+
+        for (FuelCalibration calibration : fuelCalibrations) {
+            regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
+        }
+
+        result.put("slope", regression.getSlope());
+        result.put("intercept", regression.getIntercept());
+
+        return result;
+    }
 }
