@@ -35,8 +35,10 @@ import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
 import org.traccar.model.DeviceState;
 import org.traccar.model.FuelCalibration;
+import org.traccar.model.FuelSensor;
 import org.traccar.model.Group;
 import org.traccar.model.Position;
+import org.traccar.model.ReadingType;
 import org.traccar.model.Server;
 import org.traccar.storage.StorageException;
 
@@ -332,6 +334,27 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             Device device = getById(position.getDeviceId());
             if (device != null) {
                 device.setPositionId(position.getId());
+                FuelSensor sensor = Context.getFuelSensorManager().getById(device.getFuelSensorId());
+                ReadingType readingType = Context.getReadingTypeManager().getById(sensor.getReadingTypeId());
+
+                switch (readingType.getMeasurementMetric()) {
+                    case "mV":
+                    case "V":
+                        double fuelLevel = device.getFuelSlope() * position.getDouble(sensor.getFuelLevelPort())
+                                + device.getFuelConstant();
+                        position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+                        break;
+                    default:
+                        position.set(Position.KEY_FUEL_LEVEL,
+                                position.getDouble(sensor.getFuelLevelPort()) * readingType.getConversionMultiplier());
+                        position.set(Position.KEY_FUEL_CONSUMPTION,
+                                position.getDouble(sensor.getFuelRatePort()) * readingType.getConversionMultiplier());
+                        position.set(Position.KEY_FUEL_USED,
+                                position.getDouble(sensor.getFuelConsumedPort())
+                                        * readingType.getConversionMultiplier());
+
+                }
+
             }
 
             positions.put(position.getDeviceId(), position);

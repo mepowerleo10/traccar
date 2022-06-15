@@ -11,8 +11,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_user_fuelSensor" baseColumnNames="userid" constraintName="fk_user_fuel_sensor_userid" referencedTableName="tc_users" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_user_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_user_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_user_fuelSensor" baseColumnNames="userid" constraintName="fk_user_fuel_sensor_userid" referencedTableName="tc_users" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_user_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_user_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_user_fuelSensor" indexName="tc_user_fuelSensor_index">
       <column name="userid" />
@@ -28,8 +28,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_group_fuelSensor" baseColumnNames="groupid" constraintName="fk_group_fuel_sensor_groupid" referencedTableName="tc_groups" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_group_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_group_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_group_fuelSensor" baseColumnNames="groupid" constraintName="fk_group_fuel_sensor_groupid" referencedTableName="tc_groups" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_group_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_group_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_group_fuelSensor" indexName="tc_group_fuelSensor_index">
       <column name="groupid" />
@@ -45,8 +45,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_device_fuelSensor" baseColumnNames="deviceid" constraintName="fk_device_fuel_sensor_groupid" referencedTableName="tc_devices" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_device_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_device_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_device_fuelSensor" baseColumnNames="deviceid" constraintName="fk_device_fuel_sensor_groupid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_device_fuelSensor" baseColumnNames="fuelsensorid" constraintName="fk_device_fuel_sensor_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_device_fuelSensor" indexName="tc_device_fuelSensor_index">
       <column name="deviceid" />

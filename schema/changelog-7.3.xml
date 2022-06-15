@@ -12,8 +12,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_user_readingType" baseColumnNames="userid" constraintName="fk_user_reading_type_userid" referencedTableName="tc_users" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_user_readingType" baseColumnNames="readingtypeid" constraintName="fk_user_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_user_readingType" baseColumnNames="userid" constraintName="fk_user_reading_type_userid" referencedTableName="tc_users" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_user_readingType" baseColumnNames="readingtypeid" constraintName="fk_user_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_user_readingType" indexName="tc_user_readingType_index">
       <column name="userid" />
@@ -29,8 +29,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_group_readingType" baseColumnNames="groupid" constraintName="fk_group_reading_type_groupid" referencedTableName="tc_groups" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_group_readingType" baseColumnNames="readingtypeid" constraintName="fk_group_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_group_readingType" baseColumnNames="groupid" constraintName="fk_group_reading_type_groupid" referencedTableName="tc_groups" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_group_readingType" baseColumnNames="readingtypeid" constraintName="fk_group_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_group_readingType" indexName="tc_group_readingType_index">
       <column name="groupid" />
@@ -46,8 +46,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_device_readingType" baseColumnNames="deviceid" constraintName="fk_device_reading_type_groupid" referencedTableName="tc_devices" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_device_readingType" baseColumnNames="readingtypeid" constraintName="fk_device_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_device_readingType" baseColumnNames="deviceid" constraintName="fk_device_reading_type_groupid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_device_readingType" baseColumnNames="readingtypeid" constraintName="fk_device_reading_type_readingtypeid" referencedTableName="tc_reading_types" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_device_readingType" indexName="tc_device_readingType_index">
       <column name="deviceid" />
