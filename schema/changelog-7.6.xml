@@ -21,8 +21,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_device_fuelCalibration" baseColumnNames="deviceid" constraintName="fk_tc_device_fuel_calibration_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_device_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_device_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_device_fuelCalibration" baseColumnNames="deviceid" constraintName="fk_tc_device_fuel_calibration_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_device_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_device_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_device_fuelCalibration" indexName="tc_device_fuelCalibration_index">
       <column name="deviceid" />

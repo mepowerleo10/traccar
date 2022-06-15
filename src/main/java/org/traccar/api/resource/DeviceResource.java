@@ -15,6 +15,22 @@
  */
 package org.traccar.api.resource;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.traccar.Context;
 import org.traccar.api.BaseObjectResource;
 import org.traccar.database.DeviceManager;
@@ -24,20 +40,6 @@ import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
 import org.traccar.model.FuelCalibration;
 import org.traccar.storage.StorageException;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Path("devices")
 @Produces(MediaType.APPLICATION_JSON)
@@ -99,23 +101,36 @@ public class DeviceResource extends BaseObjectResource<Device> {
         return Response.noContent().build();
     }
 
-    @Path("{id}/calibrations")
-    @GET
-    public Collection<FuelCalibration> getDeviceFuelCalibrations(@PathParam("deviceId") long deviceId) {
-        Set<Long> result;
-        FuelCalibrationManager fuelCalibrationManager = Context.getFuelCalibrationManager();
+    @Path("{deviceId}/calibrations")
+    @POST
+    public Collection<FuelCalibration> addDeviceCalibrations(
+            @PathParam("deviceId") long deviceId,
+            List<FuelCalibration> calibrations) throws StorageException {
 
-        if (!Context.getPermissionsManager().getUserAdmin(getUserId())) {
-            Context.getPermissionsManager().checkManager(getUserId());
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
+        for (FuelCalibration calibration : calibrations) {
+            calibration.setDeviceId(deviceId);
+            if (calibration.getId() == 0) {
+                calibrationManager.addItem(calibration);
+                LogAction.create(getUserId(), calibration);
+            } else {
+                calibrationManager.updateItem(calibration);
+                LogAction.edit(getUserId(), calibration);
+            }
+
         }
 
-        if (deviceId > 0) {
-            result = fuelCalibrationManager.getDeviceItems(deviceId);
-        } else {
-            result = fuelCalibrationManager.getAllItems();
-        }
+        Context.getDeviceManager().updateFuelSlopeAndConstant(deviceId);
 
-        return fuelCalibrationManager.getItems(result);
+        return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }
 
+    @Path("{deviceId}/calibrations")
+    @GET
+    public Collection<FuelCalibration> getDeviceFuelCalibrations(
+            @PathParam("deviceId") long deviceId) throws StorageException {
+
+        return Context.getFuelCalibrationManager().getDeviceFuelCalibrations(deviceId);
+    }
 }

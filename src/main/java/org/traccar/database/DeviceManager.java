@@ -24,17 +24,21 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.traccar.config.Config;
 import org.traccar.Context;
+import org.traccar.config.Config;
 import org.traccar.config.Keys;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
-import org.traccar.model.DeviceState;
 import org.traccar.model.DeviceAccumulators;
+import org.traccar.model.DeviceState;
+import org.traccar.model.FuelCalibration;
+import org.traccar.model.FuelSensor;
 import org.traccar.model.Group;
 import org.traccar.model.Position;
+import org.traccar.model.ReadingType;
 import org.traccar.model.Server;
 import org.traccar.storage.StorageException;
 
@@ -248,7 +252,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
     protected void addNewItem(Device device) {
         super.addNewItem(device);
         addByUniqueId(device);
-        if (device.getPhone() != null  && !device.getPhone().isEmpty()) {
+        if (device.getPhone() != null && !device.getPhone().isEmpty()) {
             addByPhone(device);
         }
         if (Context.getGeofenceManager() != null) {
@@ -330,6 +334,10 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             Device device = getById(position.getDeviceId());
             if (device != null) {
                 device.setPositionId(position.getId());
+
+                FuelSensor sensor = Context.getFuelSensorManager().getById(device.getFuelSensorId());
+                calculateDeviceFuelAtPosition(position, device, sensor);
+
             }
 
             positions.put(position.getDeviceId(), position);
@@ -337,6 +345,36 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             if (Context.getConnectionManager() != null) {
                 Context.getConnectionManager().updatePosition(position);
             }
+        }
+    }
+
+    private void calculateDeviceFuelAtPosition(Position position, Device device, FuelSensor sensor) {
+        if (sensor != null) {
+            ReadingType readingType = Context.getReadingTypeManager().getById(sensor.getReadingTypeId());
+
+            switch (readingType.getMeasurementMetric()) {
+                case "mV":
+                case "V":
+                    double fuelLevel = device.getFuelSlope() * position.getDouble(sensor.getFuelLevelPort())
+                            + device.getFuelConstant();
+                    position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+                    break;
+                default:
+                    position.set(Position.KEY_FUEL_LEVEL,
+                            position.getDouble(sensor.getFuelLevelPort())
+                                    * readingType.getConversionMultiplier());
+                    position.set(Position.KEY_FUEL_CONSUMPTION,
+                            position.getDouble(sensor.getFuelRatePort())
+                                    * readingType.getConversionMultiplier());
+                    position.set(Position.KEY_FUEL_USED,
+                            position.getDouble(sensor.getFuelConsumedPort())
+                                    * readingType.getConversionMultiplier());
+
+            }
+        } else {
+            position.set(Position.KEY_FUEL_LEVEL, 0);
+            position.set(Position.KEY_FUEL_CONSUMPTION, 0);
+            position.set(Position.KEY_FUEL_USED, 0);
         }
     }
 
@@ -351,7 +389,8 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
         if (Context.getPermissionsManager() != null) {
             for (long deviceId : Context.getPermissionsManager().getUserAdmin(userId)
-                    ? getAllUserItems(userId) : getUserItems(userId)) {
+                    ? getAllUserItems(userId)
+                    : getUserItems(userId)) {
                 if (positions.containsKey(deviceId)) {
                     result.add(positions.get(deviceId));
                 }
@@ -465,6 +504,21 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
     public void setDeviceState(long deviceId, DeviceState deviceState) {
         deviceStates.put(deviceId, deviceState);
+    }
+
+    public void updateFuelSlopeAndConstant(long deviceId) throws StorageException {
+        Device device = getById(deviceId);
+        SimpleRegression regression = new SimpleRegression(true);
+        List<FuelCalibration> fuelCalibrations = Context.getFuelCalibrationManager()
+                .getDeviceFuelCalibrations(device.getId());
+
+        for (FuelCalibration calibration : fuelCalibrations) {
+            regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
+        }
+
+        device.setFuelSlope(regression.getSlope());
+        device.setFuelConstant(regression.getIntercept());
+        Context.getDeviceManager().updateItem(device);
     }
 
 }

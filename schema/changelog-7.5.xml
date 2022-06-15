@@ -28,8 +28,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_user_fuelCalibration" baseColumnNames="userid" constraintName="fk_tc_user_fuel_calibration_userid" referencedTableName="tc_users" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_user_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_user_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_user_fuelCalibration" baseColumnNames="userid" constraintName="fk_tc_user_fuel_calibration_userid" referencedTableName="tc_users" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_user_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_user_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_user_fuelCalibration" indexName="tc_user_fuelCalibration_index">
       <column name="userid" />
@@ -45,8 +45,8 @@
       </column>
     </createTable>
 
-    <addForeignKeyConstraint baseTableName="tc_group_fuelCalibration" baseColumnNames="groupid" constraintName="fk_tc_group_fuel_calibration_groupid" referencedTableName="tc_groups" referencedColumnNames="id" />
-    <addForeignKeyConstraint baseTableName="tc_group_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_group_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_group_fuelCalibration" baseColumnNames="groupid" constraintName="fk_tc_group_fuel_calibration_groupid" referencedTableName="tc_groups" referencedColumnNames="id" onDelete="CASCADE" />
+    <addForeignKeyConstraint baseTableName="tc_group_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_group_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_group_fuelCalibration" indexName="tc_group_fuelCalibration_index">
       <column name="groupid" />

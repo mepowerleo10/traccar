@@ -21,7 +21,7 @@
       </column>
     </addColumn>
 
-    <addForeignKeyConstraint baseTableName="tc_devices" baseColumnNames="fuelsensorid" constraintName="fk_tc_devices_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" />
+    <addForeignKeyConstraint baseTableName="tc_devices" baseColumnNames="fuelsensorid" constraintName="fk_tc_devices_fuelsensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" onDelete="CASCADE" />
 
     <createIndex tableName="tc_devices" indexName="tc_devices_fuelsensorid">
       <column name="fuelsensorid" />

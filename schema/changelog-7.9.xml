@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.9">
+
+
+  <changeSet id="changelog-7.9" author="author">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="tc_fuel_sensors" />
+      <tableExists tableName="tc_fuel_ports" />
+    </preConditions>
+
+    <dropForeignKeyConstraint baseTableName="tc_fuel_sensors" constraintName="fk_fuel_sensor_fuellevelportid" />
+    <modifyDataType tableName="tc_fuel_sensors" columnName="fuellevelportid" newDataType="VARCHAR(6)" />
+    <renameColumn tableName="tc_fuel_sensors" oldColumnName="fuellevelportid" newColumnName="fuellevelport" columnDataType="VARCHAR(6)" />
+
+    <dropForeignKeyConstraint baseTableName="tc_fuel_sensors" constraintName="fk_fuel_sensor_fuelconsumedportid" />
+    <modifyDataType tableName="tc_fuel_sensors" columnName="fuelconsumedportid" newDataType="VARCHAR(6)" />
+    <renameColumn tableName="tc_fuel_sensors" oldColumnName="fuelconsumedportid" newColumnName="fuelconsumedport" columnDataType="VARCHAR(6)" />
+
+    <dropForeignKeyConstraint baseTableName="tc_fuel_sensors" constraintName="fk_fuel_sensor_fuelrateportid" />
+    <modifyDataType tableName="tc_fuel_sensors" columnName="fuelrateportid" newDataType="VARCHAR(6)" />
+    <renameColumn tableName="tc_fuel_sensors" oldColumnName="fuelrateportid" newColumnName="fuelrateport" columnDataType="VARCHAR(6)" />
+
+    <dropIndex tableName="tc_fuel_sensors" indexName="fuel_sensor_fuelconsumedport_id" />
+    <dropIndex tableName="tc_fuel_sensors" indexName="fuel_sensor_fuellevelport_id" />
+    <dropIndex tableName="tc_fuel_sensors" indexName="fuel_sensor_fuelrateport_id" />
+
+    <addUniqueConstraint tableName="tc_fuel_ports" columnNames="portname" />
+  </changeSet>
+</databaseChangeLog>

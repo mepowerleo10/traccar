@@ -28,53 +28,53 @@ public class FuelSensor extends ExtendedModel {
     this.description = description;
   }
 
-  private Long readingTypeId;
+  private long readingTypeId;
 
-  public Long getReadingTypeId() {
+  public long getReadingTypeId() {
     return readingTypeId;
   }
 
-  public void setReadingTypeId(Long readingTypeId) {
+  public void setReadingTypeId(long readingTypeId) {
     this.readingTypeId = readingTypeId;
   }
 
-  private Long fuelConsumedPortId;
+  private String fuelConsumedPort;
 
-  public Long getFuelConsumedPortId() {
-    return fuelConsumedPortId;
+  public String getFuelConsumedPort() {
+    return fuelConsumedPort;
   }
 
-  public void setFuelConsumedPortId(Long fuelConsumedPortId) {
-    this.fuelConsumedPortId = fuelConsumedPortId;
+  public void setFuelConsumedPort(String fuelConsumedPort) {
+    this.fuelConsumedPort = fuelConsumedPort;
   }
 
-  private Long fuelLevelPortId;
+  private String fuelLevelPort;
 
-  public Long getFuelLevelPortId() {
-    return fuelLevelPortId;
+  public String getFuelLevelPort() {
+    return fuelLevelPort;
   }
 
-  public void setFuelLevelPortId(Long fuelLevelPortId) {
-    this.fuelLevelPortId = fuelLevelPortId;
+  public void setFuelLevelPort(String fuelLevelPort) {
+    this.fuelLevelPort = fuelLevelPort;
   }
 
-  private Long fuelRatePortId;
+  private String fuelRatePort;
 
-  public Long getFuelRatePortId() {
-    return fuelRatePortId;
+  public String getFuelRatePort() {
+    return fuelRatePort;
   }
 
-  public void setFuelRatePortId(Long fuelRatePortId) {
-    this.fuelRatePortId = fuelRatePortId;
+  public void setFuelRatePort(String fuelRatePort) {
+    this.fuelRatePort = fuelRatePort;
   }
 
-  private Boolean calibrated;
+  private boolean calibrated;
 
-  public Boolean isCalibrated() {
+  public boolean getCalibrated() {
     return calibrated;
   }
 
-  public void setCalibrated(Boolean calibrated) {
+  public void setCalibrated(boolean calibrated) {
     this.calibrated = calibrated;
   }
 
