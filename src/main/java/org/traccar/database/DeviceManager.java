@@ -334,26 +334,9 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             Device device = getById(position.getDeviceId());
             if (device != null) {
                 device.setPositionId(position.getId());
+
                 FuelSensor sensor = Context.getFuelSensorManager().getById(device.getFuelSensorId());
-                ReadingType readingType = Context.getReadingTypeManager().getById(sensor.getReadingTypeId());
-
-                switch (readingType.getMeasurementMetric()) {
-                    case "mV":
-                    case "V":
-                        double fuelLevel = device.getFuelSlope() * position.getDouble(sensor.getFuelLevelPort())
-                                + device.getFuelConstant();
-                        position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
-                        break;
-                    default:
-                        position.set(Position.KEY_FUEL_LEVEL,
-                                position.getDouble(sensor.getFuelLevelPort()) * readingType.getConversionMultiplier());
-                        position.set(Position.KEY_FUEL_CONSUMPTION,
-                                position.getDouble(sensor.getFuelRatePort()) * readingType.getConversionMultiplier());
-                        position.set(Position.KEY_FUEL_USED,
-                                position.getDouble(sensor.getFuelConsumedPort())
-                                        * readingType.getConversionMultiplier());
-
-                }
+                calculateDeviceFuelAtPosition(position, device, sensor);
 
             }
 
@@ -362,6 +345,36 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             if (Context.getConnectionManager() != null) {
                 Context.getConnectionManager().updatePosition(position);
             }
+        }
+    }
+
+    private void calculateDeviceFuelAtPosition(Position position, Device device, FuelSensor sensor) {
+        if (sensor != null) {
+            ReadingType readingType = Context.getReadingTypeManager().getById(sensor.getReadingTypeId());
+
+            switch (readingType.getMeasurementMetric()) {
+                case "mV":
+                case "V":
+                    double fuelLevel = device.getFuelSlope() * position.getDouble(sensor.getFuelLevelPort())
+                            + device.getFuelConstant();
+                    position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+                    break;
+                default:
+                    position.set(Position.KEY_FUEL_LEVEL,
+                            position.getDouble(sensor.getFuelLevelPort())
+                                    * readingType.getConversionMultiplier());
+                    position.set(Position.KEY_FUEL_CONSUMPTION,
+                            position.getDouble(sensor.getFuelRatePort())
+                                    * readingType.getConversionMultiplier());
+                    position.set(Position.KEY_FUEL_USED,
+                            position.getDouble(sensor.getFuelConsumedPort())
+                                    * readingType.getConversionMultiplier());
+
+            }
+        } else {
+            position.set(Position.KEY_FUEL_LEVEL, 0);
+            position.set(Position.KEY_FUEL_CONSUMPTION, 0);
+            position.set(Position.KEY_FUEL_USED, 0);
         }
     }
 
