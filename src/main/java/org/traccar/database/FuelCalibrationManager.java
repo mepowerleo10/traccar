@@ -26,15 +26,21 @@ public class FuelCalibrationManager extends ExtendedObjectManager<FuelCalibratio
   }
 
   @Override
-  public void addItem(FuelCalibration item) throws StorageException {
-      super.addItem(item);
-      Context.getDeviceManager().updateFuelSlopeAndConstant(item.getDeviceId());
+  public void addItem(FuelCalibration calibration) throws StorageException {
+      super.addItem(calibration);
+      Context.getDeviceManager().updateFuelSlopeAndConstant(calibration.getDeviceId());
   }
 
   @Override
-  public void updateItem(FuelCalibration item) throws StorageException {
-    super.updateItem(item);
-    Context.getDeviceManager().updateFuelSlopeAndConstant(item.getDeviceId());
+  public void updateItem(FuelCalibration calibration) throws StorageException {
+    super.updateItem(calibration);
+    Context.getDeviceManager().updateFuelSlopeAndConstant(calibration.getDeviceId());
   }
 
+  @Override
+  public void removeItem(long itemId) throws StorageException {
+      long deviceId = Context.getFuelCalibrationManager().getById(itemId).getDeviceId();
+      super.removeItem(itemId);
+      Context.getDeviceManager().updateFuelSlopeAndConstant(deviceId);
+  }
 }
