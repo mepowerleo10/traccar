@@ -348,6 +348,18 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
         }
     }
 
+    private double getWithinBoundsFuelLevel(double fuelLevel, FuelSensor sensor) {
+        if (fuelLevel < sensor.getLowerBound()) {
+            return sensor.getLowerBound();
+        }
+
+        if (fuelLevel > sensor.getUpperBound()) {
+            return sensor.getUpperBound();
+        }
+
+        return fuelLevel;
+    }
+
     private void calculateDeviceFuelAtPosition(Position position, Device device, FuelSensor sensor) {
         if (sensor != null) {
             ReadingType readingType = Context.getReadingTypeManager().getById(sensor.getReadingTypeId());
@@ -357,7 +369,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
                 case "V":
                     double fuelLevel = device.getFuelSlope() * position.getDouble(sensor.getFuelLevelPort())
                             + device.getFuelConstant();
-                    position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+                    position.set(Position.KEY_FUEL_LEVEL, getWithinBoundsFuelLevel(fuelLevel, sensor));
                     break;
                 default:
                     position.set(Position.KEY_FUEL_LEVEL,
@@ -369,7 +381,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
                     position.set(Position.KEY_FUEL_USED,
                             position.getDouble(sensor.getFuelConsumedPort())
                                     * readingType.getConversionMultiplier());
-
+                    break;
             }
         } else {
             position.set(Position.KEY_FUEL_LEVEL, 0);

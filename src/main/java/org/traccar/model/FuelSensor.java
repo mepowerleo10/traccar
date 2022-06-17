@@ -68,6 +68,26 @@ public class FuelSensor extends ExtendedModel {
     this.fuelRatePort = fuelRatePort;
   }
 
+  private double upperBound;
+
+  public double getUpperBound() {
+    return upperBound;
+  }
+
+  public void setUpperBound(double upperBound) {
+    this.upperBound = upperBound;
+  }
+
+  private double lowerBound;
+
+  public double getLowerBound() {
+    return lowerBound;
+  }
+
+  public void setLowerBound(double lowerBound) {
+    this.lowerBound = lowerBound;
+  }
+
   private boolean calibrated;
 
   public boolean getCalibrated() {

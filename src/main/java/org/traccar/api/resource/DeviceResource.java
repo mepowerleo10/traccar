@@ -101,6 +101,27 @@ public class DeviceResource extends BaseObjectResource<Device> {
         return Response.noContent().build();
     }
 
+    private void updateExistingCalibration(long deviceId, FuelCalibrationManager calibrationManager, FuelCalibration calibration)
+            throws StorageException {
+
+        FuelCalibration existingCalibration = calibrationManager.getById(calibration.getId());
+        if (existingCalibration != null && existingCalibration.getDeviceId() == deviceId) {
+            if (calibration.getVoltage() >= 0) {
+                existingCalibration.setVoltage(calibration.getVoltage());
+            }
+            
+            if (calibration.getFuelLevel() >= 0) {
+                existingCalibration.setFuelLevel(calibration.getFuelLevel());
+            }
+
+            existingCalibration.setAttributes(calibration.getAttributes());
+            calibrationManager.updateItem(existingCalibration);
+            LogAction.edit(getUserId(), existingCalibration);
+        } else {
+            throw new StorageException("Trying to update an existing calibration");
+        }
+    }
+
     @Path("{deviceId}/calibrations")
     @POST
     public Collection<FuelCalibration> addDeviceCalibrations(
@@ -115,13 +136,26 @@ public class DeviceResource extends BaseObjectResource<Device> {
                 calibrationManager.addItem(calibration);
                 LogAction.create(getUserId(), calibration);
             } else {
-                calibrationManager.updateItem(calibration);
-                LogAction.edit(getUserId(), calibration);
+                updateExistingCalibration(deviceId, calibrationManager, calibration);
+
             }
 
         }
 
-        Context.getDeviceManager().updateFuelSlopeAndConstant(deviceId);
+        return calibrationManager.getDeviceFuelCalibrations(deviceId);
+    }
+
+    @Path("{deviceId}/calibrations")
+    @PUT
+    public Collection<FuelCalibration> updateDeviceFuelCalibrations(
+            @PathParam("deviceId") long deviceId, 
+            List<FuelCalibration> calibrations) throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
+        for (FuelCalibration calibration : calibrations) {
+            updateExistingCalibration(deviceId, calibrationManager, calibration);
+        }
 
         return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }
@@ -133,4 +167,5 @@ public class DeviceResource extends BaseObjectResource<Device> {
 
         return Context.getFuelCalibrationManager().getDeviceFuelCalibrations(deviceId);
     }
+
 }
