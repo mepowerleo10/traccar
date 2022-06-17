@@ -1,6 +1,8 @@
 package org.traccar.database;
 
 import java.util.List;
+
+import org.traccar.Context;
 import org.traccar.model.FuelCalibration;
 import org.traccar.storage.Storage;
 import org.traccar.storage.StorageException;
@@ -21,6 +23,18 @@ public class FuelCalibrationManager extends ExtendedObjectManager<FuelCalibratio
         new Columns.All(), new Condition.Equals("deviceId", "deviceId", deviceId)));
 
     return fuelCalibrations;
+  }
+
+  @Override
+  public void addItem(FuelCalibration item) throws StorageException {
+      super.addItem(item);
+      Context.getDeviceManager().updateFuelSlopeAndConstant(item.getDeviceId());
+  }
+
+  @Override
+  public void updateItem(FuelCalibration item) throws StorageException {
+    super.updateItem(item);
+    Context.getDeviceManager().updateFuelSlopeAndConstant(item.getDeviceId());
   }
 
 }
