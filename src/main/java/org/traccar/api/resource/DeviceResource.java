@@ -101,7 +101,8 @@ public class DeviceResource extends BaseObjectResource<Device> {
         return Response.noContent().build();
     }
 
-    private void updateExistingCalibration(long deviceId, FuelCalibrationManager calibrationManager, FuelCalibration calibration)
+    private void updateExistingCalibration(long deviceId, FuelCalibrationManager calibrationManager,
+            FuelCalibration calibration)
             throws StorageException {
 
         FuelCalibration existingCalibration = calibrationManager.getById(calibration.getId());
@@ -109,7 +110,7 @@ public class DeviceResource extends BaseObjectResource<Device> {
             if (calibration.getVoltage() >= 0) {
                 existingCalibration.setVoltage(calibration.getVoltage());
             }
-            
+
             if (calibration.getFuelLevel() >= 0) {
                 existingCalibration.setFuelLevel(calibration.getFuelLevel());
             }
@@ -148,7 +149,7 @@ public class DeviceResource extends BaseObjectResource<Device> {
     @Path("{deviceId}/calibrations")
     @PUT
     public Collection<FuelCalibration> updateDeviceFuelCalibrations(
-            @PathParam("deviceId") long deviceId, 
+            @PathParam("deviceId") long deviceId,
             List<FuelCalibration> calibrations) throws StorageException {
 
         Context.getPermissionsManager().checkAdmin(getUserId());
