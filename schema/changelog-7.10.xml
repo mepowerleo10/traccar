@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.10">
+
+
+  <changeSet id="changelog-7.10" author="author">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="tc_fuel_sensors" />
+    </preConditions>
+
+    <addColumn tableName="tc_fuel_sensors">
+      <column name="upperbound" type="DOUBLE" defaultValue="100">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+
+    <addColumn tableName="tc_fuel_sensors">
+      <column name="lowerbound" type="DOUBLE" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+
+    <addUniqueConstraint tableName="tc_fuel_ports" columnNames="portname" />
+  </changeSet>
+</databaseChangeLog>
