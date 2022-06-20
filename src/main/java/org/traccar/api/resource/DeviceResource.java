@@ -119,7 +119,7 @@ public class DeviceResource extends BaseObjectResource<Device> {
             calibrationManager.updateItem(existingCalibration);
             LogAction.edit(getUserId(), existingCalibration);
         } else {
-            throw new StorageException("Trying to update an existing calibration");
+            throw new StorageException("Trying to update an inexistent calibration");
         }
     }
 
@@ -142,6 +142,7 @@ public class DeviceResource extends BaseObjectResource<Device> {
             }
 
         }
+        Context.getDeviceManager().updateFuelSlopeAndConstant(deviceId);
 
         return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }
@@ -157,6 +158,8 @@ public class DeviceResource extends BaseObjectResource<Device> {
         for (FuelCalibration calibration : calibrations) {
             updateExistingCalibration(deviceId, calibrationManager, calibration);
         }
+
+        Context.getDeviceManager().updateFuelSlopeAndConstant(deviceId);
 
         return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }

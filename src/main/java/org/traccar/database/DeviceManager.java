@@ -523,13 +523,18 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
         SimpleRegression regression = new SimpleRegression(true);
         List<FuelCalibration> fuelCalibrations = Context.getFuelCalibrationManager()
                 .getDeviceFuelCalibrations(device.getId());
-
-        for (FuelCalibration calibration : fuelCalibrations) {
-            regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
+        if (fuelCalibrations.size() > 0) {
+            for (FuelCalibration calibration : fuelCalibrations) {
+                regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
+            }
+    
+            device.setFuelSlope(regression.getSlope());
+            device.setFuelConstant(regression.getIntercept());
+        } else {
+            device.setFuelSlope(0);
+            device.setFuelConstant(0);
         }
-
-        device.setFuelSlope(regression.getSlope());
-        device.setFuelConstant(regression.getIntercept());
+        
         Context.getDeviceManager().updateItem(device);
     }
 
