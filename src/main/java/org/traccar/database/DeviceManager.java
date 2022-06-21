@@ -527,14 +527,12 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             for (FuelCalibration calibration : fuelCalibrations) {
                 regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
             }
-    
             device.setFuelSlope(regression.getSlope());
             device.setFuelConstant(regression.getIntercept());
         } else {
             device.setFuelSlope(0);
             device.setFuelConstant(0);
         }
-        
         Context.getDeviceManager().updateItem(device);
     }
 

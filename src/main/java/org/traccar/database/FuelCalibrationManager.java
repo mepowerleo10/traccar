@@ -2,7 +2,6 @@ package org.traccar.database;
 
 import java.util.List;
 
-import org.traccar.Context;
 import org.traccar.model.FuelCalibration;
 import org.traccar.storage.Storage;
 import org.traccar.storage.StorageException;

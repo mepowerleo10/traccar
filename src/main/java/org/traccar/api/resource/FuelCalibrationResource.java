@@ -42,6 +42,4 @@ public class FuelCalibrationResource extends ExtendedObjectResource<FuelCalibrat
     return response;
   }
 
-  
-
 }
