@@ -350,7 +350,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
     private double getWithinBoundsFuelLevel(double fuelLevel, FuelSensor sensor) {
         if (fuelLevel < sensor.getLowerBound()) {
-            return sensor.getLowerBound();
+            return -1;
         }
 
         if (fuelLevel > sensor.getUpperBound()) {

@@ -68,7 +68,7 @@ public class FuelSensor extends ExtendedModel {
     this.fuelRatePort = fuelRatePort;
   }
 
-  private double upperBound;
+  private double upperBound = 500;
 
   public double getUpperBound() {
     return upperBound;
@@ -78,7 +78,7 @@ public class FuelSensor extends ExtendedModel {
     this.upperBound = upperBound;
   }
 
-  private double lowerBound;
+  private double lowerBound = 0;
 
   public double getLowerBound() {
     return lowerBound;
