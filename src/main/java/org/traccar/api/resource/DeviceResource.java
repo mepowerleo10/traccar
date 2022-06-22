@@ -131,6 +131,14 @@ public class DeviceResource extends BaseObjectResource<Device> {
 
         Context.getPermissionsManager().checkAdmin(getUserId());
         FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
+
+        Set<Long> existingCalibrations = calibrationManager.getAllDeviceItems(deviceId);
+        if (existingCalibrations.size() > 0) {
+            for (long existingCalibration : existingCalibrations) {
+                calibrationManager.removeItem(existingCalibration);
+            }
+        }
+        
         for (FuelCalibration calibration : calibrations) {
             calibration.setDeviceId(deviceId);
             if (calibration.getId() == 0) {
