@@ -376,16 +376,23 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
                 double consumptionRate = calculateFuelConsumptionRate(lastPosition, position);
                 position.set(Position.KEY_FUEL_CONSUMPTION, consumptionRate);
 
+                if (boundedFuelLevel > 0) {
+                    device.set(Position.KEY_FUEL_LEVEL, boundedFuelLevel);
+                }
             } else {
-                position.set(Position.KEY_FUEL_LEVEL,
-                        position.getDouble(sensor.getFuelLevelPort())
-                                * readingType.getConversionMultiplier());
+
+                double currentFuelLevel = position.getDouble(sensor.getFuelLevelPort());
+                position.set(Position.KEY_FUEL_LEVEL, currentFuelLevel
+                        * readingType.getConversionMultiplier());
                 position.set(Position.KEY_FUEL_CONSUMPTION,
                         position.getDouble(sensor.getFuelRatePort())
                                 * readingType.getConversionMultiplier());
                 position.set(Position.KEY_FUEL_USED,
-                        position.getDouble(sensor.getFuelConsumedPort())
-                                * readingType.getConversionMultiplier());
+                        position.getDouble(sensor.getFuelConsumedPort()));
+
+                if (currentFuelLevel > 0) {
+                    device.set(Position.KEY_FUEL_LEVEL, currentFuelLevel);
+                }
             }
         } else {
             position.set(Position.KEY_FUEL_LEVEL, 0);
