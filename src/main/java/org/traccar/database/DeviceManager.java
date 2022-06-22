@@ -364,24 +364,21 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
         if (sensor != null) {
             ReadingType readingType = Context.getReadingTypeManager().getById(sensor.getReadingTypeId());
 
-            switch (readingType.getMeasurementMetric()) {
-                case "mV":
-                case "V":
-                    double fuelLevel = device.getFuelSlope() * position.getDouble(sensor.getFuelLevelPort())
-                            + device.getFuelConstant();
-                    position.set(Position.KEY_FUEL_LEVEL, getWithinBoundsFuelLevel(fuelLevel, sensor));
-                    break;
-                default:
-                    position.set(Position.KEY_FUEL_LEVEL,
-                            position.getDouble(sensor.getFuelLevelPort())
-                                    * readingType.getConversionMultiplier());
-                    position.set(Position.KEY_FUEL_CONSUMPTION,
-                            position.getDouble(sensor.getFuelRatePort())
-                                    * readingType.getConversionMultiplier());
-                    position.set(Position.KEY_FUEL_USED,
-                            position.getDouble(sensor.getFuelConsumedPort())
-                                    * readingType.getConversionMultiplier());
-                    break;
+            if (readingType.getMeasurementMetric().equalsIgnoreCase("mV")
+                    || readingType.getMeasurementMetric().equalsIgnoreCase("V")) {
+                double fuelLevel = device.getFuelSlope() * position.getDouble(sensor.getFuelLevelPort())
+                        + device.getFuelConstant();
+                position.set(Position.KEY_FUEL_LEVEL, getWithinBoundsFuelLevel(fuelLevel, sensor));
+            } else {
+                position.set(Position.KEY_FUEL_LEVEL,
+                        position.getDouble(sensor.getFuelLevelPort())
+                                * readingType.getConversionMultiplier());
+                position.set(Position.KEY_FUEL_CONSUMPTION,
+                        position.getDouble(sensor.getFuelRatePort())
+                                * readingType.getConversionMultiplier());
+                position.set(Position.KEY_FUEL_USED,
+                        position.getDouble(sensor.getFuelConsumedPort())
+                                * readingType.getConversionMultiplier());
             }
         } else {
             position.set(Position.KEY_FUEL_LEVEL, 0);
