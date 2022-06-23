@@ -138,7 +138,7 @@ public class DeviceResource extends BaseObjectResource<Device> {
                 calibrationManager.removeItem(existingCalibration);
             }
         }
-        
+
         for (FuelCalibration calibration : calibrations) {
             calibration.setDeviceId(deviceId);
             if (calibration.getId() == 0) {
