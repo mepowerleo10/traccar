@@ -398,6 +398,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             position.set(Position.KEY_FUEL_LEVEL, 0);
             position.set(Position.KEY_FUEL_CONSUMPTION, 0);
             position.set(Position.KEY_FUEL_USED, 0);
+            device.set(Position.KEY_FUEL_LEVEL, -1);
         }
     }
 
