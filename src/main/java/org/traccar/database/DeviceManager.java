@@ -362,7 +362,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
     }
 
     private void calculateDeviceFuelAtPosition(Position lastPosition, Position position, Device device,
-            FuelSensor sensor) {
+            FuelSensor sensor) throws StorageException {
         if (sensor != null) {
             ReadingType readingType = Context.getReadingTypeManager().getById(sensor.getReadingTypeId());
 
@@ -378,6 +378,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
                 if (boundedFuelLevel > 0) {
                     device.set(Position.KEY_FUEL_LEVEL, boundedFuelLevel);
+                    Context.getDeviceManager().updateItem(device);
                 }
             } else {
 
@@ -392,6 +393,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
                 if (currentFuelLevel > 0) {
                     device.set(Position.KEY_FUEL_LEVEL, currentFuelLevel);
+                    Context.getDeviceManager().updateItem(device);
                 }
             }
         } else {
@@ -399,6 +401,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             position.set(Position.KEY_FUEL_CONSUMPTION, 0);
             position.set(Position.KEY_FUEL_USED, 0);
             device.set(Position.KEY_FUEL_LEVEL, -1);
+            Context.getDeviceManager().updateItem(device);
         }
     }
 
