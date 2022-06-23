@@ -26,9 +26,11 @@ import org.traccar.database.CalendarManager;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
 import org.traccar.database.DeviceManager;
+import org.traccar.database.FuelSensorManager;
 import org.traccar.database.GeofenceManager;
 import org.traccar.database.IdentityManager;
 import org.traccar.database.MaintenancesManager;
+import org.traccar.database.ReadingTypeManager;
 import org.traccar.database.StatisticsManager;
 import org.traccar.geocoder.AddressFormat;
 import org.traccar.geocoder.BanGeocoder;
@@ -60,6 +62,7 @@ import org.traccar.handler.DefaultDataHandler;
 import org.traccar.handler.DistanceHandler;
 import org.traccar.handler.EngineHoursHandler;
 import org.traccar.handler.FilterHandler;
+import org.traccar.handler.FuelLevelHandler;
 import org.traccar.handler.GeocoderHandler;
 import org.traccar.handler.GeolocationHandler;
 import org.traccar.handler.HemisphereHandler;
@@ -151,6 +154,16 @@ public class MainModule extends AbstractModule {
     @Provides
     public static MaintenancesManager provideMaintenancesManager() {
         return Context.getMaintenancesManager();
+    }
+
+    @Provides
+    public static ReadingTypeManager provideReadingTypeManager() {
+        return Context.getReadingTypeManager();
+    }
+
+    @Provides
+    public static FuelSensorManager provideFuelSensorManager() {
+        return Context.getFuelSensorManager();
     }
 
     @Singleton
@@ -353,6 +366,14 @@ public class MainModule extends AbstractModule {
             return new ComputedAttributesHandler(config, identityManager, attributesManager);
         }
         return null;
+    }
+
+    @Singleton
+    @Provides
+    public static FuelLevelHandler providFuelLevelHandler(
+            IdentityManager identityManager, ReadingTypeManager readingTypeManager,
+            FuelSensorManager fuelSensorManager) {
+        return new FuelLevelHandler(identityManager, readingTypeManager, fuelSensorManager);
     }
 
     @Singleton
