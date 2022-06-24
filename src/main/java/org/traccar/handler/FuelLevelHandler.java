@@ -78,14 +78,16 @@ public class FuelLevelHandler extends BaseDataHandler {
     }
 
     private double calculateFuelConsumptionRate(Position lastPosition, Position position) {
-        double consumptionMetersPerLitre = 0; // meters/litre
+        double consumptionLitresPerKilometer = 0; // kilometers/litre
         double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
         double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
 
-        consumptionMetersPerLitre = Math.abs((position.getDouble(Position.KEY_ODOMETER)
-                - lastPosition.getDouble(Position.KEY_ODOMETER)) / (currentFuelLevel - lastFuelLevel));
+        consumptionLitresPerKilometer = Math.abs(
+                (currentFuelLevel - lastFuelLevel)
+                        / ((position.getDouble(Position.KEY_ODOMETER) - lastPosition.getDouble(Position.KEY_ODOMETER))
+                                * 0.001));
 
-        return consumptionMetersPerLitre;
+        return consumptionLitresPerKilometer;
     }
 
     private double getWithinBoundsFuelLevel(double fuelLevel, FuelSensor sensor) {
