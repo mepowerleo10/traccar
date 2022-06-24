@@ -29,6 +29,7 @@ import org.traccar.handler.DefaultDataHandler;
 import org.traccar.handler.DistanceHandler;
 import org.traccar.handler.EngineHoursHandler;
 import org.traccar.handler.FilterHandler;
+import org.traccar.handler.FuelLevelHandler;
 import org.traccar.handler.GeocoderHandler;
 import org.traccar.handler.GeolocationHandler;
 import org.traccar.handler.HemisphereHandler;
@@ -132,6 +133,7 @@ public abstract class BasePipelineFactory extends ChannelInitializer<Channel> {
                 MotionHandler.class,
                 CopyAttributesHandler.class,
                 EngineHoursHandler.class,
+                FuelLevelHandler.class,
                 ComputedAttributesHandler.class,
                 WebDataHandler.class,
                 DefaultDataHandler.class,

@@ -35,10 +35,8 @@ import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
 import org.traccar.model.DeviceState;
 import org.traccar.model.FuelCalibration;
-import org.traccar.model.FuelSensor;
 import org.traccar.model.Group;
 import org.traccar.model.Position;
-import org.traccar.model.ReadingType;
 import org.traccar.model.Server;
 import org.traccar.storage.StorageException;
 
@@ -334,10 +332,10 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
             Device device = getById(position.getDeviceId());
             if (device != null) {
                 device.setPositionId(position.getId());
-
-                Position lastPosition = positions.get(position.getDeviceId());
-                FuelSensor sensor = Context.getFuelSensorManager().getById(device.getFuelSensorId());
-                calculateDeviceFuelAtPosition(lastPosition, position, device, sensor);
+                if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)
+                        && position.getDouble(Position.KEY_FUEL_LEVEL) > 0) {
+                    device.set(Position.KEY_FUEL_LEVEL, position.getDouble(Position.KEY_FUEL_LEVEL));
+                }
 
             }
 
@@ -347,73 +345,6 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
                 Context.getConnectionManager().updatePosition(position);
             }
         }
-    }
-
-    private double getWithinBoundsFuelLevel(double fuelLevel, FuelSensor sensor) {
-        if (fuelLevel < sensor.getLowerBound()) {
-            return -1;
-        }
-
-        if (fuelLevel > sensor.getUpperBound()) {
-            return sensor.getUpperBound();
-        }
-
-        return fuelLevel;
-    }
-
-    private void calculateDeviceFuelAtPosition(Position lastPosition, Position position, Device device,
-            FuelSensor sensor) throws StorageException {
-        if (sensor != null) {
-            ReadingType readingType = Context.getReadingTypeManager().getById(sensor.getReadingTypeId());
-
-            if (sensor.getCalibrated()) {
-                double fuelLevel = device.getFuelSlope() * position.getDouble(sensor.getFuelLevelPort())
-                        + device.getFuelConstant();
-
-                double boundedFuelLevel = getWithinBoundsFuelLevel(fuelLevel, sensor);
-                position.set(Position.KEY_FUEL_LEVEL, boundedFuelLevel);
-
-                double consumptionRate = calculateFuelConsumptionRate(lastPosition, position);
-                position.set(Position.KEY_FUEL_CONSUMPTION, consumptionRate);
-
-                if (boundedFuelLevel > 0) {
-                    device.set(Position.KEY_FUEL_LEVEL, boundedFuelLevel);
-                    Context.getDeviceManager().updateItem(device);
-                }
-            } else {
-
-                double currentFuelLevel = position.getDouble(sensor.getFuelLevelPort());
-                position.set(Position.KEY_FUEL_LEVEL, currentFuelLevel
-                        * readingType.getConversionMultiplier());
-                position.set(Position.KEY_FUEL_CONSUMPTION,
-                        position.getDouble(sensor.getFuelRatePort())
-                                * readingType.getConversionMultiplier());
-                position.set(Position.KEY_FUEL_USED,
-                        position.getDouble(sensor.getFuelConsumedPort()));
-
-                if (currentFuelLevel > 0) {
-                    device.set(Position.KEY_FUEL_LEVEL, currentFuelLevel);
-                    Context.getDeviceManager().updateItem(device);
-                }
-            }
-        } else {
-            position.set(Position.KEY_FUEL_LEVEL, 0);
-            position.set(Position.KEY_FUEL_CONSUMPTION, 0);
-            position.set(Position.KEY_FUEL_USED, 0);
-            device.set(Position.KEY_FUEL_LEVEL, -1);
-            Context.getDeviceManager().updateItem(device);
-        }
-    }
-
-    private double calculateFuelConsumptionRate(Position lastPosition, Position position) {
-        double consumptionMetersPerLitre = 0; // meters/litre
-        double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
-        double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
-
-        consumptionMetersPerLitre = Math.abs((position.getDouble(Position.KEY_ODOMETER)
-                - lastPosition.getDouble(Position.KEY_ODOMETER)) / (currentFuelLevel - lastFuelLevel));
-
-        return consumptionMetersPerLitre;
     }
 
     @Override
