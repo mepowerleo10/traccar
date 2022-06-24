@@ -86,9 +86,8 @@ public class FuelLevelHandler extends BaseDataHandler {
         if (currentFuelLevel > 0) {
             double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
             double milliseccondsBetween = (position.getDeviceTime().getTime() - lastPosition.getDeviceTime().getTime());
-            consumptionLitresPerHour = Math.abs(
-                    (currentFuelLevel - lastFuelLevel) /* in litres */
-                            / (milliseccondsBetween / (1000 * 60 * 60) /* in hours */));
+            consumptionLitresPerHour = (currentFuelLevel - lastFuelLevel) /* in litres */
+                    / (milliseccondsBetween / (1000 * 60 * 60) /* in hours */);
         }
 
         return consumptionLitresPerHour;
@@ -99,12 +98,14 @@ public class FuelLevelHandler extends BaseDataHandler {
         double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
 
         if (currentFuelLevel > 0) {
-            double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
-            consumptionLitresPerKilometer = Math.abs(
-                    (currentFuelLevel - lastFuelLevel) /* in litres */
-                            / ((position.getDouble(Position.KEY_ODOMETER)
-                                    - lastPosition.getDouble(Position.KEY_ODOMETER))
-                                    * 0.001)) /* in kilometres */;
+            double odometerDifference = position.getDouble(Position.KEY_ODOMETER)
+                    - lastPosition.getDouble(Position.KEY_ODOMETER);
+
+            if (odometerDifference > 0) {
+                double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
+                consumptionLitresPerKilometer = (currentFuelLevel - lastFuelLevel) /* in litres */
+                        / (odometerDifference * 0.001) /* in kilometres */;
+            }
         }
 
         return consumptionLitresPerKilometer;
