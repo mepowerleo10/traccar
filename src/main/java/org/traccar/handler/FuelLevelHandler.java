@@ -82,25 +82,30 @@ public class FuelLevelHandler extends BaseDataHandler {
 
     private double calculateFuelConsumptonRaterPerHour(Position lastPosition, Position position) {
         double consumptionLitresPerHour = 0; // litres/hour
-        double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
         double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
-        double milliseccondsBetween = (position.getDeviceTime().getTime() - lastPosition.getDeviceTime().getTime());
-        consumptionLitresPerHour = Math.abs(
-                (currentFuelLevel - lastFuelLevel) /* in litres */
-                        / (milliseccondsBetween / (1000 * 60 * 60) /* in hours */));
+        if (currentFuelLevel > 0) {
+            double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
+            double milliseccondsBetween = (position.getDeviceTime().getTime() - lastPosition.getDeviceTime().getTime());
+            consumptionLitresPerHour = Math.abs(
+                    (currentFuelLevel - lastFuelLevel) /* in litres */
+                            / (milliseccondsBetween / (1000 * 60 * 60) /* in hours */));
+        }
 
         return consumptionLitresPerHour;
     }
 
     private double calculateFuelConsumptionRatePerKm(Position lastPosition, Position position) {
         double consumptionLitresPerKilometer = 0; // litres/kilometer
-        double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
         double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
 
-        consumptionLitresPerKilometer = Math.abs(
-                (currentFuelLevel - lastFuelLevel)
-                        / ((position.getDouble(Position.KEY_ODOMETER) - lastPosition.getDouble(Position.KEY_ODOMETER))
-                                * 0.001));
+        if (currentFuelLevel > 0) {
+            double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
+            consumptionLitresPerKilometer = Math.abs(
+                    (currentFuelLevel - lastFuelLevel) /* in litres */
+                            / ((position.getDouble(Position.KEY_ODOMETER)
+                                    - lastPosition.getDouble(Position.KEY_ODOMETER))
+                                    * 0.001)) /* in kilometres */;
+        }
 
         return consumptionLitresPerKilometer;
     }
