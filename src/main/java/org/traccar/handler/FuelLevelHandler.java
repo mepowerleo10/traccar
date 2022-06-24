@@ -56,8 +56,8 @@ public class FuelLevelHandler extends BaseDataHandler {
                 double boundedFuelLevel = getWithinBoundsFuelLevel(fuelLevel, sensor);
                 position.set(Position.KEY_FUEL_LEVEL, boundedFuelLevel);
 
-                double consumptionRate = calculateFuelConsumptionRate(lastPosition, position);
-                position.set(Position.KEY_FUEL_CONSUMPTION, consumptionRate);
+                double consumptionRatePerHour = calculateFuelConsumptonRaterPerHour(lastPosition, position);
+                position.set(Position.KEY_FUEL_CONSUMPTION, consumptionRatePerHour);
 
             } else {
 
@@ -70,6 +70,9 @@ public class FuelLevelHandler extends BaseDataHandler {
                 position.set(Position.KEY_FUEL_USED,
                         position.getDouble(sensor.getFuelConsumedPort()));
             }
+
+            double consumptionRatePerKm = calculateFuelConsumptionRatePerKm(lastPosition, position);
+            position.set(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER, consumptionRatePerKm);
         } else {
             position.set(Position.KEY_FUEL_LEVEL, 0);
             position.set(Position.KEY_FUEL_CONSUMPTION, 0);
@@ -77,15 +80,29 @@ public class FuelLevelHandler extends BaseDataHandler {
         }
     }
 
-    private double calculateFuelConsumptionRate(Position lastPosition, Position position) {
-        double consumptionMetersPerLitre = 0; // meters/litre
+    private double calculateFuelConsumptonRaterPerHour(Position lastPosition, Position position) {
+        double consumptionLitresPerHour = 0; // litres/hour
+        double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
+        double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
+        double milliseccondsBetween = (position.getDeviceTime().getTime() - lastPosition.getDeviceTime().getTime());
+        consumptionLitresPerHour = Math.abs(
+                (currentFuelLevel - lastFuelLevel) /* in litres */
+                        / (milliseccondsBetween / (1000 * 60 * 60) /* in hours */));
+
+        return consumptionLitresPerHour;
+    }
+
+    private double calculateFuelConsumptionRatePerKm(Position lastPosition, Position position) {
+        double consumptionLitresPerKilometer = 0; // litres/kilometer
         double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
         double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
 
-        consumptionMetersPerLitre = Math.abs((position.getDouble(Position.KEY_ODOMETER)
-                - lastPosition.getDouble(Position.KEY_ODOMETER)) / (currentFuelLevel - lastFuelLevel));
+        consumptionLitresPerKilometer = Math.abs(
+                (currentFuelLevel - lastFuelLevel)
+                        / ((position.getDouble(Position.KEY_ODOMETER) - lastPosition.getDouble(Position.KEY_ODOMETER))
+                                * 0.001));
 
-        return consumptionMetersPerLitre;
+        return consumptionLitresPerKilometer;
     }
 
     private double getWithinBoundsFuelLevel(double fuelLevel, FuelSensor sensor) {
