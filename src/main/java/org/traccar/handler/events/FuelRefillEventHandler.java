@@ -1,5 +1,6 @@
 package org.traccar.handler.events;
 
+import java.util.Collections;
 import java.util.Map;
 
 import io.netty.channel.ChannelHandler;
@@ -36,12 +37,19 @@ public class FuelRefillEventHandler extends BaseEventHandler {
                 ATTRIBUTE_FUEL_REFILL_THRESHOLD, 0, true, false);
         if (fuelRefillThreshold > 0) {
             Position lastPosition = identityManager.getLastPosition(position.getDeviceId());
-            if (position.getAttributes().containsKey(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER)
+            if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)
                     && lastPosition != null
-                    && lastPosition.getAttributes().containsKey(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER)) {
+                    && lastPosition.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
 
-                double averageFuelRefillRate = (lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER)
-                        + position.getDouble(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER)) / 2;
+                double fuelDifference = position.getDouble(Position.KEY_FUEL_LEVEL)
+                        - lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
+
+                if (position.getAttributes().containsKey(Position.KEY_MOTION)
+                        && position.getBoolean(Position.KEY_MOTION)
+                        && fuelDifference > fuelRefillThreshold) {
+                    Event event = new Event(Event.TYPE_DEVICE_FUEL_REFILL, position);
+                    return Collections.singletonMap(event, position);
+                }
             }
         }
 

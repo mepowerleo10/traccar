@@ -57,14 +57,13 @@ public class FuelDropEventHandler extends BaseEventHandler {
             Position lastPosition = identityManager.getLastPosition(position.getDeviceId());
             if (position.getAttributes().containsKey(Position.KEY_MOTION)) {
 
-                if (position.getBoolean(Position.KEY_MOTION)
-                        && position.getAttributes().containsKey(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER)
+                if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)
                         && lastPosition != null
-                        && lastPosition.getAttributes().containsKey(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER)) {
+                        && lastPosition.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
 
-                    double averageFuelDropRate = (lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER)
-                            + position.getDouble(Position.KEY_FUEL_CONSUMPTION_PER_KILOMETER)) / 2;
-                    if (averageFuelDropRate >= fuelDropThreshold) {
+                    double fuelDifference = position.getDouble(Position.KEY_FUEL_LEVEL)
+                            - lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
+                    if (fuelDifference < (-fuelDropThreshold)) {
                         Event event = generateFuelDropEvent(position, fuelDropThreshold);
                         return Collections.singletonMap(event, position);
                     }

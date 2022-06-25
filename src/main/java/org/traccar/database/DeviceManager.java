@@ -335,6 +335,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
                 if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)
                         && position.getDouble(Position.KEY_FUEL_LEVEL) > 0) {
                     device.set(Position.KEY_FUEL_LEVEL, position.getDouble(Position.KEY_FUEL_LEVEL));
+                    Context.getDeviceManager().updateItem(device);
                 }
 
             }
