@@ -78,6 +78,10 @@ public class FuelLevelHandler extends BaseDataHandler {
             position.set(Position.KEY_FUEL_CONSUMPTION, 0);
             position.set(Position.KEY_FUEL_USED, 0);
         }
+
+        if (position.getDouble(Position.KEY_FUEL_LEVEL) > 0) {
+            device.set(Position.KEY_FUEL_LEVEL, position.getDouble(Position.KEY_FUEL_LEVEL));
+        }
     }
 
     private double calculateFuelConsumptonRaterPerHour(Position lastPosition, Position position) {
