@@ -79,8 +79,8 @@ public class FuelLevelHandler extends BaseDataHandler {
             position.set(Position.KEY_FUEL_USED, 0);
         }
 
-        if (position.getDouble(Position.KEY_FUEL_LEVEL) > 0) {
-            device.set(Position.KEY_FUEL_LEVEL, position.getDouble(Position.KEY_FUEL_LEVEL));
+        if (position.getDouble(Position.KEY_FUEL_LEVEL) == -1) {
+            position.set(Position.KEY_FUEL_LEVEL, lastPosition.getDouble(Position.KEY_FUEL_LEVEL));
         }
     }
 
