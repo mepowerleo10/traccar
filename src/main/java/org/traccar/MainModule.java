@@ -75,6 +75,7 @@ import org.traccar.handler.events.BehaviorEventHandler;
 import org.traccar.handler.events.CommandResultEventHandler;
 import org.traccar.handler.events.DriverEventHandler;
 import org.traccar.handler.events.FuelDropEventHandler;
+import org.traccar.handler.events.FuelRefillEventHandler;
 import org.traccar.handler.events.GeofenceEventHandler;
 import org.traccar.handler.events.IgnitionEventHandler;
 import org.traccar.handler.events.MaintenanceEventHandler;
@@ -417,6 +418,12 @@ public class MainModule extends AbstractModule {
     @Provides
     public static FuelDropEventHandler provideFuelDropEventHandler(IdentityManager identityManager) {
         return new FuelDropEventHandler(identityManager);
+    }
+
+    @Singleton
+    @Provides
+    public static FuelRefillEventHandler providFuelRefillEventHandler(IdentityManager identityManager) {
+        return new FuelRefillEventHandler(identityManager);
     }
 
     @Singleton
