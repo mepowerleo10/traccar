@@ -98,7 +98,7 @@ public class FuelLevelHandler extends BaseDataHandler {
 
         double rateTime = lastPosition.getDouble(Position.KEY_RATE_TIME);
         rateTime += hoursBetween;
-        position.set(Position.KEY_RATE_TIME, rateTime);
+        position.set(Position.KEY_RATE_TIME, hoursBetween);
 
         if (hoursBetween != 0) {
             consumptionLitresPerHour = fuelDifference /* in litres */
