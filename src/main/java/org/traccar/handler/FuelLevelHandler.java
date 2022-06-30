@@ -34,7 +34,7 @@ public class FuelLevelHandler extends BaseDataHandler {
             Device device = identityManager.getById(position.getDeviceId());
 
             if (device != null && device.getFuelSensorId() > 0) {
-                Position lastPosition = identityManager.getLastPosition(device.getId());
+                Position lastPosition = identityManager != null ? identityManager.getLastPosition(position.getDeviceId()) : null;
                 FuelSensor sensor = fuelSensorManager.getById(device.getFuelSensorId());
                 calculateDeviceFuelAtPosition(lastPosition, position, device, sensor);
                 LOGGER.info("Device ID", device.getId());
@@ -46,7 +46,7 @@ public class FuelLevelHandler extends BaseDataHandler {
 
     private void calculateDeviceFuelAtPosition(Position lastPosition, Position position, Device device,
             FuelSensor sensor) {
-        if (sensor != null) {
+        if (sensor != null && lastPosition != null) {
             ReadingType readingType = readingTypeManager.getById(sensor.getReadingTypeId());
 
             if (sensor.getCalibrated()) {
