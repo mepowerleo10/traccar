@@ -58,19 +58,20 @@ public class FuelLevelHandler extends BaseDataHandler {
                 double boundedFuelLevel = getWithinBoundsFuelLevel(fuelLevel, sensor);
                 position.set(Position.KEY_FUEL_LEVEL, boundedFuelLevel);
 
-                double consumptionLitresPerHour = calculateFuelConsumptonRaterPerHour(lastPosition, position);
-                position.set(Position.KEY_FUEL_CONSUMPTION, consumptionLitresPerHour);
             } else {
 
                 double currentFuelLevel = position.getDouble(sensor.getFuelLevelPort());
                 position.set(Position.KEY_FUEL_LEVEL, currentFuelLevel
                         * readingType.getConversionMultiplier());
-                position.set(Position.KEY_FUEL_CONSUMPTION,
+                /* position.set(Position.KEY_FUEL_CONSUMPTION,
                         position.getDouble(sensor.getFuelRatePort())
-                                * readingType.getConversionMultiplier());
+                                * readingType.getConversionMultiplier()); */
                 position.set(Position.KEY_FUEL_USED,
                         position.getDouble(sensor.getFuelConsumedPort()));
             }
+
+            double consumptionLitresPerHour = calculateFuelConsumptonRaterPerHour(lastPosition, position);
+            position.set(Position.KEY_FUEL_CONSUMPTION, consumptionLitresPerHour);
 
             double consumptionRatePerKm = calculateFuelConsumptionRateKmPerLitre(lastPosition, position);
             position.set(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE, consumptionRatePerKm);
@@ -107,7 +108,7 @@ public class FuelLevelHandler extends BaseDataHandler {
         if (rateTime <= 1) {
             double lastConsumption = lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION);
             consumptionLitresPerHour = lastConsumption != 0
-                    ? lastConsumption + consumptionLitresPerHour
+                    ? (lastConsumption + consumptionLitresPerHour) / 2
                     : consumptionLitresPerHour;
         }
 
@@ -133,10 +134,10 @@ public class FuelLevelHandler extends BaseDataHandler {
             consumptionKilometersPerLitre = lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
         }
 
-        if (rateDistance <= 1) {
+        if (rateDistance <= 1 && fuelDifference != 0) {
             double lastConsumption = lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
             consumptionKilometersPerLitre = lastConsumption != 0
-                    ? lastConsumption + consumptionKilometersPerLitre
+                    ? (lastConsumption + consumptionKilometersPerLitre) / 2
                     : consumptionKilometersPerLitre;
         }
 
