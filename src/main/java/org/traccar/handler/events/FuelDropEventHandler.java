@@ -29,7 +29,7 @@ import io.netty.channel.ChannelHandler;
 public class FuelDropEventHandler extends BaseEventHandler {
 
     public static final String ATTRIBUTE_FUEL_DROP_THRESHOLD = "fuelDropThreshold";
-    public static final String ATTRIBUTE_FUEL_DROP_PER_KM_THRESHOLD = "fuelDropPerKmThreshold";
+    public static final String ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD = "fuelDropPerWithinKmThreshold";
 
     private final IdentityManager identityManager;
 
@@ -50,36 +50,49 @@ public class FuelDropEventHandler extends BaseEventHandler {
 
         double fuelDropThreshold = identityManager
                 .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_THRESHOLD, 0, true, false);
-        double fuelDropPerKmThreshold = identityManager
-                .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_PER_KM_THRESHOLD, 0, true, false);
+        if (fuelDropThreshold > 0 && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+            Event event = checkDropWithinHour(position, fuelDropThreshold);
+            if (event != null) {
+                return Collections.singletonMap(event, position);
+            }
+        }
 
-        if (fuelDropThreshold > 0 || fuelDropPerKmThreshold > 0) {
-            Position lastPosition = identityManager.getLastPosition(position.getDeviceId());
-            if (position.getAttributes().containsKey(Position.KEY_MOTION)) {
+        double fuelDropWithinKmThreshold = identityManager
+                .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, 0, true, false);
+        if (fuelDropWithinKmThreshold > 0 && position.getAttributes().containsKey(Position.KEY_MOTION)
+                && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+            Event event = checkDropWithinKilometer(position, fuelDropWithinKmThreshold);
+            if (event != null) {
+                return Collections.singletonMap(event, position);
+            }
+        }
 
-                if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)
-                        && lastPosition != null
-                        && lastPosition.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+        return null;
+    }
 
-                    double fuelDifference = position.getDouble(Position.KEY_FUEL_LEVEL)
-                            - lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
-                    if (fuelDifference < (-fuelDropThreshold)) {
-                        Event event = generateFuelDropEvent(position, fuelDropThreshold);
-                        return Collections.singletonMap(event, position);
-                    }
-                }
-            } else if (position.getAttributes().containsKey(Position.KEY_FUEL_CONSUMPTION)
-                    && lastPosition != null
-                    && lastPosition.getAttributes().containsKey(Position.KEY_FUEL_CONSUMPTION)) {
-
-                double averageFuelDropRate = (lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION)
-                        + position.getDouble(Position.KEY_FUEL_CONSUMPTION)) / 2;
-                if (averageFuelDropRate >= fuelDropPerKmThreshold) {
-                    Event event = generateFuelDropEvent(position, fuelDropPerKmThreshold);
-                    return Collections.singletonMap(event, position);
-                }
+    private Event checkDropWithinKilometer(Position position, double fuelDropKmPerLitre) {
+        double currentRateDistance = position.getDouble(Position.KEY_RATE_DISTANCE);
+        if (currentRateDistance >= 1) {
+            if (position.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE) < (-fuelDropKmPerLitre)) {
+                Event event = generateFuelDropEvent(position, fuelDropKmPerLitre);
+                return event;
             }
 
+            position.set(Position.KEY_RATE_DISTANCE, 0.00);
+        }
+
+        return null;
+    }
+
+    private Event checkDropWithinHour(Position position, double fuelDropLitrePerHour) {
+        double currentRateTime = position.getDouble(Position.KEY_RATE_TIME);
+        if (currentRateTime >= 1) {
+            if (position.getDouble(Position.KEY_FUEL_CONSUMPTION) < (-fuelDropLitrePerHour)) {
+                Event event = generateFuelDropEvent(position, fuelDropLitrePerHour);
+                return event;
+            }
+
+            position.set(Position.KEY_RATE_TIME, 0.00);
         }
 
         return null;

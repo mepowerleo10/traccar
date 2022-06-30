@@ -77,6 +77,7 @@ public class FuelLevelHandler extends BaseDataHandler {
         } else {
             position.set(Position.KEY_FUEL_LEVEL, 0);
             position.set(Position.KEY_FUEL_CONSUMPTION, 0);
+            position.set(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE, 0);
             position.set(Position.KEY_FUEL_USED, 0);
         }
 
@@ -94,9 +95,20 @@ public class FuelLevelHandler extends BaseDataHandler {
         double hoursBetween = (position.getDeviceTime().getTime() - lastPosition.getDeviceTime().getTime())
                 / (1000 * 60 * 60);
 
+        double rateTime = position.getDouble(Position.KEY_RATE_TIME);
+        rateTime += hoursBetween;
+        position.set(Position.KEY_RATE_TIME, rateTime);
+
         if (hoursBetween != 0) {
-            consumptionLitresPerHour = (fuelDifference) /* in litres */
+            consumptionLitresPerHour = fuelDifference /* in litres */
                     / hoursBetween /* in hours */;
+        }
+
+        if (rateTime <= 1) {
+            double lastConsumption = lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION);
+            consumptionLitresPerHour = lastConsumption != 0
+                    ? lastConsumption + consumptionLitresPerHour
+                    : consumptionLitresPerHour;
         }
 
         return consumptionLitresPerHour;
@@ -107,13 +119,25 @@ public class FuelLevelHandler extends BaseDataHandler {
         double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
         double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
         double fuelDifference = currentFuelLevel - lastFuelLevel; /* in litres */
+
         double odometerDifference = (position.getDouble(Position.KEY_ODOMETER)
                 - lastPosition.getDouble(Position.KEY_ODOMETER)) * 0.001; /* in kilometers */
+
+        double rateDistance = position.getDouble(Position.KEY_RATE_DISTANCE);
+        rateDistance += odometerDifference;
+        position.set(Position.KEY_RATE_DISTANCE, rateDistance);
 
         if (fuelDifference != 0) {
             consumptionKilometersPerLitre = odometerDifference / fuelDifference; /* km/l */
         } else {
             consumptionKilometersPerLitre = lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
+        }
+
+        if (rateDistance <= 1) {
+            double lastConsumption = lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
+            consumptionKilometersPerLitre = lastConsumption != 0
+                    ? lastConsumption + consumptionKilometersPerLitre
+                    : consumptionKilometersPerLitre;
         }
 
         return consumptionKilometersPerLitre;
