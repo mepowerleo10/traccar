@@ -96,7 +96,7 @@ public class FuelLevelHandler extends BaseDataHandler {
         double hoursBetween = (position.getDeviceTime().getTime() - lastPosition.getDeviceTime().getTime())
                 / (1000 * 60 * 60);
 
-        double rateTime = position.getDouble(Position.KEY_RATE_TIME);
+        double rateTime = lastPosition.getDouble(Position.KEY_RATE_TIME);
         rateTime += hoursBetween;
         position.set(Position.KEY_RATE_TIME, rateTime);
 
@@ -124,7 +124,7 @@ public class FuelLevelHandler extends BaseDataHandler {
         double odometerDifference = (position.getDouble(Position.KEY_ODOMETER)
                 - lastPosition.getDouble(Position.KEY_ODOMETER)) * 0.001; /* in kilometers */
 
-        double rateDistance = position.getDouble(Position.KEY_RATE_DISTANCE);
+        double rateDistance = lastPosition.getDouble(Position.KEY_RATE_DISTANCE);
         rateDistance += odometerDifference;
         position.set(Position.KEY_RATE_DISTANCE, rateDistance);
 
