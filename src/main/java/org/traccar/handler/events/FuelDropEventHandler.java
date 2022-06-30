@@ -67,6 +67,14 @@ public class FuelDropEventHandler extends BaseEventHandler {
             }
         }
 
+        double currentRateDistance = position.getDouble(Position.KEY_RATE_DISTANCE);
+        position.set(Position.KEY_RATE_DISTANCE,
+                currentRateDistance > 1 ? 0 : currentRateDistance);
+
+        double currentRateTime = position.getDouble(Position.KEY_RATE_TIME);
+        position.set(Position.KEY_RATE_TIME,
+                currentRateTime > 1 ? 0 : currentRateTime);
+
         return null;
     }
 

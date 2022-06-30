@@ -70,7 +70,7 @@ public class FuelLevelHandler extends BaseDataHandler {
                         position.getDouble(sensor.getFuelConsumedPort()));
             }
 
-            double consumptionLitresPerHour = calculateFuelConsumptonRaterPerHour(lastPosition, position);
+            double consumptionLitresPerHour = calculateFuelConsumptonRatePerHour(lastPosition, position);
             position.set(Position.KEY_FUEL_CONSUMPTION, consumptionLitresPerHour);
 
             double consumptionRatePerKm = calculateFuelConsumptionRateKmPerLitre(lastPosition, position);
@@ -87,14 +87,14 @@ public class FuelLevelHandler extends BaseDataHandler {
         }
     }
 
-    private double calculateFuelConsumptonRaterPerHour(Position lastPosition, Position position) {
+    private double calculateFuelConsumptonRatePerHour(Position lastPosition, Position position) {
         double consumptionLitresPerHour = 0; // litres/hour
         double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
         double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
         double fuelDifference = currentFuelLevel - lastFuelLevel;
 
-        double hoursBetween = (position.getDeviceTime().getTime() - lastPosition.getDeviceTime().getTime())
-                / (1000 * 60 * 60);
+        double hoursBetween = (position.getDeviceTime().getTime() - lastPosition.getDeviceTime().getTime());
+                // / (1000 * 60 * 60);
 
         double rateTime = lastPosition.getDouble(Position.KEY_RATE_TIME);
         rateTime += hoursBetween;
