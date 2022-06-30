@@ -67,40 +67,25 @@ public class FuelDropEventHandler extends BaseEventHandler {
             }
         }
 
-        double currentRateDistance = position.getDouble(Position.KEY_RATE_DISTANCE);
-        position.set(Position.KEY_RATE_DISTANCE,
-                currentRateDistance > 1 ? 0 : currentRateDistance);
-
-        double currentRateTime = position.getDouble(Position.KEY_RATE_TIME);
-        position.set(Position.KEY_RATE_TIME,
-                currentRateTime > 1 ? 0 : currentRateTime);
-
         return null;
     }
 
     private Event checkDropWithinKilometer(Position position, double fuelDropKmPerLitre) {
-        double currentRateDistance = position.getDouble(Position.KEY_RATE_DISTANCE);
-        if (currentRateDistance >= 1) {
-            if (position.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE) < (-fuelDropKmPerLitre)) {
-                Event event = generateFuelDropEvent(position, fuelDropKmPerLitre);
-                return event;
-            }
-
-            position.set(Position.KEY_RATE_DISTANCE, 0.00);
+        double hourlyRate = position.getDouble(Position.KEY_FUEL_RATE_KM);
+        if (hourlyRate < (-fuelDropKmPerLitre) && Math.abs(hourlyRate) != 0) {
+            position.set(Position.KEY_FUEL_RATE_KM, 0);
+            Event event = generateFuelDropEvent(position, fuelDropKmPerLitre);
+            return event;
         }
-
         return null;
     }
 
     private Event checkDropWithinHour(Position position, double fuelDropLitrePerHour) {
-        double currentRateTime = position.getDouble(Position.KEY_RATE_TIME);
-        if (currentRateTime >= 1) {
-            if (position.getDouble(Position.KEY_FUEL_CONSUMPTION) < (-fuelDropLitrePerHour)) {
-                Event event = generateFuelDropEvent(position, fuelDropLitrePerHour);
-                return event;
-            }
-
-            position.set(Position.KEY_RATE_TIME, 0.00);
+        double hourlyRate = position.getDouble(Position.KEY_FUEL_RATE_LITERS);
+        if (hourlyRate < (-fuelDropLitrePerHour) && Math.abs(hourlyRate) != 0) {
+            position.set(Position.KEY_FUEL_RATE_LITERS, 0);
+            Event event = generateFuelDropEvent(position, fuelDropLitrePerHour);
+            return event;
         }
 
         return null;

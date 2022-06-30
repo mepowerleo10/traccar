@@ -110,6 +110,9 @@ public class FuelLevelHandler extends BaseDataHandler {
             consumptionLitresPerHour = lastConsumption != 0
                     ? (lastConsumption + consumptionLitresPerHour) / 2
                     : consumptionLitresPerHour;
+        } else {
+            position.set(Position.KEY_FUEL_RATE_LITERS, consumptionLitresPerHour);
+            position.set(Position.KEY_RATE_TIME, rateTime % 1);
         }
 
         return consumptionLitresPerHour;
@@ -139,7 +142,10 @@ public class FuelLevelHandler extends BaseDataHandler {
             consumptionKilometersPerLitre = lastConsumption != 0
                     ? (lastConsumption + consumptionKilometersPerLitre) / 2
                     : consumptionKilometersPerLitre;
-        }
+        } else {
+            position.set(Position.KEY_FUEL_RATE_KM, consumptionKilometersPerLitre);
+            position.set(Position.KEY_RATE_DISTANCE, rateDistance % 1);
+        } 
 
         return consumptionKilometersPerLitre;
     }

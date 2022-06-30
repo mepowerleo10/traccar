@@ -59,6 +59,8 @@ public class Position extends Message {
 
     public static final String KEY_RATE_TIME = "rateTime";
     public static final String KEY_RATE_DISTANCE = "rateDistance";
+    public static final String KEY_FUEL_RATE_LITERS = "rateLitresPerHour";
+    public static final String KEY_FUEL_RATE_KM = "rateKmPerHour";
     public static final String KEY_FUEL_CONSUMPTION = "fuelConsumption"; // liters/hour
     public static final String KEY_FUEL_CONSUMPTION_KM_PER_LITRE = "fuelConsumptionKmPerLitre"; // km/litre
 
