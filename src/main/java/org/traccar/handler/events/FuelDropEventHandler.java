@@ -71,48 +71,22 @@ public class FuelDropEventHandler extends BaseEventHandler {
     }
 
     private Event checkDropWithinKilometer(Position position, double fuelDropKmPerLitre) {
-        double thresholdDistance = position.getDouble(Position.KEY_FUEL_THRESHOLD_DISTANCE);
         Event event = null;
+        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
 
-        if (thresholdDistance >= 1) {
-            double positionsCount = position.getInteger(Position.KEY_FUEL_POSITIONS_COUNT_WITHIN_KM);
-            double totalFuelConsumedWithinKm = position.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_KM);
-            double averageConsumption = totalFuelConsumedWithinKm / (thresholdDistance * positionsCount);
-
-            if (averageConsumption < (-fuelDropKmPerLitre) && Math.abs(averageConsumption) != 0) {
-                event = generateFuelDropEvent(position, fuelDropKmPerLitre);
-            }
-
-            position.set(Position.KEY_FUEL_THRESHOLD_DISTANCE, thresholdDistance % 1);
-
-            /* reset the counters */
-            position.set(Position.KEY_FUEL_POSITIONS_COUNT_WITHIN_KM, 0);
-            position.set(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_KM, 0);
-
+        if (averageConsumption < (-fuelDropKmPerLitre) && Math.abs(averageConsumption) != 0) {
+            event = generateFuelDropEvent(position, fuelDropKmPerLitre);
         }
 
         return event;
     }
 
     private Event checkDropWithinHour(Position position, double fuelDropLitresPerHour) {
-        double thresholdTime = position.getDouble(Position.KEY_FUEL_THRESHOLD_TIME);
         Event event = null;
+        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION);
 
-        if (thresholdTime >= 1) {
-            double positionsCount = position.getInteger(Position.KEY_FUEL_POSITIONS_COUNT_WITHIN_HOUR);
-            double totalFuelConsumedWithinHour = position.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR);
-            double averageConsumption = totalFuelConsumedWithinHour / (thresholdTime * positionsCount);
-
-            if (averageConsumption < (-fuelDropLitresPerHour) && Math.abs(averageConsumption) != 0) {
-                event = generateFuelDropEvent(position, fuelDropLitresPerHour);
-            }
-
-            position.set(Position.KEY_FUEL_THRESHOLD_TIME, thresholdTime % 1);
-
-            /* reset the counters */
-            position.set(Position.KEY_FUEL_POSITIONS_COUNT_WITHIN_HOUR, 0);
-            position.set(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR, 0);
-
+        if (averageConsumption < (-fuelDropLitresPerHour) && Math.abs(averageConsumption) != 0) {
+            event = generateFuelDropEvent(position, fuelDropLitresPerHour);
         }
 
         return event;
