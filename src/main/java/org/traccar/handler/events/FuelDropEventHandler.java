@@ -29,7 +29,7 @@ import io.netty.channel.ChannelHandler;
 public class FuelDropEventHandler extends BaseEventHandler {
 
     public static final String ATTRIBUTE_FUEL_DROP_THRESHOLD = "fuelDropThreshold";
-    public static final String ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD = "fuelDropPerWithinKmThreshold";
+    public static final String ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD = "fuelDropWithinKmThreshold";
 
     private final IdentityManager identityManager;
 
@@ -75,7 +75,7 @@ public class FuelDropEventHandler extends BaseEventHandler {
         double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
 
         if (averageConsumption < (-fuelDropKmPerLitre) && Math.abs(averageConsumption) != 0) {
-            event = generateFuelDropEvent(position, fuelDropKmPerLitre);
+            event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
         }
 
         return event;
@@ -86,15 +86,15 @@ public class FuelDropEventHandler extends BaseEventHandler {
         double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION);
 
         if (averageConsumption < (-fuelDropLitresPerHour) && Math.abs(averageConsumption) != 0) {
-            event = generateFuelDropEvent(position, fuelDropLitresPerHour);
+            event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_THRESHOLD, fuelDropLitresPerHour);
         }
 
         return event;
     }
 
-    private Event generateFuelDropEvent(Position position, double fuelDropThreshold) {
+    private Event generateFuelDropEvent(Position position, String attributeName, double fuelDropThreshold) {
         Event event = new Event(Event.TYPE_DEVICE_FUEL_DROP, position);
-        event.set(ATTRIBUTE_FUEL_DROP_THRESHOLD, fuelDropThreshold);
+        event.set(attributeName, fuelDropThreshold);
         return event;
     }
 
