@@ -18,6 +18,8 @@ public class FuelLevelHandler extends BaseDataHandler {
     private final IdentityManager identityManager;
     private final ReadingTypeManager readingTypeManager;
     private final FuelSensorManager fuelSensorManager;
+    private final static int DEVICE_OFF_VOLTAGE = 129;
+    private final static int VOLTAGE_MONITORING_WINDOW_SIZE = 15; // IN MINUTES
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FuelLevelHandler.class);
 
@@ -91,9 +93,12 @@ public class FuelLevelHandler extends BaseDataHandler {
         }
 
         timeBetween += minutesBetween;
-        if (timeBetween >= 15) {
+        if (timeBetween >= VOLTAGE_MONITORING_WINDOW_SIZE) {
             fuelLevel = device.getFuelSlope() * currentMaxVoltage + device.getFuelConstant();
-            timeBetween = timeBetween % 15;
+            currentMaxVoltage = (currentVoltageReading == DEVICE_OFF_VOLTAGE)
+                    ? currentMaxVoltage
+                    : currentVoltageReading;
+            timeBetween = timeBetween % VOLTAGE_MONITORING_WINDOW_SIZE;
         } else {
             fuelLevel = last.getDouble(Position.KEY_FUEL_LEVEL);
         }
