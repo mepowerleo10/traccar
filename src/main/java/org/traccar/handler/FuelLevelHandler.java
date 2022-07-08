@@ -55,7 +55,13 @@ public class FuelLevelHandler extends BaseDataHandler {
             ReadingType readingType = readingTypeManager.getById(sensor.getReadingTypeId());
 
             if (sensor.getCalibrated()) {
-                calculateCalibratedDeviceFuelLevel(device, position, lastPosition, sensor);
+                try {
+                    double fuelLevel = calculateCalibratedDeviceFuelLevel(device, position, lastPosition, sensor);
+                    position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+                } catch (Exception e) {
+                    position.set(Position.KEY_FUEL_TIMER, 0);
+                    position.set(Position.KEY_FUEL_CURRENT_MAX_VOLTAGE, 0);
+                }
 
             } else {
 
@@ -80,7 +86,7 @@ public class FuelLevelHandler extends BaseDataHandler {
         }
     }
 
-    private void calculateCalibratedDeviceFuelLevel(Device device, Position last, Position position,
+    private double calculateCalibratedDeviceFuelLevel(Device device, Position last, Position position,
             FuelSensor sensor) {
         double currentMaxVoltage = last.getDouble(Position.KEY_FUEL_CURRENT_MAX_VOLTAGE);
         double currentVoltageReading = position.getDouble(sensor.getFuelLevelPort());
@@ -109,7 +115,7 @@ public class FuelLevelHandler extends BaseDataHandler {
 
         fuelLevel = getWithinBoundsFuelLevel(fuelLevel, lastFuelLevel, sensor);
 
-        position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+        return fuelLevel;
     }
 
     private double getWithinBoundsFuelLevel(double fuelLevel, double lastFuelLevel, FuelSensor sensor) {
