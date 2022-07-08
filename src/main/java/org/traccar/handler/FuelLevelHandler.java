@@ -18,8 +18,8 @@ public class FuelLevelHandler extends BaseDataHandler {
     private final IdentityManager identityManager;
     private final ReadingTypeManager readingTypeManager;
     private final FuelSensorManager fuelSensorManager;
-    private final static int DEVICE_OFF_VOLTAGE = 129;
-    private final static int VOLTAGE_MONITORING_WINDOW_SIZE = 15; // IN MINUTES
+    private static final int DEVICE_OFF_VOLTAGE = 129;
+    private static final int VOLTAGE_MONITORING_WINDOW_SIZE = 15; // IN MINUTES
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FuelLevelHandler.class);
 
@@ -55,8 +55,7 @@ public class FuelLevelHandler extends BaseDataHandler {
             ReadingType readingType = readingTypeManager.getById(sensor.getReadingTypeId());
 
             if (sensor.getCalibrated()) {
-                double fuelLevel = getCalibratedDeviceFuelLevel(device, position, lastPosition, sensor);
-                position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+                calculateCalibratedDeviceFuelLevel(device, position, lastPosition, sensor);
 
             } else {
 
@@ -81,10 +80,14 @@ public class FuelLevelHandler extends BaseDataHandler {
         }
     }
 
-    private double getCalibratedDeviceFuelLevel(Device device, Position last, Position position, FuelSensor sensor) {
+    private void calculateCalibratedDeviceFuelLevel(Device device, Position last, Position position,
+            FuelSensor sensor) {
         double currentMaxVoltage = last.getDouble(Position.KEY_FUEL_CURRENT_MAX_VOLTAGE);
         double currentVoltageReading = position.getDouble(sensor.getFuelLevelPort());
+
         double fuelLevel = 0;
+        double lastFuelLevel = last.getDouble(Position.KEY_FUEL_LEVEL);
+
         double minutesBetween = (position.getFixTime().getTime() - last.getFixTime().getTime()) * 1.66667e-5;
         double timeBetween = last.getDouble(Position.KEY_FUEL_TIMER);
 
@@ -95,18 +98,28 @@ public class FuelLevelHandler extends BaseDataHandler {
         timeBetween += minutesBetween;
         if (timeBetween >= VOLTAGE_MONITORING_WINDOW_SIZE) {
             fuelLevel = device.getFuelSlope() * currentMaxVoltage + device.getFuelConstant();
-            currentMaxVoltage = (currentVoltageReading == DEVICE_OFF_VOLTAGE)
-                    ? currentMaxVoltage
-                    : currentVoltageReading;
+            currentMaxVoltage = currentVoltageReading;
             timeBetween = timeBetween % VOLTAGE_MONITORING_WINDOW_SIZE;
         } else {
-            fuelLevel = last.getDouble(Position.KEY_FUEL_LEVEL);
+            fuelLevel = lastFuelLevel;
         }
 
         position.set(Position.KEY_FUEL_TIMER, timeBetween);
         position.set(Position.KEY_FUEL_CURRENT_MAX_VOLTAGE, currentMaxVoltage);
 
-        fuelLevel = getWithinBoundsFuelLevel(fuelLevel, sensor);
+        fuelLevel = getWithinBoundsFuelLevel(fuelLevel, lastFuelLevel, sensor);
+
+        position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+    }
+
+    private double getWithinBoundsFuelLevel(double fuelLevel, double lastFuelLevel, FuelSensor sensor) {
+        if (fuelLevel < sensor.getLowerBound()) {
+            return lastFuelLevel;
+        }
+
+        if (fuelLevel > sensor.getUpperBound()) {
+            return sensor.getUpperBound();
+        }
 
         return fuelLevel;
     }
@@ -209,18 +222,6 @@ public class FuelLevelHandler extends BaseDataHandler {
             position.set(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_KM, 0);
 
         }
-    }
-
-    private double getWithinBoundsFuelLevel(double fuelLevel, FuelSensor sensor) {
-        if (fuelLevel < sensor.getLowerBound()) {
-            return -1;
-        }
-
-        if (fuelLevel > sensor.getUpperBound()) {
-            return sensor.getUpperBound();
-        }
-
-        return fuelLevel;
     }
 
 }
