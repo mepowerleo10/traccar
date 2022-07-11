@@ -29,7 +29,7 @@ import io.netty.channel.ChannelHandler;
 public class FuelDropEventHandler extends BaseEventHandler {
 
     public static final String ATTRIBUTE_FUEL_DROP_THRESHOLD = "fuelDropThreshold";
-    public static final String ATTRIBUTE_FUEL_DROP_PER_KM_THRESHOLD = "fuelDropPerKmThreshold";
+    public static final String ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD = "fuelDropWithinKmThreshold";
 
     private final IdentityManager identityManager;
 
@@ -50,44 +50,51 @@ public class FuelDropEventHandler extends BaseEventHandler {
 
         double fuelDropThreshold = identityManager
                 .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_THRESHOLD, 0, true, false);
-        double fuelDropPerKmThreshold = identityManager
-                .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_PER_KM_THRESHOLD, 0, true, false);
-
-        if (fuelDropThreshold > 0 || fuelDropPerKmThreshold > 0) {
-            Position lastPosition = identityManager.getLastPosition(position.getDeviceId());
-            if (position.getAttributes().containsKey(Position.KEY_MOTION)) {
-
-                if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)
-                        && lastPosition != null
-                        && lastPosition.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
-
-                    double fuelDifference = position.getDouble(Position.KEY_FUEL_LEVEL)
-                            - lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
-                    if (fuelDifference < (-fuelDropThreshold)) {
-                        Event event = generateFuelDropEvent(position, fuelDropThreshold);
-                        return Collections.singletonMap(event, position);
-                    }
-                }
-            } else if (position.getAttributes().containsKey(Position.KEY_FUEL_CONSUMPTION)
-                    && lastPosition != null
-                    && lastPosition.getAttributes().containsKey(Position.KEY_FUEL_CONSUMPTION)) {
-
-                double averageFuelDropRate = (lastPosition.getDouble(Position.KEY_FUEL_CONSUMPTION)
-                        + position.getDouble(Position.KEY_FUEL_CONSUMPTION)) / 2;
-                if (averageFuelDropRate >= fuelDropPerKmThreshold) {
-                    Event event = generateFuelDropEvent(position, fuelDropPerKmThreshold);
-                    return Collections.singletonMap(event, position);
-                }
+        if (fuelDropThreshold > 0 && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+            Event event = checkDropWithinHour(position, fuelDropThreshold);
+            if (event != null) {
+                return Collections.singletonMap(event, position);
             }
+        }
 
+        double fuelDropWithinKmThreshold = identityManager
+                .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, 0, true, false);
+        if (fuelDropWithinKmThreshold > 0 && position.getAttributes().containsKey(Position.KEY_MOTION)
+                && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+            Event event = checkDropWithinKilometer(position, fuelDropWithinKmThreshold);
+            if (event != null) {
+                return Collections.singletonMap(event, position);
+            }
         }
 
         return null;
     }
 
-    private Event generateFuelDropEvent(Position position, double fuelDropThreshold) {
+    private Event checkDropWithinKilometer(Position position, double fuelDropKmPerLitre) {
+        Event event = null;
+        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
+
+        if (averageConsumption < (-fuelDropKmPerLitre) && Math.abs(averageConsumption) != 0) {
+            event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
+        }
+
+        return event;
+    }
+
+    private Event checkDropWithinHour(Position position, double fuelDropLitresPerHour) {
+        Event event = null;
+        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION);
+
+        if (averageConsumption < (-fuelDropLitresPerHour) && Math.abs(averageConsumption) != 0) {
+            event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_THRESHOLD, fuelDropLitresPerHour);
+        }
+
+        return event;
+    }
+
+    private Event generateFuelDropEvent(Position position, String attributeName, double fuelDropThreshold) {
         Event event = new Event(Event.TYPE_DEVICE_FUEL_DROP, position);
-        event.set(ATTRIBUTE_FUEL_DROP_THRESHOLD, fuelDropThreshold);
+        event.set(attributeName, fuelDropThreshold);
         return event;
     }
 

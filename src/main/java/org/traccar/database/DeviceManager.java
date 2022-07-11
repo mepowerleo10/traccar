@@ -475,7 +475,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
         SimpleRegression regression = new SimpleRegression(true);
         List<FuelCalibration> fuelCalibrations = Context.getFuelCalibrationManager()
                 .getDeviceFuelCalibrations(device.getId());
-        if (fuelCalibrations.size() > 0) {
+        if (fuelCalibrations.size() > 1) {
             for (FuelCalibration calibration : fuelCalibrations) {
                 regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
             }
