@@ -55,9 +55,21 @@ public class Position extends Message {
     public static final String KEY_BATTERY = "battery"; // volts
     public static final String KEY_BATTERY_LEVEL = "batteryLevel"; // percentage
     public static final String KEY_FUEL_LEVEL = "fuel"; // liters
+    public static final String KEY_FUEL_TIMER = "fuelTimer";
     public static final String KEY_FUEL_USED = "fuelUsed"; // liters
+    public static final String KEY_FUEL_CURRENT_MAX_VOLTAGE = "fuelCurrentMaxVoltage";
+
+    public static final String KEY_FUEL_RATE_HOUR = "fuelRateWithinHour";
+    public static final String KEY_FUEL_RATE_KM = "fuelRateWithinKm";
+
+    public static final String KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR = "fuelTotalConsumedWithinHour";
+    public static final String KEY_FUEL_POSITIONS_COUNT_WITHIN_HOUR = "fuelPositionsCountWithinHour";
+    public static final String KEY_FUEL_THRESHOLD_TIME = "thresholdTime";
+    public static final String KEY_FUEL_TOTAL_CONSUMED_WITHIN_KM = "fuelTotalConsumedWithinKm";
+    public static final String KEY_FUEL_POSITIONS_COUNT_WITHIN_KM = "fuelPositionsCountWithinKm";
+    public static final String KEY_FUEL_THRESHOLD_DISTANCE = "thresholdDistance";
     public static final String KEY_FUEL_CONSUMPTION = "fuelConsumption"; // liters/hour
-    public static final String KEY_FUEL_CONSUMPTION_PER_KILOMETER = "fuelConsumptionPerKm"; // litres/km
+    public static final String KEY_FUEL_CONSUMPTION_KM_PER_LITRE = "fuelConsumptionKmPerLitre"; // km/litre
 
     public static final String KEY_VERSION_FW = "versionFw";
     public static final String KEY_VERSION_HW = "versionHw";
