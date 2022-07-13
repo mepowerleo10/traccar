@@ -18,6 +18,8 @@ package org.traccar.handler.events;
 import java.util.Collections;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.database.IdentityManager;
 import org.traccar.model.Device;
 import org.traccar.model.Event;
@@ -30,6 +32,8 @@ public class FuelDropEventHandler extends BaseEventHandler {
 
     public static final String ATTRIBUTE_FUEL_DROP_THRESHOLD = "fuelDropThreshold";
     public static final String ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD = "fuelDropWithinKmThreshold";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuelDropEventHandler.class);
 
     private final IdentityManager identityManager;
 
@@ -72,10 +76,14 @@ public class FuelDropEventHandler extends BaseEventHandler {
 
     private Event checkDropWithinKilometer(Position position, double fuelDropKmPerLitre) {
         Event event = null;
-        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
+        double averageConsumption = position.getDouble(Position.KEY_FUEL_RATE_KM);
 
         if (averageConsumption < (-fuelDropKmPerLitre) && Math.abs(averageConsumption) != 0) {
-            event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
+            try {
+                event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), position);
+            }
         }
 
         return event;
@@ -83,10 +91,14 @@ public class FuelDropEventHandler extends BaseEventHandler {
 
     private Event checkDropWithinHour(Position position, double fuelDropLitresPerHour) {
         Event event = null;
-        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION);
+        double averageConsumption = position.getDouble(Position.KEY_FUEL_RATE_HOUR);
 
         if (averageConsumption < (-fuelDropLitresPerHour) && Math.abs(averageConsumption) != 0) {
-            event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_THRESHOLD, fuelDropLitresPerHour);
+            try {
+                event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_THRESHOLD, fuelDropLitresPerHour);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), position);
+            }
         }
 
         return event;

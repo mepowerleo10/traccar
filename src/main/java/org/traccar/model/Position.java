@@ -59,8 +59,8 @@ public class Position extends Message {
     public static final String KEY_FUEL_USED = "fuelUsed"; // liters
     public static final String KEY_FUEL_CURRENT_MAX_VOLTAGE = "fuelCurrentMaxVoltage";
 
-    public static final String KEY_FUEL_RATE_LITERS = "rateLitresPerHour";
-    public static final String KEY_FUEL_RATE_KM = "rateKmPerHour";
+    public static final String KEY_FUEL_RATE_HOUR = "fuelRateWithinHour";
+    public static final String KEY_FUEL_RATE_KM = "fuelRateWithinKm";
 
     public static final String KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR = "fuelTotalConsumedWithinHour";
     public static final String KEY_FUEL_POSITIONS_COUNT_WITHIN_HOUR = "fuelPositionsCountWithinHour";

@@ -5,6 +5,8 @@ import java.util.Map;
 
 import io.netty.channel.ChannelHandler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.database.IdentityManager;
 import org.traccar.model.Device;
 import org.traccar.model.Event;
@@ -15,6 +17,7 @@ public class FuelRefillEventHandler extends BaseEventHandler {
 
     public static final String ATTRIBUTE_FUEL_REFILL_THRESHOLD = "fuelRefillThreshold";
     public static final String ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD = "fuelRefillWithinKmThreshold";
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuelRefillEventHandler.class);
 
     private final IdentityManager identityManager;
 
@@ -60,24 +63,34 @@ public class FuelRefillEventHandler extends BaseEventHandler {
 
     private Event checkRefillWithinKm(Position position, double fuelRefillWithinKmThreshold) {
         Event event = null;
-        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
+        double averageConsumption = position.getDouble(Position.KEY_FUEL_RATE_KM);
 
         if (averageConsumption > fuelRefillWithinKmThreshold && Math.abs(averageConsumption) != 0) {
-            event = generateFuelRefillEvent(position, ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD,
+            try {
+                event = generateFuelRefillEvent(position, ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD,
                     fuelRefillWithinKmThreshold);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), position);
+            }
         }
+        position.set(Position.KEY_FUEL_RATE_KM, 0);
 
         return event;
     }
 
     private Event checkRefillWithinHour(Position position, double fuelRefillThreshold) {
         Event event = null;
-        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION);
+        double averageConsumption = position.getDouble(Position.KEY_FUEL_RATE_HOUR);
 
         if (averageConsumption > fuelRefillThreshold && Math.abs(averageConsumption) != 0) {
-            event = generateFuelRefillEvent(position, ATTRIBUTE_FUEL_REFILL_THRESHOLD,
+            try {
+                event = generateFuelRefillEvent(position, ATTRIBUTE_FUEL_REFILL_THRESHOLD,
                     fuelRefillThreshold);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), position);
+            }
         }
+        position.set(Position.KEY_FUEL_RATE_HOUR, 0);
 
         return event;
     }
