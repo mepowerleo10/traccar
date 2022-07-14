@@ -1,7 +1,9 @@
 package org.traccar.database;
 
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.traccar.model.FuelCalibration;
 import org.traccar.storage.Storage;
 import org.traccar.storage.StorageException;
@@ -19,9 +21,35 @@ public class FuelCalibrationManager extends ExtendedObjectManager<FuelCalibratio
     List<FuelCalibration> fuelCalibrations;
     Storage storage = getDataManager().getStorage();
     fuelCalibrations = storage.getObjects(FuelCalibration.class, new Request(
-        new Columns.All(), new Condition.Equals("deviceId", "deviceId", deviceId)));
+        new Columns.All(), new Condition.Equals("deviceid", "deviceid", deviceId)));
 
     return fuelCalibrations;
+  }
+
+  public void updateSlopeAndConstant(FuelCalibration calibration) throws StorageException {
+    SimpleRegression regression = new SimpleRegression(true);
+    Map<Double, Double> calibrationEntries = calibration.getCalibrationEntries();
+
+    for (Map.Entry<Double, Double> entry : calibrationEntries.entrySet()) {
+      Double voltage = entry.getKey();
+      Double fuelLevel = entry.getValue();
+      regression.addData(voltage, fuelLevel);
+    }
+
+    calibration.setSlope(regression.getSlope());
+    calibration.setConstant(regression.getIntercept());
+  }
+
+  @Override
+  public void addItem(FuelCalibration calibration) throws StorageException {
+    updateSlopeAndConstant(calibration);
+    super.addItem(calibration);
+  }
+
+  @Override
+  public void updateItem(FuelCalibration calibration) throws StorageException {
+    updateSlopeAndConstant(calibration);
+    super.updateItem(calibration);
   }
 
 }

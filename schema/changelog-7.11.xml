@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.11">
+
+
+    <changeSet id="changelog-7.11" author="author">
+        <preConditions onFail="CONTINUE">
+            <tableExists tableName="tc_fuel_calibrations" />
+            <tableExists tableName="tc_user_fuelCalibration" />
+            <tableExists tableName="tc_group_fuelCalibration" />
+            <tableExists tableName="tc_device_fuelCalibration" />
+        </preConditions>
+
+        <dropTable tableName="tc_user_fuelCalibration" cascadeConstraints="true" />
+        <dropTable tableName="tc_group_fuelCalibration" cascadeConstraints="true" />
+        <dropTable tableName="tc_device_fuelCalibration" cascadeConstraints="true" />
+        <dropTable tableName="tc_fuel_calibrations" cascadeConstraints="true" />
+
+        <createTable tableName="tc_fuel_calibrations">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="deviceid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="sensorid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="slope" type="DOUBLE" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+            <column name="constant" type="DOUBLE" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+            <column name="calibrationentries" type="VARCHAR(1024)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="tc_fuel_calibrations" baseColumnNames="deviceid" constraintName="fk_tc_fuel_calibrations_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_fuel_calibrations" baseColumnNames="sensorid" constraintName="fk_tc_fuel_calibrations_sensorid" referencedTableName="tc_fuel_sensors" referencedColumnNames="id" onDelete="CASCADE" />
+
+        <!-- Device -> FuelCalibration Relation -->
+        <createTable tableName="tc_device_fuelCalibration">
+            <column name="deviceid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="fuelcalibrationid" type="INT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="tc_device_fuelCalibration" baseColumnNames="deviceid" constraintName="fk_tc_device_fuel_calibration_deviceid" referencedTableName="tc_devices" referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_device_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_device_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" onDelete="CASCADE" />
+
+        <createIndex tableName="tc_device_fuelCalibration" indexName="tc_device_fuelCalibration_index">
+            <column name="deviceid" />
+            <column name="fuelcalibrationid" />
+        </createIndex>
+
+        <!-- User -> FuelCalibration Relation -->
+        <createTable tableName="tc_user_fuelCalibration">
+            <column name="userid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="fuelcalibrationid" type="INT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="tc_user_fuelCalibration" baseColumnNames="userid" constraintName="fk_tc_user_fuel_calibration_userid" referencedTableName="tc_users" referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_user_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_user_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" onDelete="CASCADE" />
+
+        <createIndex tableName="tc_user_fuelCalibration" indexName="tc_user_fuelCalibration_index">
+            <column name="userid" />
+            <column name="fuelcalibrationid" />
+        </createIndex>
+
+        <!-- Group -> FuelCalibration Relation -->
+        <createTable tableName="tc_group_fuelCalibration">
+            <column name="groupid" type="INT">
+                <constraints nullable="false" />
+            </column>
+            <column name="fuelcalibrationid" type="INT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="tc_group_fuelCalibration" baseColumnNames="groupid" constraintName="fk_tc_group_fuel_calibration_groupid" referencedTableName="tc_groups" referencedColumnNames="id" onDelete="CASCADE" />
+        <addForeignKeyConstraint baseTableName="tc_group_fuelCalibration" baseColumnNames="fuelcalibrationid" constraintName="fk_tc_group_fuel_calibration_fuelcalibrationid" referencedTableName="tc_fuel_calibrations" referencedColumnNames="id" onDelete="CASCADE" />
+
+        <createIndex tableName="tc_group_fuelCalibration" indexName="tc_group_fuelCalibration_index">
+            <column name="groupid" />
+            <column name="fuelcalibrationid" />
+        </createIndex>
+
+    </changeSet>
+</databaseChangeLog>

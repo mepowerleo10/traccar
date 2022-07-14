@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traccar.Context;
@@ -34,7 +33,6 @@ import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
 import org.traccar.model.DeviceState;
-import org.traccar.model.FuelCalibration;
 import org.traccar.model.Group;
 import org.traccar.model.Position;
 import org.traccar.model.Server;
@@ -468,24 +466,6 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
     public void setDeviceState(long deviceId, DeviceState deviceState) {
         deviceStates.put(deviceId, deviceState);
-    }
-
-    public void updateFuelSlopeAndConstant(long deviceId) throws StorageException {
-        Device device = getById(deviceId);
-        SimpleRegression regression = new SimpleRegression(true);
-        List<FuelCalibration> fuelCalibrations = Context.getFuelCalibrationManager()
-                .getDeviceFuelCalibrations(device.getId());
-        if (fuelCalibrations.size() > 1) {
-            for (FuelCalibration calibration : fuelCalibrations) {
-                regression.addData(calibration.getVoltage(), calibration.getFuelLevel());
-            }
-            device.setFuelSlope(regression.getSlope());
-            device.setFuelConstant(regression.getIntercept());
-        } else {
-            device.setFuelSlope(0);
-            device.setFuelConstant(0);
-        }
-        Context.getDeviceManager().updateItem(device);
     }
 
 }
