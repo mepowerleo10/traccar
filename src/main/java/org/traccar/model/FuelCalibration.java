@@ -1,12 +1,18 @@
 package org.traccar.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.traccar.storage.StorageName;
 
 @StorageName("tc_fuel_calibrations")
 public class FuelCalibration extends BaseModel {
+
+  public static final String FUEL_LEVEL = "fuel";
+  public static final String VOLTAGE = "voltage";
+  public static final String SLOPE = "slope";
+  public static final String INTERCEPT = "intercept";
 
   public FuelCalibration() {
   }
@@ -21,57 +27,37 @@ public class FuelCalibration extends BaseModel {
     this.deviceId = deviceId;
   }
 
-  private long sensorId;
+  private List<Map<String, Double>> calibrationEntries = new ArrayList<>();
 
-  public long getSensorId() {
-    return sensorId;
-  }
-
-  public void setSensorId(long sensorId) {
-    this.sensorId = sensorId;
-  }
-
-  private double slope;
-
-  public double getSlope() {
-    return slope;
-  }
-
-  public void setSlope(double slope) {
-    this.slope = slope;
-  }
-
-  private double constant;
-
-  public double getConstant() {
-    return constant;
-  }
-
-  public void setConstant(double constant) {
-    this.constant = constant;
-  }
-
-  private Map<Double, Double> calibrationEntries = new TreeMap<>();
-
-  public Map<Double, Double> getCalibrationEntries() {
+  public List<Map<String, Double>> getCalibrationEntries() {
     return calibrationEntries;
   }
 
-  public void setCalibrationEntries(Map<Double, Double> calibrationEntries) {
+  public void setCalibrationEntries(List<Map<String, Double>> calibrationEntries) {
     this.calibrationEntries = calibrationEntries;
   }
 
-  public void setCalibrationEntry(Double fuelLevel, Double voltage) {
-    if (voltage != null) {
-      calibrationEntries.put(fuelLevel, voltage);
+  public double get(int i, String key) {
+    if (key != null && i < calibrationEntries.size() && calibrationEntries.get(i).containsKey(key)) {
+      return ((Number) calibrationEntries.get(i).get(key)).doubleValue();
+    } else {
+      return 0.0;
     }
   }
 
-  public Double getCalibrationEntry(Double fuelLevel) {
-    if (calibrationEntries.containsKey(fuelLevel)) {
-      return ((Number) calibrationEntries.get(fuelLevel)).doubleValue();
-    } else {
-      return 0.00;
+  public void set(int i, Map<String, Double> calibration) {
+    if (calibration != null && !calibration.isEmpty()) {
+      if (i < calibrationEntries.size()) {
+        calibrationEntries.set(i, calibration);
+      } else {
+        add(calibration);
+      }
+    }
+  }
+
+  public void add(Map<String, Double> calibration) {
+    if (calibration != null && !calibration.isEmpty()) {
+      calibrationEntries.add(calibration);
     }
   }
 
