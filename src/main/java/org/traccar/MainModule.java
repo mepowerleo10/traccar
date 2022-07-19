@@ -15,10 +15,9 @@
  */
 package org.traccar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
+import javax.annotation.Nullable;
+import javax.ws.rs.client.Client;
+
 import org.traccar.config.Config;
 import org.traccar.config.Keys;
 import org.traccar.database.AttributesManager;
@@ -26,6 +25,7 @@ import org.traccar.database.CalendarManager;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
 import org.traccar.database.DeviceManager;
+import org.traccar.database.FuelCalibrationManager;
 import org.traccar.database.FuelSensorManager;
 import org.traccar.database.GeofenceManager;
 import org.traccar.database.IdentityManager;
@@ -45,12 +45,12 @@ import org.traccar.geocoder.GoogleGeocoder;
 import org.traccar.geocoder.HereGeocoder;
 import org.traccar.geocoder.MapQuestGeocoder;
 import org.traccar.geocoder.MapTilerGeocoder;
+import org.traccar.geocoder.MapboxGeocoder;
 import org.traccar.geocoder.MapmyIndiaGeocoder;
 import org.traccar.geocoder.NominatimGeocoder;
 import org.traccar.geocoder.OpenCageGeocoder;
 import org.traccar.geocoder.PositionStackGeocoder;
 import org.traccar.geocoder.TomTomGeocoder;
-import org.traccar.geocoder.MapboxGeocoder;
 import org.traccar.geolocation.GeolocationProvider;
 import org.traccar.geolocation.GoogleGeolocationProvider;
 import org.traccar.geolocation.MozillaGeolocationProvider;
@@ -82,13 +82,16 @@ import org.traccar.handler.events.MaintenanceEventHandler;
 import org.traccar.handler.events.MotionEventHandler;
 import org.traccar.handler.events.OverspeedEventHandler;
 import org.traccar.reports.model.TripsConfig;
-
-import javax.annotation.Nullable;
-import javax.ws.rs.client.Client;
-import io.netty.util.Timer;
 import org.traccar.speedlimit.OverpassSpeedLimitProvider;
 import org.traccar.speedlimit.SpeedLimitProvider;
 import org.traccar.storage.Storage;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+
+import io.netty.util.Timer;
 
 public class MainModule extends AbstractModule {
 
@@ -165,6 +168,11 @@ public class MainModule extends AbstractModule {
     @Provides
     public static FuelSensorManager provideFuelSensorManager() {
         return Context.getFuelSensorManager();
+    }
+
+    @Provides
+    public static FuelCalibrationManager providFuelCalibration() {
+        return Context.getFuelCalibrationManager();
     }
 
     @Singleton
@@ -373,8 +381,8 @@ public class MainModule extends AbstractModule {
     @Provides
     public static FuelLevelHandler providFuelLevelHandler(
             IdentityManager identityManager, ReadingTypeManager readingTypeManager,
-            FuelSensorManager fuelSensorManager) {
-        return new FuelLevelHandler(identityManager, readingTypeManager, fuelSensorManager);
+            FuelCalibrationManager fuelCalibrationManager) {
+        return new FuelLevelHandler(identityManager, readingTypeManager, fuelCalibrationManager);
     }
 
     @Singleton

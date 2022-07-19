@@ -17,6 +17,7 @@ package org.traccar.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.traccar.storage.QueryExtended;
 import org.traccar.storage.QueryIgnore;
@@ -48,10 +49,13 @@ public class Device extends GroupedModel {
     public static final String STATUS_UNKNOWN = "unknown";
     public static final String STATUS_ONLINE = "online";
     public static final String STATUS_OFFLINE = "offline";
-    public static final String FUEL_SENSORID = "fuelSensorId";
-    public static final String FUEL_SLOPE = "fuelSlope";
-    public static final String FUEL_CONSTANT = "fuelConstant";
-    public static final String FUEL_CALIBRATIONS = "fuelCalibrations";
+    public static final String SENSOR_TYPE = "typeId";
+    public static final String SENSOR_CALIBRRATION = "calibrationId";
+    public static final String SENSOR_ISCALIBRATED = "isCalibrated";
+    public static final String SENSOR_FUEL_PORT = "fuelPort";
+    public static final String SENSOR_READING_ID = "readingId";
+    public static final String SENSOR_LOWER_BOUND = "sensorLowerBound";
+    public static final String SENSOR_UPPER_BOUND = "sensorUpperBound";
 
     private String status;
 
@@ -150,34 +154,24 @@ public class Device extends GroupedModel {
         this.disabled = disabled;
     }
 
-    private long fuelSensorId;
+    private List<Map<String, Object>> sensors;
 
-    public long getFuelSensorId() {
-        return fuelSensorId;
+    public List<Map<String, Object>> getSensors() {
+        return sensors;
     }
 
-    public void setFuelSensorId(long fuelSensorId) {
-        this.fuelSensorId = fuelSensorId;
+    public void setSensors(List<Map<String, Object>> sensors) {
+        this.sensors = sensors;
     }
 
-    private double fuelSlope;
+    private List<List<Integer>> sensorGroups;
 
-    public double getFuelSlope() {
-        return fuelSlope;
+    public List<List<Integer>> getSensorGroups() {
+        return sensorGroups;
     }
 
-    public void setFuelSlope(double fuelSlope) {
-        this.fuelSlope = fuelSlope;
-    }
-
-    private double fuelConstant;
-
-    public double getFuelConstant() {
-        return fuelConstant;
-    }
-
-    public void setFuelConstant(double fuelConstant) {
-        this.fuelConstant = fuelConstant;
+    public void setSensorGroups(List<List<Integer>> sensorGroups) {
+        this.sensorGroups = sensorGroups;
     }
 
 }

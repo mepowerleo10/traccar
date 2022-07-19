@@ -5,18 +5,16 @@
 
     <changeSet id="changelog-7.11" author="author">
         <preConditions onFail="HALT">
-            <not>
-                <tableExists tableName="tc_fuel_calibrations" />
-                <tableExists tableName="tc_user_fuelCalibration" />
-                <tableExists tableName="tc_group_fuelCalibration" />
-                <tableExists tableName="tc_device_fuelCalibration" />
-            </not>
+            <tableExists tableName="tc_fuel_calibrations" />
+            <tableExists tableName="tc_user_fuelCalibration" />
+            <tableExists tableName="tc_group_fuelCalibration" />
+            <tableExists tableName="tc_device_fuelCalibration" />
         </preConditions>
 
-        <!-- <dropTable tableName="tc_user_fuelCalibration" cascadeConstraints="true" />
+        <dropTable tableName="tc_user_fuelCalibration" cascadeConstraints="true" />
         <dropTable tableName="tc_group_fuelCalibration" cascadeConstraints="true" />
         <dropTable tableName="tc_device_fuelCalibration" cascadeConstraints="true" />
-        <dropTable tableName="tc_fuel_calibrations" cascadeConstraints="true" /> -->
+        <dropTable tableName="tc_fuel_calibrations" cascadeConstraints="true" />
 
         <createTable tableName="tc_fuel_calibrations">
             <column name="id" type="INT" autoIncrement="true">

@@ -18,6 +18,7 @@ package org.traccar.api.resource;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -141,7 +142,69 @@ public class DeviceResource extends BaseObjectResource<Device> {
     public Collection<FuelCalibration> getDeviceFuelCalibrations(
             @PathParam("deviceId") long deviceId) throws StorageException {
 
+        Context.getPermissionsManager().checkAdmin(getUserId());
+
         return Context.getFuelCalibrationManager().getDeviceFuelCalibrations(deviceId);
+    }
+
+    @Path("{deviceId}/sensors")
+    @GET
+    public List<Map<String, Object>> getDeviceFuelSensor(@PathParam("deviceId") long deviceId)
+            throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+
+        return Context
+                .getDeviceManager()
+                .getById(deviceId)
+                .getSensors();
+    }
+
+    @Path("{deviceId}/sensors")
+    @POST
+    public List<Map<String, Object>> setDeviceFuelSensor(@PathParam("deviceId") long deviceId,
+            List<Map<String, Object>> sensors)
+            throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        DeviceManager deviceManager = Context.getDeviceManager();
+        Device device = deviceManager.getById(deviceId);
+
+        device.setSensors(sensors);
+        deviceManager.updateItem(device);
+
+        return Context
+                .getDeviceManager()
+                .getById(deviceId)
+                .getSensors();
+    }
+
+    @Path("{deviceId}/sensors/groups")
+    @GET
+    public Collection<List<Integer>> getSensorGroups(@PathParam("deviceId") long deviceId) throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+
+        return Context
+                .getDeviceManager()
+                .getById(deviceId)
+                .getSensorGroups();
+    }
+
+    @Path("{deviceId}/sensors/groups")
+    @POST
+    public Collection<List<Integer>> setSensorGroups(
+            @PathParam("deviceId") long deviceId,
+            List<List<Integer>> sensorGroups) throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        DeviceManager deviceManager = Context.getDeviceManager();
+        Device device = deviceManager.getById(deviceId);
+
+        device.setSensorGroups(sensorGroups);
+        deviceManager.updateItem(device);
+
+        return deviceManager.getById(deviceId).getSensorGroups();
     }
 
 }

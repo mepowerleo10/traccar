@@ -11,3 +11,4 @@ nbactions.xml
 out
 build
 .vscode/settings.json
+**bin/
