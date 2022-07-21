@@ -166,14 +166,4 @@ public class Device extends GroupedModel {
         this.sensors = sensors;
     }
 
-    private List<List<Integer>> sensorGroups;
-
-    public List<List<Integer>> getSensorGroups() {
-        return sensorGroups;
-    }
-
-    public void setSensorGroups(List<List<Integer>> sensorGroups) {
-        this.sensorGroups = sensorGroups;
-    }
-
 }

@@ -179,32 +179,4 @@ public class DeviceResource extends BaseObjectResource<Device> {
                 .getSensors();
     }
 
-    @Path("{deviceId}/sensors/groups")
-    @GET
-    public Collection<List<Integer>> getSensorGroups(@PathParam("deviceId") long deviceId) throws StorageException {
-
-        Context.getPermissionsManager().checkAdmin(getUserId());
-
-        return Context
-                .getDeviceManager()
-                .getById(deviceId)
-                .getSensorGroups();
-    }
-
-    @Path("{deviceId}/sensors/groups")
-    @POST
-    public Collection<List<Integer>> setSensorGroups(
-            @PathParam("deviceId") long deviceId,
-            List<List<Integer>> sensorGroups) throws StorageException {
-
-        Context.getPermissionsManager().checkAdmin(getUserId());
-        DeviceManager deviceManager = Context.getDeviceManager();
-        Device device = deviceManager.getById(deviceId);
-
-        device.setSensorGroups(sensorGroups);
-        deviceManager.updateItem(device);
-
-        return deviceManager.getById(deviceId).getSensorGroups();
-    }
-
 }

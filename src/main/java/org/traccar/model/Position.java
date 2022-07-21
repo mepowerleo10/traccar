@@ -54,6 +54,7 @@ public class Position extends Message {
     public static final String KEY_POWER = "power"; // volts
     public static final String KEY_BATTERY = "battery"; // volts
     public static final String KEY_BATTERY_LEVEL = "batteryLevel"; // percentage
+    public static final String KEY_TANK = "tank"; // litres
     public static final String KEY_FUEL_LEVEL = "fuel"; // liters
     public static final String KEY_FUEL_TIMER = "fuelTimer";
     public static final String KEY_FUEL_USED = "fuelUsed"; // liters
