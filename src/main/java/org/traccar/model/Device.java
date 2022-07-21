@@ -56,6 +56,8 @@ public class Device extends GroupedModel {
     public static final String SENSOR_READING_ID = "readingId";
     public static final String SENSOR_LOWER_BOUND = "sensorLowerBound";
     public static final String SENSOR_UPPER_BOUND = "sensorUpperBound";
+    public static final String SENSOR_GROUP = "group";
+    public static final String SENSOR_NAME = "name";
 
     private String status;
 
