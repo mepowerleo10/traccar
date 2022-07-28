@@ -162,10 +162,15 @@ public class FuelLevelHandler extends BaseDataHandler {
         return fuelLevel;
     }
 
-    private void calculateFuelConsumptonRatePerHour(Position lastPosition, Position position) {
+    private double getFuelDifference(Position lastPosition, Position position) {
         double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
         double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
         double fuelDifference = currentFuelLevel - lastFuelLevel;
+        return fuelDifference;
+    }
+
+    private void calculateFuelConsumptonRatePerHour(Position lastPosition, Position position) {
+        double fuelDifference = getFuelDifference(lastPosition, position);
 
         double hoursBetween = (position.getFixTime().getTime() - lastPosition.getFixTime().getTime()) * 2.77778e-7;
 
@@ -208,9 +213,7 @@ public class FuelLevelHandler extends BaseDataHandler {
 
     private void calculateFuelConsumptionRateKmPerLitre(Position lastPosition, Position position) {
 
-        double currentFuelLevel = position.getDouble(Position.KEY_FUEL_LEVEL);
-        double lastFuelLevel = lastPosition.getDouble(Position.KEY_FUEL_LEVEL);
-        double fuelDifference = currentFuelLevel - lastFuelLevel; /* in litres */
+        double fuelDifference = getFuelDifference(lastPosition, position);
 
         double odometerDifference = (position.getDouble(Position.KEY_ODOMETER)
                 - lastPosition.getDouble(Position.KEY_ODOMETER)) * 0.001; /* in kilometers */

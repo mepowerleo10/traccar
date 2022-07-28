@@ -157,7 +157,6 @@ public class Device extends GroupedModel {
     }
 
     private boolean motionless;
-    
 
     public boolean getMotionless() {
         return motionless;
