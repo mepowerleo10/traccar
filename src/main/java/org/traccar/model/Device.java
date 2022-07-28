@@ -58,6 +58,7 @@ public class Device extends GroupedModel {
     public static final String SENSOR_UPPER_BOUND = "sensorUpperBound";
     public static final String SENSOR_GROUP = "group";
     public static final String SENSOR_NAME = "name";
+    public static final String ATTRIBUTE_STATIC = "static";
 
     private String status;
 
@@ -154,16 +155,6 @@ public class Device extends GroupedModel {
 
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
-    }
-
-    private boolean motionless;
-
-    public boolean getMotionless() {
-        return motionless;
-    }
-
-    public void setMotionless(boolean motionless) {
-        this.motionless = motionless;
     }
 
     private List<Map<String, Object>> sensors;
