@@ -156,6 +156,17 @@ public class Device extends GroupedModel {
         this.disabled = disabled;
     }
 
+    private boolean motionless;
+    
+
+    public boolean getMotionless() {
+        return motionless;
+    }
+
+    public void setMotionless(boolean motionless) {
+        this.motionless = motionless;
+    }
+
     private List<Map<String, Object>> sensors;
 
     public List<Map<String, Object>> getSensors() {
