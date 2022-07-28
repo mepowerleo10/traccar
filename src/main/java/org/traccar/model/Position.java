@@ -64,9 +64,11 @@ public class Position extends Message {
     public static final String KEY_FUEL_RATE_KM = "fuelRateWithinKm";
 
     public static final String KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR = "fuelTotalConsumedWithinHour";
+    public static final String KEY_FUEL_TOTAL_INCREASED_WITHIN_HOUR = "fuelTotalIncreasedWithinHour";
     public static final String KEY_FUEL_POSITIONS_COUNT_WITHIN_HOUR = "fuelPositionsCountWithinHour";
     public static final String KEY_FUEL_THRESHOLD_TIME = "thresholdTime";
     public static final String KEY_FUEL_TOTAL_CONSUMED_WITHIN_KM = "fuelTotalConsumedWithinKm";
+    public static final String KEY_FUEL_TOTAL_INCREASED_WITHIN_KM = "fuelTotalIncreasedWithinKm";
     public static final String KEY_FUEL_POSITIONS_COUNT_WITHIN_KM = "fuelPositionsCountWithinKm";
     public static final String KEY_FUEL_THRESHOLD_DISTANCE = "thresholdDistance";
     public static final String KEY_FUEL_CONSUMPTION = "fuelConsumption"; // liters/hour
