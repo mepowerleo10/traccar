@@ -73,6 +73,7 @@ public class Position extends Message {
     public static final String KEY_FUEL_THRESHOLD_DISTANCE = "thresholdDistance";
     public static final String KEY_FUEL_CONSUMPTION = "fuelConsumption"; // liters/hour
     public static final String KEY_FUEL_CONSUMPTION_KM_PER_LITRE = "fuelConsumptionKmPerLitre"; // km/litre
+    public static final String KEY_FUEL_REFILL_TIMER = "fuelRefillTimer";
 
     public static final String KEY_VERSION_FW = "versionFw";
     public static final String KEY_VERSION_HW = "versionHw";
