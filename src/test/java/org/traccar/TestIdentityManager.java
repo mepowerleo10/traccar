@@ -1,16 +1,39 @@
 package org.traccar;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.traccar.database.IdentityManager;
 import org.traccar.model.Device;
 import org.traccar.model.Position;
 
 public final class TestIdentityManager implements IdentityManager {
 
+    private Position last = null;
+
+    public static List<Map<String, Object>> createSensors() {
+        final List<Map<String, Object>> sensors = new ArrayList<>();
+        Map<String, Object> sensor = new HashMap<>();
+        sensor.put(Device.SENSOR_NAME, "Test Sensor");
+        sensor.put(Device.SENSOR_TYPE, 1);
+        sensor.put(Device.SENSOR_GROUP, 0);
+        sensor.put(Device.SENSOR_READING_ID, 1);
+        sensor.put(Device.SENSOR_ISCALIBRATED, true);
+        sensor.put(Device.SENSOR_FUEL_PORT, "fuel1");
+        sensor.put(Device.SENSOR_CALIBRRATION, 1);
+        
+        sensors.add(sensor);
+        return sensors;
+    }
+    
     private static Device createDevice() {
         Device device = new Device();
         device.setId(1);
         device.setName("test");
         device.setUniqueId("123456789012345");
+        device.setSensors(createSensors());
         return device;
     }
 
@@ -36,7 +59,7 @@ public final class TestIdentityManager implements IdentityManager {
 
     @Override
     public Position getLastPosition(long deviceId) {
-        return null;
+        return last;
     }
 
     @Override
@@ -75,6 +98,12 @@ public final class TestIdentityManager implements IdentityManager {
     public double lookupAttributeDouble(
             long deviceId, String attributeName, double defaultValue, boolean lookupServer, boolean lookupConfig) {
         return defaultValue;
+    }
+
+    public TestIdentityManager() {  }
+
+    public TestIdentityManager(Position last) {
+        this.last = last;
     }
 
 }
