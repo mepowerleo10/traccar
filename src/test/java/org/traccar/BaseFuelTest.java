@@ -10,6 +10,7 @@ import org.traccar.model.Position;
 public class BaseFuelTest {
     protected TestReadingManager readingManager = new TestReadingManager("MilliVolts", "mV", 1);
     protected TestCalibrationManager calibrationManager = new TestCalibrationManager();
+    protected Date date;
     protected FuelLevelHandler fuelLevelHandler = null;
     protected Position position = null;
     protected Position lastPosition = null;
@@ -34,15 +35,15 @@ public class BaseFuelTest {
         position = new Position();
 
         device = new TestIdentityManager().getById(1);
-        Date date = new Date();
+        date = new Date();
 
         lastPosition.setDeviceId(device.getId());
         lastPosition.setFixTime(date);
         lastPosition.set(FUEL_KEY, lastVoltage);
+        lastPosition.set(Position.KEY_ODOMETER, 1);
 
         position.set(FUEL_KEY, currentVoltage);
         position.setDeviceId(device.getId());
-        position.setFixTime(new Date(((Number) (date.getTime() + timeDiff)).longValue()));
 
     }
 }
