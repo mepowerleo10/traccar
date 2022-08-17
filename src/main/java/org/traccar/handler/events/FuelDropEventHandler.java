@@ -18,8 +18,6 @@ package org.traccar.handler.events;
 import java.util.Collections;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.traccar.database.IdentityManager;
 import org.traccar.model.Device;
 import org.traccar.model.Event;
@@ -32,8 +30,7 @@ public class FuelDropEventHandler extends BaseEventHandler {
 
     public static final String ATTRIBUTE_FUEL_DROP_THRESHOLD = "fuelDropThreshold";
     public static final String ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD = "fuelDropWithinKmThreshold";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FuelDropEventHandler.class);
+    public static final String DEBUG_NAME = "FUEL_DROP_EVENT_HANDLER";
 
     private final IdentityManager identityManager;
 
@@ -44,6 +41,8 @@ public class FuelDropEventHandler extends BaseEventHandler {
     @Override
     protected Map<Event, Position> analyzePosition(Position position) {
 
+        Event event = null;
+
         Device device = identityManager.getById(position.getDeviceId());
         if (device == null) {
             return null;
@@ -52,56 +51,60 @@ public class FuelDropEventHandler extends BaseEventHandler {
             return null;
         }
 
-        double fuelDropThreshold = identityManager
-                .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_THRESHOLD, 0, true, false);
-        if (fuelDropThreshold > 0 && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
-            Event event = checkDropWithinHour(position, fuelDropThreshold);
-            if (event != null) {
-                return Collections.singletonMap(event, position);
+        try {
+            if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+                double fuelDropThreshold = identityManager
+                        .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_THRESHOLD,
+                                0, true, false);
+
+                if (fuelDropThreshold > 0 && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+                    event = checkDropWithinHour(position, fuelDropThreshold);
+                }
+
+                double fuelDropWithinKmThreshold = identityManager
+                        .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, 0, true, false);
+                if (fuelDropWithinKmThreshold > 0 && !device.getBoolean(Device.ATTRIBUTE_STATIC)
+                        && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+                    event = checkDropWithinKilometer(position, fuelDropWithinKmThreshold);
+                }
             }
+
+        } catch (Exception e) {
+            position.set(DEBUG_NAME, e.getMessage());
         }
 
-        double fuelDropWithinKmThreshold = identityManager
-                .lookupAttributeDouble(device.getId(), ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, 0, true, false);
-        if (fuelDropWithinKmThreshold > 0 && position.getAttributes().containsKey(Position.KEY_MOTION)
-                && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
-            Event event = checkDropWithinKilometer(position, fuelDropWithinKmThreshold);
-            if (event != null) {
-                return Collections.singletonMap(event, position);
-            }
+        if (event != null) {
+            return Collections.singletonMap(event, position);
         }
 
         return null;
     }
 
-    private Event checkDropWithinKilometer(Position position, double fuelDropKmPerLitre) {
+    private Event checkDropWithinKilometer(Position position, double fuelDropKmPerLitre) throws Exception {
         Event event = null;
-        double averageConsumption = position.getDouble(Position.KEY_FUEL_RATE_KM);
+        double fuelConsumed = Math.abs(position.getDouble(Position.KEY_FUEL_CONSUMPTION_PER_KM));
 
-        if (averageConsumption < (-fuelDropKmPerLitre) && Math.abs(averageConsumption) != 0) {
-            try {
-                event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), position);
-            }
+        if (fuelConsumed != 0 && fuelConsumed > fuelDropKmPerLitre) {
+            event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
         }
+
+        position.set(DEBUG_NAME, "Consumed: " + fuelConsumed + ", Drop Threshold (KM): " + fuelDropKmPerLitre);
 
         return event;
     }
 
-    private Event checkDropWithinHour(Position position, double fuelDropLitresPerHour) {
-        Event event = null;
-        double averageConsumption = position.getDouble(Position.KEY_FUEL_RATE_HOUR);
+    private Event checkDropWithinHour(Position position, double fuelDropLitresPerHour) throws Exception {
+        Event dropWithinHourEvent = null;
+        double fuelConsumed = Math.abs(position.getDouble(Position.KEY_FUEL_CONSUMPTION_PER_HOUR));
 
-        if (averageConsumption < (-fuelDropLitresPerHour) && Math.abs(averageConsumption) != 0) {
-            try {
-                event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_THRESHOLD, fuelDropLitresPerHour);
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), position);
-            }
+        if (fuelConsumed != 0 && fuelConsumed > fuelDropLitresPerHour) {
+            dropWithinHourEvent = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_THRESHOLD,
+                    fuelDropLitresPerHour);
         }
 
-        return event;
+        position.set(DEBUG_NAME, "Consumed: " + fuelConsumed + ", Drop Threshold (HR): " + fuelDropLitresPerHour);
+
+        return dropWithinHourEvent;
     }
 
     private Event generateFuelDropEvent(Position position, String attributeName, double fuelDropThreshold) {

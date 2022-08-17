@@ -37,6 +37,9 @@ public final class TestIdentityManager implements IdentityManager {
         return device;
     }
 
+    private double dropThreshold = 0;
+    private double refillThreshold = 0;
+
     @Override
     public long addUnknownDevice(String uniqueId) {
         return 1;
