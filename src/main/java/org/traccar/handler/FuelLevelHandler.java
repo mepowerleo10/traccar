@@ -184,9 +184,9 @@ public class FuelLevelHandler extends BaseDataHandler {
 
     private void updateAndResetFuelTimeCounters(Position position, double lastAverageConsumption) {
         double thresholdTime = position.getDouble(Position.KEY_FUEL_THRESHOLD_TIME);
-
+        double totalFuelConsumedWithinHour = position.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR);
+        double totalFuelIncreasedWithinHour = position.getDouble(Position.KEY_FUEL_TOTAL_INCREASED_WITHIN_HOUR);
         if (thresholdTime >= 1) {
-            double totalFuelConsumedWithinHour = position.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR);
             double averageConsumption = totalFuelConsumedWithinHour / thresholdTime;
 
             position.set(Position.KEY_FUEL_THRESHOLD_TIME, thresholdTime % 1);
@@ -198,6 +198,9 @@ public class FuelLevelHandler extends BaseDataHandler {
         } else {
             position.set(Position.KEY_FUEL_CONSUMPTION, lastAverageConsumption);
         }
+
+        position.set(Position.KEY_FUEL_CONSUMPTION_PER_HOUR, totalFuelConsumedWithinHour);
+        position.set(Position.KEY_FUEL_INCREASE_PER_HOUR, totalFuelIncreasedWithinHour);
     }
 
     private void calculateFuelConsumptionRateKmPerLitre(Position lastPosition, Position position) {
@@ -228,9 +231,10 @@ public class FuelLevelHandler extends BaseDataHandler {
 
     private void updateAndResetFuelDistanceCounters(Position position, double lastAverageConsumption) {
         double thresholdDistance = position.getDouble(Position.KEY_FUEL_THRESHOLD_DISTANCE);
+        double totalFuelConsumedWithinKm = position.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_KM);
+        double totalFuelIncreasedWithinKm = position.getDouble(Position.KEY_FUEL_TOTAL_INCREASED_WITHIN_KM);
 
         if (thresholdDistance >= 1) {
-            double totalFuelConsumedWithinKm = position.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_KM);
             double averageConsumption = totalFuelConsumedWithinKm / thresholdDistance;
 
             position.set(Position.KEY_FUEL_THRESHOLD_DISTANCE, thresholdDistance % 1);
@@ -242,6 +246,9 @@ public class FuelLevelHandler extends BaseDataHandler {
         } else {
             position.set(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE, lastAverageConsumption);
         }
+
+        position.set(Position.KEY_FUEL_CONSUMPTION_PER_KM, totalFuelConsumedWithinKm);
+        position.set(Position.KEY_FUEL_INCREASE_PER_KM, totalFuelIncreasedWithinKm);
     }
 
 }
