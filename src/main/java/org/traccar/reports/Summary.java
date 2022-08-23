@@ -56,7 +56,7 @@ public final class Summary {
             boolean ignoreOdometer = Context.getDeviceManager()
                     .lookupAttributeBoolean(deviceId, "report.ignoreOdometer", false, false, true);
             result.setDistance(ReportUtils.calculateDistance(firstPosition, previousPosition, !ignoreOdometer));
-            result.setSpentFuel(ReportUtils.calculateFuel(firstPosition, previousPosition));
+            result.setSpentFuel(ReportUtils.calculateFuelSpent(positions));
 
             long durationMilliseconds;
             if (firstPosition.getAttributes().containsKey(Position.KEY_HOURS)
