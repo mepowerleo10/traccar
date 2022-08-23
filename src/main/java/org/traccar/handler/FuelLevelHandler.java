@@ -35,7 +35,7 @@ public class FuelLevelHandler extends BaseDataHandler {
         if (!position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
             Device device = identityManager.getById(position.getDeviceId());
             try {
-                List<Map<String, Object>> sensors = device.getSensors();
+                List<Map<String, Object>> sensors;
                 this.sensorsFuelLevels = new HashMap<>();
                 this.sensorsGroupCount = new HashMap<>();
 
@@ -45,39 +45,40 @@ public class FuelLevelHandler extends BaseDataHandler {
                             ? identityManager.getLastPosition(position.getDeviceId())
                             : null;
 
+                    sensors = device.getSensors();
+
                     if (sensors.size() > 0) {
                         for (Map<String, Object> sensor : sensors) {
                             try {
                                 calculateSensorFuelAtPosition(position, device, sensor);
                             } catch (Exception e) {
+                                position.set("FUEL_DEBUG", e.getMessage());
                             }
                         }
 
                         double fuelLevel = 0.0;
                         for (int group : sensorsGroupCount.keySet()) {
-                            fuelLevel += sensorsFuelLevels.get(group) / sensorsGroupCount.get(group); // update total
-                                                                                                      // fuel level
-                            position.set(Position.KEY_TANK + group, fuelLevel); // update tank fuel level
+                            double tankFuelLevel = sensorsFuelLevels.getOrDefault(group, 0.0)
+                                    / sensorsGroupCount.getOrDefault(group, 0);
+                            fuelLevel += tankFuelLevel; // update the total fuel level
+                            position.set(Position.KEY_TANK + group, tankFuelLevel); // update tank fuel level
                         }
 
                         position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
-                        if (fuelLevel < 0) {
-                            position.set(Position.KEY_FUEL_LEVEL, lastPosition.getDouble(Position.KEY_FUEL_LEVEL));
-                        }
 
                         if (lastPosition != null) {
-                            calculateFuelConsumptonRatePerHour(lastPosition, position);
-                            calculateFuelConsumptionRateKmPerLitre(lastPosition, position);
+                            if (fuelLevel < 0) {
+                                position.set(Position.KEY_FUEL_LEVEL, lastPosition.getDouble(Position.KEY_FUEL_LEVEL));
+                            }
+
+                            calculateFuelConsumption(lastPosition, position);
+
                         }
 
-                    } else {
-                        position.set(Position.KEY_FUEL_LEVEL, 0);
-                        position.set(Position.KEY_FUEL_CONSUMPTION, 0);
-                        position.set(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE, 0);
-                        position.set(Position.KEY_FUEL_USED, 0);
                     }
                 }
             } catch (Exception e) {
+                position.set("FUEL_DEBUG", e.getMessage());
             }
         }
 
@@ -85,13 +86,13 @@ public class FuelLevelHandler extends BaseDataHandler {
     }
 
     private void calculateSensorFuelAtPosition(Position position, Device device,
-            Map<String, Object> sensor) {
+            Map<String, Object> sensor) throws Exception {
 
-        String fuelLevelPort = (String) sensor.getOrDefault(Device.SENSOR_FUEL_PORT, "fuel");
+        String fuelLevelPort = (String) sensor.getOrDefault(Device.SENSOR_FUEL_PORT, "fuel1");
         ReadingType readingType = readingTypeManager
                 .getById(((Number) sensor.getOrDefault(Device.SENSOR_READING_ID, 0)).longValue());
         boolean sensorIsCalibrated = (boolean) sensor.get(Device.SENSOR_ISCALIBRATED);
-        int sensorGroup = ((Number) sensor.get(Device.SENSOR_GROUP)).intValue();
+        int sensorGroup = ((Number) sensor.getOrDefault(Device.SENSOR_GROUP, 0)).intValue();
         double fuelLevel = 0;
 
         if (sensorIsCalibrated) {
@@ -111,15 +112,19 @@ public class FuelLevelHandler extends BaseDataHandler {
 
         int groupCount = sensorsGroupCount.getOrDefault(sensorGroup, 0);
         groupCount += 1;
-        position.set("GROUP_COUNT", groupCount);
         sensorsGroupCount.put(sensorGroup, groupCount);
 
     }
 
     private double getCalibratedSensorFuelLevel(Position position, String fuelLevelPort,
-            FuelCalibration fuelCalibration) {
+            FuelCalibration fuelCalibration) throws Exception {
 
         double currentVoltageReading = position.getDouble(fuelLevelPort);
+
+        if (currentVoltageReading <= 0) {
+            throw new Exception(
+                    fuelLevelPort + " does not have a correct value. Current value: " + currentVoltageReading);
+        }
 
         double fuelLevel = 0;
         double index = -1;
@@ -143,6 +148,7 @@ public class FuelLevelHandler extends BaseDataHandler {
 
         fuelLevel = lastLeastCalibration.get(FuelCalibration.SLOPE) * currentVoltageReading
                 + lastLeastCalibration.get(FuelCalibration.INTERCEPT);
+        position.set("FUEL_DEBUG", lastLeastCalibration.toString());
 
         return fuelLevel;
     }
@@ -154,8 +160,18 @@ public class FuelLevelHandler extends BaseDataHandler {
         return fuelDifference;
     }
 
-    private void calculateFuelConsumptonRatePerHour(Position lastPosition, Position position) {
+    private void calculateFuelConsumption(Position lastPosition, Position position) {
         double fuelDifference = getFuelDifference(lastPosition, position);
+
+        if (fuelDifference < 0) {
+            position.set(Position.KEY_FUEL_USED, fuelDifference);
+        }
+
+        calculateFuelConsumptonRatePerHour(lastPosition, position, fuelDifference);
+        calculateFuelConsumptionRateKmPerLitre(lastPosition, position, fuelDifference);
+    }
+
+    private void calculateFuelConsumptonRatePerHour(Position lastPosition, Position position, double fuelDifference) {
 
         double millisecondsBetween = (position.getFixTime().getTime() - lastPosition.getFixTime().getTime());
 
@@ -203,9 +219,8 @@ public class FuelLevelHandler extends BaseDataHandler {
         position.set(Position.KEY_FUEL_INCREASE_PER_HOUR, totalFuelIncreasedWithinHour);
     }
 
-    private void calculateFuelConsumptionRateKmPerLitre(Position lastPosition, Position position) {
-
-        double fuelDifference = getFuelDifference(lastPosition, position);
+    private void calculateFuelConsumptionRateKmPerLitre(Position lastPosition, Position position,
+            double fuelDifference) {
 
         double odometerDifference = (position.getDouble(Position.KEY_ODOMETER)
                 - lastPosition.getDouble(Position.KEY_ODOMETER)) * 0.001; /* in kilometers */
