@@ -148,7 +148,6 @@ public class FuelLevelHandler extends BaseDataHandler {
 
         fuelLevel = lastLeastCalibration.get(FuelCalibration.SLOPE) * currentVoltageReading
                 + lastLeastCalibration.get(FuelCalibration.INTERCEPT);
-        position.set("FUEL_DEBUG", lastLeastCalibration.toString());
 
         return fuelLevel;
     }
