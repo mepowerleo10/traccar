@@ -17,7 +17,7 @@
             <column name="id" type="INT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true" />
             </column>
-            <column name="name" type="VARCHAR">
+            <column name="name" type="VARCHAR(35)">
                 <constraints nullable="false" />
             </column>
             <column name="deviceid" type="INT">
@@ -26,7 +26,7 @@
             <column name="typeid" type="INT">
                 <constraints nullable="false" foreignKeyName="fk_sensor_type" references="tc_fuel_sensors(id)" deleteCascade="false" />
             </column>
-            <column name="fuelport" type="VARCHAR">
+            <column name="fuelport" type="VARCHAR(8)">
                 <constraints nullable="false" />
             </column>
             <column name="iscalibrated" type="BOOLEAN" defaultValueBoolean="false">
