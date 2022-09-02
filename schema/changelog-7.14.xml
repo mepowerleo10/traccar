@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.14">
+
+
+    <changeSet id="changelog-7.14" author="Mussa Mipawa Shomari">
+        <preConditions onFail="HALT">
+            <not>
+                <tableExists tableName="tc_sensors" />
+                <tableExists tableName="tc_device_sensor" />
+                <tableExists tableName="tc_group_sensor" />
+                <tableExists tableName="tc_user_sensor" />
+            </not>
+        </preConditions>
+
+        <createTable tableName="tc_sensors">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true" />
+            </column>
+            <column name="name" type="VARCHAR">
+                <constraints nullable="false" />
+            </column>
+            <column name="deviceid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_sensor_device" references="tc_devices(id)" deleteCascade="true" />
+            </column>
+            <column name="typeid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_sensor_type" references="tc_fuel_sensors(id)" deleteCascade="false" />
+            </column>
+            <column name="fuelport" type="VARCHAR">
+                <constraints nullable="false" />
+            </column>
+            <column name="iscalibrated" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+            <column name="readingtypeid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_sensor_readingType" references="tc_reading_types(id)" deleteCascade="false" />
+            </column>
+            <column name="calibrationid" type="INT">
+                <constraints nullable="true" foreignKeyName="fk_sensor_calibration" references="tc_fuel_calibrations(id)" deleteCascade="false" />
+            </column>
+            <column name="group" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <createIndex tableName="tc_sensors" indexName="tc_sensors_index">
+            <column name="deviceid"/>
+            <column name="typeid"/>
+            <column name="readingtypeid"/>
+            <column name="calibrationid"/>
+        </createIndex>
+
+        <createTable tableName="tc_device_sensor">
+            <column name="deviceid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_device_sensor_deviceid" references="tc_devices(id)" />
+            </column>
+            <column name="sensorid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_device_sensor_sensorid" references="tc_sensors(id)" />
+            </column>
+        </createTable>
+
+        <createIndex tableName="tc_device_sensor" indexName="tc_device_sensor_index">
+            <column name="deviceid"/>
+            <column name="sensorid"/>
+        </createIndex>
+
+        <createTable tableName="tc_user_sensor">
+            <column name="userid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_user_sensor_userid" references="tc_users(id)" />
+            </column>
+            <column name="sensorid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_user_sensor_sensorid" references="tc_sensors(id)" />
+            </column>
+        </createTable>
+
+        <createIndex tableName="tc_user_sensor" indexName="fk_user_sensor_index">
+            <column name="userid"/>
+            <column name="sensorid"/>
+        </createIndex>
+
+        <createTable tableName="tc_group_sensor">
+            <column name="groupid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_group_sensor_groupid" references="tc_groups(id)" />
+            </column>
+            <column name="sensorid" type="INT">
+                <constraints nullable="false" foreignKeyName="fk_group_sensor_sensorid" references="tc_sensors(id)" />
+            </column>
+        </createTable>
+
+        <createIndex tableName="tc_group_sensor" indexName="tc_group_sensor_index">
+            <column name="groupid"/>
+            <column name="sensorid"/>
+        </createIndex>
+
+    </changeSet>
+</databaseChangeLog>
