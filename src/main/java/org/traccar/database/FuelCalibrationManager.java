@@ -33,16 +33,36 @@ public class FuelCalibrationManager extends ExtendedObjectManager<FuelCalibratio
     return fuelCalibrations;
   }
 
+  public List<FuelCalibration> getSensorFuelCalibrations(long sensorId) throws StorageException {
+    List<FuelCalibration> fuelCalibrations;
+    Storage storage = getDataManager().getStorage();
+    fuelCalibrations = storage.getObjects(FuelCalibration.class, new Request(
+        new Columns.All(), new Condition.Equals("sensorid", "sensorid", sensorId)));
+
+    return fuelCalibrations;
+  }
+
   @Override
   public void addItem(FuelCalibration calibration) throws StorageException {
+    deleteOldSensorCalibrations(calibration);
     updateSlopeAndConstant(calibration);
     super.addItem(calibration);
+    super.refreshItems();
   }
 
   @Override
   public void updateItem(FuelCalibration calibration) throws StorageException {
+    deleteOldSensorCalibrations(calibration);
     updateSlopeAndConstant(calibration);
     super.updateItem(calibration);
+    super.refreshItems();
+  }
+
+  private void deleteOldSensorCalibrations(FuelCalibration calibration) throws StorageException {
+    List<FuelCalibration> oldCalibrations = getSensorFuelCalibrations(calibration.getSensorId());
+    for (var c : oldCalibrations) {
+      super.removeItem(c.getId());
+    }
   }
 
   public void updateSlopeAndConstant(FuelCalibration calibration) {

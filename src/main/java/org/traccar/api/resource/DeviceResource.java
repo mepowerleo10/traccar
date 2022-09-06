@@ -18,10 +18,10 @@ package org.traccar.api.resource;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -36,10 +36,12 @@ import org.traccar.Context;
 import org.traccar.api.BaseObjectResource;
 import org.traccar.database.DeviceManager;
 import org.traccar.database.FuelCalibrationManager;
+import org.traccar.database.SensorManager;
 import org.traccar.helper.LogAction;
 import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
 import org.traccar.model.FuelCalibration;
+import org.traccar.model.Sensor;
 import org.traccar.storage.StorageException;
 
 @Path("devices")
@@ -131,9 +133,7 @@ public class DeviceResource extends BaseObjectResource<Device> {
 
         Context.getPermissionsManager().checkAdmin(getUserId());
         FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
-
         calibrationManager.updateItem(calibration);
-
         return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }
 
@@ -143,40 +143,59 @@ public class DeviceResource extends BaseObjectResource<Device> {
             @PathParam("deviceId") long deviceId) throws StorageException {
 
         Context.getPermissionsManager().checkAdmin(getUserId());
-
         return Context.getFuelCalibrationManager().getDeviceFuelCalibrations(deviceId);
     }
 
     @Path("{deviceId}/sensors")
     @GET
-    public List<Map<String, Object>> getDeviceFuelSensor(@PathParam("deviceId") long deviceId)
+    public List<Sensor> getDeviceSensor(@PathParam("deviceId") long deviceId)
             throws StorageException {
 
         Context.getPermissionsManager().checkAdmin(getUserId());
-
-        return Context
-                .getDeviceManager()
-                .getById(deviceId)
-                .getSensors();
+        return Context.getSensorManager().getDeviceSensors(deviceId);
     }
 
     @Path("{deviceId}/sensors")
     @POST
-    public List<Map<String, Object>> setDeviceFuelSensor(@PathParam("deviceId") long deviceId,
-            List<Map<String, Object>> sensors)
+    public List<Sensor> addDeviceSensors(@PathParam("deviceId") long deviceId,
+            List<Sensor> sensors)
             throws StorageException {
 
         Context.getPermissionsManager().checkAdmin(getUserId());
-        DeviceManager deviceManager = Context.getDeviceManager();
-        Device device = deviceManager.getById(deviceId);
+        SensorManager sensorManager = Context.getSensorManager();
+        for (Sensor s : sensors) {
+            sensorManager.addItem(s);
+        }
+        sensorManager.refreshItems();
+        return sensorManager.getDeviceSensors(deviceId);
+    }
 
-        device.setSensors(sensors);
-        deviceManager.updateItem(device);
+    @Path("{deviceId}/sensors")
+    @PUT
+    public List<Sensor> updateDeviceSensors(@PathParam("deviceId") long deviceId, List<Sensor> sensors)
+            throws StorageException {
 
-        return Context
-                .getDeviceManager()
-                .getById(deviceId)
-                .getSensors();
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        SensorManager sensorManager = Context.getSensorManager();
+        for (Sensor s : sensors) {
+            sensorManager.updateItem(s);
+        }
+        sensorManager.refreshItems();
+        return sensorManager.getDeviceSensors(deviceId);
+    }
+
+    @Path("{deviceId}/sensors")
+    @DELETE
+    public List<Sensor> deleteDeviceSensors(@PathParam("deviceId") long deviceId, List<Long> sensorIds)
+            throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        SensorManager sensorManager = Context.getSensorManager();
+        for (Long id : sensorIds) {
+            sensorManager.removeItem(id);
+        }
+        sensorManager.refreshItems();
+        return sensorManager.getDeviceSensors(deviceId);
     }
 
 }

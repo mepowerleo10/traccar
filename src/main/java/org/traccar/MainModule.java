@@ -31,6 +31,7 @@ import org.traccar.database.GeofenceManager;
 import org.traccar.database.IdentityManager;
 import org.traccar.database.MaintenancesManager;
 import org.traccar.database.ReadingTypeManager;
+import org.traccar.database.SensorManager;
 import org.traccar.database.StatisticsManager;
 import org.traccar.geocoder.AddressFormat;
 import org.traccar.geocoder.BanGeocoder;
@@ -168,6 +169,11 @@ public class MainModule extends AbstractModule {
     @Provides
     public static FuelSensorManager provideFuelSensorManager() {
         return Context.getFuelSensorManager();
+    }
+
+    @Provides
+    public static SensorManager provideSensorManager() {
+        return Context.getSensorManager();
     }
 
     @Provides
@@ -381,8 +387,8 @@ public class MainModule extends AbstractModule {
     @Provides
     public static FuelLevelHandler providFuelLevelHandler(
             IdentityManager identityManager, ReadingTypeManager readingTypeManager,
-            FuelCalibrationManager fuelCalibrationManager) {
-        return new FuelLevelHandler(identityManager, readingTypeManager, fuelCalibrationManager);
+            FuelCalibrationManager fuelCalibrationManager, SensorManager sensorManager) {
+        return new FuelLevelHandler(identityManager, readingTypeManager, fuelCalibrationManager, sensorManager);
     }
 
     @Singleton

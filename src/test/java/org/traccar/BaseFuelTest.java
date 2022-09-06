@@ -8,14 +8,22 @@ import org.traccar.model.Device;
 import org.traccar.model.Position;
 
 public class BaseFuelTest {
+    protected final String FUEL_KEY = "fuel1";
     protected TestReadingManager readingManager = new TestReadingManager("MilliVolts", "mV", 1);
     protected TestCalibrationManager calibrationManager = new TestCalibrationManager();
+    protected TestSensorManager sensorManager = new TestSensorManager(
+        1,
+        1,
+        1,
+        FUEL_KEY,
+        true,
+        0
+    );
     protected Date date;
     protected FuelLevelHandler fuelLevelHandler = null;
     protected Position position = null;
     protected Position lastPosition = null;
     protected Device device = null;
-    protected final String FUEL_KEY = "fuel1";
 
     protected double lastVoltage = 1790;
     protected double lastMinimum = 50.0;

@@ -18,7 +18,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     public void testCalculateFuel() {
 
         fuelLevelHandler = new FuelLevelHandler(new TestIdentityManager(),
-                readingManager, calibrationManager);
+                readingManager, calibrationManager, sensorManager);
 
         assertEquals(1, position.getDeviceId());
         assertEquals(1, device.getSensors().size());
@@ -30,7 +30,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
         assertFuelRange(lastExpected, lastMinimum, lastMaximum, lastPosition);
 
         fuelLevelHandler = new FuelLevelHandler(new TestIdentityManager(lastPosition), readingManager,
-                calibrationManager);
+                calibrationManager, sensorManager);
 
         position.setFixTime(new Date(((Number) (date.getTime() + timeDiff)).longValue()));
         position = fuelLevelHandler.handlePosition(position);
@@ -104,13 +104,13 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
 
     public void setUpParameters(double deltaTime, double deltaOdometer) {
         fuelLevelHandler = new FuelLevelHandler(new TestIdentityManager(),
-                readingManager, calibrationManager);
+                readingManager, calibrationManager, sensorManager);
         lastPosition = fuelLevelHandler.handlePosition(lastPosition);
 
         position.setFixTime(new Date(((Number) (date.getTime() + deltaTime)).longValue()));
         position.set(Position.KEY_ODOMETER, deltaOdometer);
         fuelLevelHandler = new FuelLevelHandler(new TestIdentityManager(lastPosition), readingManager,
-                calibrationManager);
+                calibrationManager, sensorManager);
         position = fuelLevelHandler.handlePosition(position);
     }
 

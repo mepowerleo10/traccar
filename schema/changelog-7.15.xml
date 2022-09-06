@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.15">
+
+
+    <changeSet id="changelog-7.15" author="Mussa M. Shomari">
+        <preConditions onFail="HALT">
+            <not>
+                <columnExists tableName="tc_fuel_calibrations" columnName="sensorid" />
+            </not>
+            <tableExists tableName="tc_sensors" />
+        </preConditions>
+
+        <addColumn tableName="tc_fuel_calibrations">
+            <column name="sensorid" afterColumn="deviceid" type="INT">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseTableName="tc_fuel_calibrations" baseColumnNames="sensorid" constraintName="fk_fuel_calibrations_sensor" referencedTableName="tc_sensors" referencedColumnNames="id" onDelete="CASCADE" onUpdate="CASCADE" />
+
+    </changeSet>
+</databaseChangeLog>

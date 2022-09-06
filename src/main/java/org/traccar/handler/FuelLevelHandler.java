@@ -1,17 +1,19 @@
 package org.traccar.handler;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.traccar.BaseDataHandler;
 import org.traccar.database.FuelCalibrationManager;
 import org.traccar.database.IdentityManager;
 import org.traccar.database.ReadingTypeManager;
+import org.traccar.database.SensorManager;
 import org.traccar.model.Device;
 import org.traccar.model.FuelCalibration;
 import org.traccar.model.Position;
 import org.traccar.model.ReadingType;
+import org.traccar.model.Sensor;
 
 import io.netty.channel.ChannelHandler;
 
@@ -20,14 +22,17 @@ public class FuelLevelHandler extends BaseDataHandler {
     private final IdentityManager identityManager;
     private final ReadingTypeManager readingTypeManager;
     private final FuelCalibrationManager fuelCalibrationManager;
+    private final SensorManager sensorManager;
+
     private Map<Integer, Double> sensorsFuelLevels;
     private Map<Integer, Integer> sensorsGroupCount;
 
     public FuelLevelHandler(IdentityManager identityManager, ReadingTypeManager readingTypeManager,
-            FuelCalibrationManager fuelCalibrationManager) {
+            FuelCalibrationManager fuelCalibrationManager, SensorManager sensorManager) {
         this.identityManager = identityManager;
         this.readingTypeManager = readingTypeManager;
         this.fuelCalibrationManager = fuelCalibrationManager;
+        this.sensorManager = sensorManager;
     }
 
     @Override
@@ -35,7 +40,8 @@ public class FuelLevelHandler extends BaseDataHandler {
         if (!position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
             Device device = identityManager.getById(position.getDeviceId());
             try {
-                List<Map<String, Object>> sensors;
+                // List<Map<String, Object>> sensors;
+                Collection<Sensor> sensors;
                 this.sensorsFuelLevels = new HashMap<>();
                 this.sensorsGroupCount = new HashMap<>();
 
@@ -45,10 +51,11 @@ public class FuelLevelHandler extends BaseDataHandler {
                             ? identityManager.getLastPosition(position.getDeviceId())
                             : null;
 
-                    sensors = device.getSensors();
+                    // sensors = device.getSensors();
+                    sensors = sensorManager.getDeviceSensors(device.getId());
 
                     if (sensors.size() > 0) {
-                        for (Map<String, Object> sensor : sensors) {
+                        for (Sensor sensor : sensors) {
                             try {
                                 calculateSensorFuelAtPosition(position, device, sensor);
                             } catch (Exception e) {
@@ -86,19 +93,19 @@ public class FuelLevelHandler extends BaseDataHandler {
     }
 
     private void calculateSensorFuelAtPosition(Position position, Device device,
-            Map<String, Object> sensor) throws Exception {
+            Sensor sensor) throws Exception {
 
-        String fuelLevelPort = (String) sensor.getOrDefault(Device.SENSOR_FUEL_PORT, "fuel1");
+        String fuelLevelPort = sensor.getFuelPort();
         ReadingType readingType = readingTypeManager
-                .getById(((Number) sensor.getOrDefault(Device.SENSOR_READING_ID, 0)).longValue());
-        boolean sensorIsCalibrated = (boolean) sensor.get(Device.SENSOR_ISCALIBRATED);
-        int sensorGroup = ((Number) sensor.getOrDefault(Device.SENSOR_GROUP, 0)).intValue();
+                .getById(sensor.getReadingTypeId());
+        boolean sensorIsCalibrated = sensor.getIsCalibrated();
+        int sensorGroup = sensor.getGroupNo();
         double fuelLevel = 0;
 
         if (sensorIsCalibrated) {
 
             FuelCalibration fuelCalibration = fuelCalibrationManager
-                    .getById(((Number) sensor.get(Device.SENSOR_CALIBRRATION)).longValue());
+                    .getById(sensor.getCalibrationId());
             fuelLevel = getCalibratedSensorFuelLevel(position, fuelLevelPort,
                     fuelCalibration);
 
@@ -121,9 +128,9 @@ public class FuelLevelHandler extends BaseDataHandler {
 
         double currentVoltageReading = position.getDouble(fuelLevelPort);
 
-        if (currentVoltageReading <= 0) {
-            throw new Exception(
-                    fuelLevelPort + " does not have a correct value. Current value: " + currentVoltageReading);
+        if (currentVoltageReading < 0) {
+            position.set("FUEL_SENSOR_ERROR",
+                    fuelLevelPort + " does not have a correct value. Current value: " + currentVoltageReading + " mV");
         }
 
         double fuelLevel = 0;

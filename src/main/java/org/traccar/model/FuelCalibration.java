@@ -27,6 +27,16 @@ public class FuelCalibration extends BaseModel {
     this.deviceId = deviceId;
   }
 
+  private Long sensorId;
+
+  public Long getSensorId() {
+    return sensorId;
+  }
+
+  public void setSensorId(Long sensorId) {
+    this.sensorId = sensorId;
+  }
+
   private List<Map<String, Double>> calibrationEntries = new ArrayList<>();
 
   public List<Map<String, Double>> getCalibrationEntries() {
