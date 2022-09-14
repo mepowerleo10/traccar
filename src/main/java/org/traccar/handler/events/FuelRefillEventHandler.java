@@ -5,6 +5,8 @@ import java.util.Map;
 
 import io.netty.channel.ChannelHandler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.database.IdentityManager;
 import org.traccar.model.Device;
 import org.traccar.model.Event;
@@ -12,12 +14,13 @@ import org.traccar.model.Position;
 
 @ChannelHandler.Sharable
 public class FuelRefillEventHandler extends BaseEventHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuelRefillEventHandler.class);
 
-    private static final int REFILL_CHECK_MINUTES = 20;
+    public static final int REFILL_CHECK_MINUTES = 20;
     public static final String ATTRIBUTE_FUEL_REFILL_THRESHOLD = "fuelRefillThreshold";
     public static final String ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD = "fuelRefillWithinKmThreshold";
 
-    private static final String DEBUG_NAME = "FUEL_REFILL_EVENT_HANDLER";
+    private static final String DEBUG_NAME = FuelRefillEventHandler.class.getName();
 
     private final IdentityManager identityManager;
 
@@ -45,9 +48,6 @@ public class FuelRefillEventHandler extends BaseEventHandler {
                 double fuelRefillTimer = position.getDouble(Position.KEY_FUEL_REFILL_TIMER);
                 if (fuelRefillThreshold > 0 && fuelRefillTimer > REFILL_CHECK_MINUTES) {
                     event = checkRefillWithinTime(position, fuelRefillThreshold);
-
-                    fuelRefillTimer = fuelRefillTimer % REFILL_CHECK_MINUTES;
-                    position.set(Position.KEY_FUEL_REFILL_TIMER, fuelRefillTimer);
                 }
 
                 double fuelRefillWithinKmThreshold = identityManager.lookupAttributeDouble(device.getId(),
@@ -58,7 +58,7 @@ public class FuelRefillEventHandler extends BaseEventHandler {
             }
 
         } catch (Exception e) {
-            position.set(DEBUG_NAME, e.getStackTrace().toString());
+            LOGGER.error(DEBUG_NAME, e.getMessage());
         }
 
         if (event != null) {

@@ -18,6 +18,8 @@ package org.traccar.handler.events;
 import java.util.Collections;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.database.IdentityManager;
 import org.traccar.model.Device;
 import org.traccar.model.Event;
@@ -27,10 +29,11 @@ import io.netty.channel.ChannelHandler;
 
 @ChannelHandler.Sharable
 public class FuelDropEventHandler extends BaseEventHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuelDropEventHandler.class);
 
     public static final String ATTRIBUTE_FUEL_DROP_THRESHOLD = "fuelDropThreshold";
     public static final String ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD = "fuelDropWithinKmThreshold";
-    public static final String DEBUG_NAME = "FUEL_DROP_EVENT_HANDLER";
+    public static final String DEBUG_NAME = FuelDropEventHandler.class.getName();
 
     private final IdentityManager identityManager;
 
@@ -70,7 +73,7 @@ public class FuelDropEventHandler extends BaseEventHandler {
             }
 
         } catch (Exception e) {
-            position.set(DEBUG_NAME, e.getMessage());
+            LOGGER.error(e.getMessage());
         }
 
         if (event != null) {
@@ -88,7 +91,8 @@ public class FuelDropEventHandler extends BaseEventHandler {
             event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
         }
 
-        position.set(DEBUG_NAME, "Consumed: " + fuelConsumed + ", Drop Threshold (KM): " + fuelDropKmPerLitre);
+        LOGGER.info(identityManager.getById(position.getDeviceId()).getName() + " Consumed: " + fuelConsumed
+                + ", Drop Threshold (KM): " + fuelDropKmPerLitre);
 
         return event;
     }
@@ -102,7 +106,8 @@ public class FuelDropEventHandler extends BaseEventHandler {
                     fuelDropLitresPerHour);
         }
 
-        position.set(DEBUG_NAME, "Consumed: " + fuelConsumed + ", Drop Threshold (HR): " + fuelDropLitresPerHour);
+        LOGGER.info(identityManager.getById(position.getDeviceId()).getName() + " Consumed: " + fuelConsumed
+                + ", Drop Threshold (HR): " + fuelDropLitresPerHour);
 
         return dropWithinHourEvent;
     }

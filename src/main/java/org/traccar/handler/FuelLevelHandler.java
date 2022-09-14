@@ -4,11 +4,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.BaseDataHandler;
 import org.traccar.database.FuelCalibrationManager;
 import org.traccar.database.IdentityManager;
 import org.traccar.database.ReadingTypeManager;
 import org.traccar.database.SensorManager;
+import org.traccar.handler.events.FuelRefillEventHandler;
 import org.traccar.model.Device;
 import org.traccar.model.FuelCalibration;
 import org.traccar.model.Position;
@@ -19,6 +22,8 @@ import io.netty.channel.ChannelHandler;
 
 @ChannelHandler.Sharable
 public class FuelLevelHandler extends BaseDataHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuelLevelHandler.class);
+
     private final IdentityManager identityManager;
     private final ReadingTypeManager readingTypeManager;
     private final FuelCalibrationManager fuelCalibrationManager;
@@ -59,7 +64,7 @@ public class FuelLevelHandler extends BaseDataHandler {
                             try {
                                 calculateSensorFuelAtPosition(position, device, sensor);
                             } catch (Exception e) {
-                                position.set("FUEL_DEBUG", e.getMessage());
+                                LOGGER.error("Sensor Fuel Error", e.getMessage());
                             }
                         }
 
@@ -77,15 +82,13 @@ public class FuelLevelHandler extends BaseDataHandler {
                             if (fuelLevel < 0) {
                                 position.set(Position.KEY_FUEL_LEVEL, lastPosition.getDouble(Position.KEY_FUEL_LEVEL));
                             }
-
                             calculateFuelConsumption(lastPosition, position);
-
                         }
 
                     }
                 }
             } catch (Exception e) {
-                position.set("FUEL_DEBUG", e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         }
 
@@ -131,6 +134,8 @@ public class FuelLevelHandler extends BaseDataHandler {
         if (currentVoltageReading < 0) {
             position.set("FUEL_SENSOR_ERROR",
                     fuelLevelPort + " does not have a correct value. Current value: " + currentVoltageReading + " mV");
+            LOGGER.error("Wrong Voltage", "voltage levels in " + fuelLevelPort
+                    + " are less than zero. Current Voltage: " + currentVoltageReading);
         }
 
         double fuelLevel = 0;
@@ -219,6 +224,12 @@ public class FuelLevelHandler extends BaseDataHandler {
             position.set(Position.KEY_FUEL_TOTAL_INCREASED_WITHIN_HOUR, 0);
         } else {
             position.set(Position.KEY_FUEL_CONSUMPTION, lastAverageConsumption);
+        }
+
+        double fuelRefillTimer = position.getDouble(Position.KEY_FUEL_REFILL_TIMER);
+        if (fuelRefillTimer > FuelRefillEventHandler.REFILL_CHECK_MINUTES) {
+            fuelRefillTimer = fuelRefillTimer % FuelRefillEventHandler.REFILL_CHECK_MINUTES;
+            position.set(Position.KEY_FUEL_REFILL_TIMER, fuelRefillTimer);
         }
 
         position.set(Position.KEY_FUEL_CONSUMPTION_PER_HOUR, totalFuelConsumedWithinHour);
