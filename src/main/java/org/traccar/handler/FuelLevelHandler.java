@@ -45,7 +45,6 @@ public class FuelLevelHandler extends BaseDataHandler {
         if (!position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
             Device device = identityManager.getById(position.getDeviceId());
             try {
-                // List<Map<String, Object>> sensors;
                 Collection<Sensor> sensors;
                 this.sensorsFuelLevels = new HashMap<>();
                 this.sensorsGroupCount = new HashMap<>();
@@ -56,7 +55,6 @@ public class FuelLevelHandler extends BaseDataHandler {
                             ? identityManager.getLastPosition(position.getDeviceId())
                             : null;
 
-                    // sensors = device.getSensors();
                     sensors = sensorManager.getDeviceSensors(device.getId());
 
                     if (sensors.size() > 0) {
@@ -64,7 +62,8 @@ public class FuelLevelHandler extends BaseDataHandler {
                             try {
                                 calculateSensorFuelAtPosition(position, device, sensor);
                             } catch (Exception e) {
-                                LOGGER.error("Sensor Fuel Error", e.getMessage());
+                                LOGGER.info("id: " + device.getUniqueId() + ", Sensor Fuel Error",
+                                        e.getStackTrace().toString());
                             }
                         }
 
@@ -76,9 +75,13 @@ public class FuelLevelHandler extends BaseDataHandler {
                             position.set(Position.KEY_TANK + group, tankFuelLevel); // update tank fuel level
                         }
 
-                        position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+                        boolean hasFuelData = sensorsGroupCount.keySet().size() > 0;
 
-                        if (lastPosition != null) {
+                        if (hasFuelData && fuelLevel >= 0) {
+                            position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
+                        }
+
+                        if (lastPosition != null && hasFuelData) {
                             if (fuelLevel < 0) {
                                 position.set(Position.KEY_FUEL_LEVEL, lastPosition.getDouble(Position.KEY_FUEL_LEVEL));
                             }
@@ -88,7 +91,7 @@ public class FuelLevelHandler extends BaseDataHandler {
                     }
                 }
             } catch (Exception e) {
-                LOGGER.error(e.getMessage());
+                LOGGER.error(e.getStackTrace().toString());
             }
         }
 
@@ -104,6 +107,12 @@ public class FuelLevelHandler extends BaseDataHandler {
         boolean sensorIsCalibrated = sensor.getIsCalibrated();
         int sensorGroup = sensor.getGroupNo();
         double fuelLevel = 0;
+
+        boolean positionContainsFuelValue = position.getAttributes().containsKey(fuelLevelPort);
+
+        if (!positionContainsFuelValue) {
+            throw new NullPointerException("Fuel port: " + fuelLevelPort + " does not have a value");
+        }
 
         if (sensorIsCalibrated) {
 
@@ -130,13 +139,6 @@ public class FuelLevelHandler extends BaseDataHandler {
             FuelCalibration fuelCalibration) throws Exception {
 
         double currentVoltageReading = position.getDouble(fuelLevelPort);
-
-        if (currentVoltageReading < 0) {
-            position.set("FUEL_SENSOR_ERROR",
-                    fuelLevelPort + " does not have a correct value. Current value: " + currentVoltageReading + " mV");
-            LOGGER.error("Wrong Voltage", "voltage levels in " + fuelLevelPort
-                    + " are less than zero. Current Voltage: " + currentVoltageReading);
-        }
 
         double fuelLevel = 0;
         double index = -1;

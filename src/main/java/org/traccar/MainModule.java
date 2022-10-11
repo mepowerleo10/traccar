@@ -402,9 +402,10 @@ public class MainModule extends AbstractModule {
 
     @Singleton
     @Provides
-    public static DefaultDataHandler provideDefaultDataHandler(@Nullable DataManager dataManager) {
+    public static DefaultDataHandler provideDefaultDataHandler(IdentityManager identityManager,
+            @Nullable DataManager dataManager) {
         if (dataManager != null) {
-            return new DefaultDataHandler(dataManager);
+            return new DefaultDataHandler(identityManager, dataManager);
         }
         return null;
     }

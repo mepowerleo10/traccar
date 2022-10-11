@@ -58,7 +58,7 @@ public class FuelRefillEventHandler extends BaseEventHandler {
             }
 
         } catch (Exception e) {
-            LOGGER.error(DEBUG_NAME, e.getMessage());
+            LOGGER.error("id: " + device.getUniqueId() + ", " + e.getStackTrace().toString());
         }
 
         if (event != null) {

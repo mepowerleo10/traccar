@@ -73,7 +73,7 @@ public class FuelDropEventHandler extends BaseEventHandler {
             }
 
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("id: " + device.getUniqueId() + e.getStackTrace().toString());
         }
 
         if (event != null) {

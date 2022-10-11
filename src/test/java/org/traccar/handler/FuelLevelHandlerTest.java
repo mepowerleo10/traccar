@@ -1,6 +1,7 @@
 package org.traccar.handler;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -11,6 +12,7 @@ import org.traccar.BaseFuelTest;
 import org.traccar.TestIdentityManager;
 import org.traccar.model.Device;
 import org.traccar.model.Position;
+import org.traccar.model.Sensor;
 
 public class FuelLevelHandlerTest extends BaseFuelTest {
 
@@ -35,6 +37,22 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
         position.setFixTime(new Date(((Number) (date.getTime() + timeDiff)).longValue()));
         position = fuelLevelHandler.handlePosition(position);
         assertFuelRange(currentExpected, currentMinimum, currentMaximum, position);
+
+    }
+
+    @Test
+    public void testCalculateFuelWithNoSensorValue() {
+
+        Position positionWithNoFuelValue = new Position();
+        positionWithNoFuelValue.setDeviceId(device.getId());
+        
+        fuelLevelHandler = new FuelLevelHandler(new TestIdentityManager(),
+                readingManager, calibrationManager, sensorManager);
+        Sensor sensor = sensorManager.getById(1);
+
+        assertFalse(positionWithNoFuelValue.getAttributes().containsKey(sensor.getFuelPort()));
+        
+        assertFalse(positionWithNoFuelValue.getAttributes().containsKey(Position.KEY_FUEL_LEVEL));
 
     }
 
