@@ -59,6 +59,9 @@ public class Position extends Message {
     public static final String KEY_FUEL_USED = "fuelUsed"; // liters
     public static final String KEY_FUEL_CURRENT_MAX_VOLTAGE = "fuelCurrentMaxVoltage";
 
+    public static final String KEY_FUEL_HISTORY = "fuelHistory";
+    public static final String KEY_FUEL_NORMALIZED = "fuelNormalized";
+    public static final String KEY_FUEL_RAW = "fuelRaw";
     public static final String KEY_FUEL_CONSUMPTION_PER_HOUR = "fuelConsumptionPerHour";
     public static final String KEY_FUEL_INCREASE_PER_HOUR = "fuelIncreasePerHour";
     public static final String KEY_FUEL_CONSUMPTION_PER_KM = "fuelConsumptionPerKm";
@@ -74,6 +77,8 @@ public class Position extends Message {
     public static final String KEY_FUEL_CONSUMPTION_KM_PER_LITRE = "fuelConsumptionKmPerLitre"; // km/litre
     public static final String KEY_FUEL_REFILL_TIMER = "fuelRefillTimer";
 
+    public static final String KEY_ID = "id";
+    public static final String KEY_VALUE = "value";
     public static final String KEY_VERSION_FW = "versionFw";
     public static final String KEY_VERSION_HW = "versionHw";
     public static final String KEY_TYPE = "type";

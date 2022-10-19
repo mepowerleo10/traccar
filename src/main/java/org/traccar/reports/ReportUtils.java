@@ -123,8 +123,13 @@ public final class ReportUtils {
 
     public static double calculateFuelSpent(Collection<Position> positions) {
         BigDecimal fuelUsed = BigDecimal.valueOf(0.0);
+        Position last = null;
+
         for (Position position : positions) {
-            fuelUsed = BigDecimal.valueOf((position.getDouble(Position.KEY_FUEL_USED) + fuelUsed.doubleValue()));
+            if (last != null && !last.getDeviceTime().equals(position.getDeviceTime())) {
+                fuelUsed = BigDecimal.valueOf((position.getDouble(Position.KEY_FUEL_USED) + fuelUsed.doubleValue()));
+            }
+            last = position;
         }
 
         return Math.abs(fuelUsed.setScale(1, RoundingMode.HALF_EVEN).doubleValue());

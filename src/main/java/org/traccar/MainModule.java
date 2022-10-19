@@ -63,6 +63,7 @@ import org.traccar.handler.DefaultDataHandler;
 import org.traccar.handler.DistanceHandler;
 import org.traccar.handler.EngineHoursHandler;
 import org.traccar.handler.FilterHandler;
+import org.traccar.handler.FuelDataSmoothingHandler;
 import org.traccar.handler.FuelLevelHandler;
 import org.traccar.handler.GeocoderHandler;
 import org.traccar.handler.GeolocationHandler;
@@ -177,7 +178,7 @@ public class MainModule extends AbstractModule {
     }
 
     @Provides
-    public static FuelCalibrationManager providFuelCalibration() {
+    public static FuelCalibrationManager provideFuelCalibration() {
         return Context.getFuelCalibrationManager();
     }
 
@@ -385,10 +386,17 @@ public class MainModule extends AbstractModule {
 
     @Singleton
     @Provides
-    public static FuelLevelHandler providFuelLevelHandler(
+    public static FuelLevelHandler provideFuelLevelHandler(
             IdentityManager identityManager, ReadingTypeManager readingTypeManager,
             FuelCalibrationManager fuelCalibrationManager, SensorManager sensorManager) {
         return new FuelLevelHandler(identityManager, readingTypeManager, fuelCalibrationManager, sensorManager);
+    }
+
+    @Singleton
+    @Provides
+    public static FuelDataSmoothingHandler provideFuelDataSmoothingHandler(
+            IdentityManager identityManager, DataManager dataManager) {
+        return new FuelDataSmoothingHandler(identityManager, dataManager);
     }
 
     @Singleton
