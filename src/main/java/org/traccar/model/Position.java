@@ -54,23 +54,33 @@ public class Position extends Message {
     public static final String KEY_POWER = "power"; // volts
     public static final String KEY_BATTERY = "battery"; // volts
     public static final String KEY_BATTERY_LEVEL = "batteryLevel"; // percentage
+    public static final String KEY_TANK = "fuelTank"; // litres
     public static final String KEY_FUEL_LEVEL = "fuel"; // liters
-    public static final String KEY_FUEL_TIMER = "fuelTimer";
+    public static final String KEY_FUEL_NORMALIZED = "fuelNormalized"; // litres
     public static final String KEY_FUEL_USED = "fuelUsed"; // liters
     public static final String KEY_FUEL_CURRENT_MAX_VOLTAGE = "fuelCurrentMaxVoltage";
 
-    public static final String KEY_FUEL_RATE_LITERS = "rateLitresPerHour";
-    public static final String KEY_FUEL_RATE_KM = "rateKmPerHour";
+    public static final String KEY_FUEL_HISTORY = "fuelHistory";
+    public static final String KEY_FUEL_FILTERED_VOLTAGE = "fuelFilteredVoltage";
+    public static final String KEY_FUEL_VOLTAGE = "fuelVoltage";
+    public static final String KEY_FUEL_RAW = "fuelRaw";
+    public static final String KEY_FUEL_CONSUMPTION_PER_HOUR = "fuelConsumptionPerHour";
+    public static final String KEY_FUEL_INCREASE_PER_HOUR = "fuelIncreasePerHour";
+    public static final String KEY_FUEL_CONSUMPTION_PER_KM = "fuelConsumptionPerKm";
+    public static final String KEY_FUEL_INCREASE_PER_KM = "fuelIncreasePerKm";
 
     public static final String KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR = "fuelTotalConsumedWithinHour";
-    public static final String KEY_FUEL_POSITIONS_COUNT_WITHIN_HOUR = "fuelPositionsCountWithinHour";
+    public static final String KEY_FUEL_TOTAL_INCREASED_WITHIN_HOUR = "fuelTotalIncreasedWithinHour";
     public static final String KEY_FUEL_THRESHOLD_TIME = "thresholdTime";
     public static final String KEY_FUEL_TOTAL_CONSUMED_WITHIN_KM = "fuelTotalConsumedWithinKm";
-    public static final String KEY_FUEL_POSITIONS_COUNT_WITHIN_KM = "fuelPositionsCountWithinKm";
+    public static final String KEY_FUEL_TOTAL_INCREASED_WITHIN_KM = "fuelTotalIncreasedWithinKm";
     public static final String KEY_FUEL_THRESHOLD_DISTANCE = "thresholdDistance";
     public static final String KEY_FUEL_CONSUMPTION = "fuelConsumption"; // liters/hour
     public static final String KEY_FUEL_CONSUMPTION_KM_PER_LITRE = "fuelConsumptionKmPerLitre"; // km/litre
+    public static final String KEY_FUEL_REFILL_TIMER = "fuelRefillTimer";
 
+    public static final String KEY_ID = "id";
+    public static final String KEY_VALUE = "value";
     public static final String KEY_VERSION_FW = "versionFw";
     public static final String KEY_VERSION_HW = "versionHw";
     public static final String KEY_TYPE = "type";
@@ -157,6 +167,13 @@ public class Position extends Message {
     public static final String ALARM_FUEL_LEAK = "fuelLeak";
     public static final String ALARM_TAMPERING = "tampering";
     public static final String ALARM_REMOVING = "removing";
+    public static final String KEY_INITIAL_ESTIMATE = "initialEstimate";
+    public static final String KEY_INITIAL_COVARIANCE = "initialCovariance";
+    public static final String KEY_X_HAT = "xHat";
+    public static final String KEY_P = "P";
+    public static final String KEY_X_HAT_MINUS = "xHatMinus";
+    public static final String KEY_K = "K"; // Kalman Gain
+    public static final String KEY_P_MINUS = "pMinus";
 
     public Position() {
     }

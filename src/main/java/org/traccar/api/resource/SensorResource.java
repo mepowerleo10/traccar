@@ -6,15 +6,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.traccar.api.ExtendedObjectResource;
-import org.traccar.model.FuelCalibration;
+import org.traccar.model.Sensor;
 
-@Path("calibrations")
+@Path("sensors")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class FuelCalibrationResource extends ExtendedObjectResource<FuelCalibration> {
+public class SensorResource extends ExtendedObjectResource<Sensor> {
 
-  public FuelCalibrationResource() {
-    super(FuelCalibration.class);
-  }
+    public SensorResource() {
+        super(Sensor.class);
+    }
 
 }

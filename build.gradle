@@ -101,3 +101,11 @@ jar {
                 "Class-Path": configurations.runtimeClasspath.files.collect { "lib/$it.name" }.join(" "))
     }
 }
+
+sourceSets {
+    main {
+        java {
+            srcDir 'build/generated/source/proto/main/java/'
+        }
+    }
+}

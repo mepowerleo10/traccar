@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.12">
+
+
+    <changeSet id="changelog-7.12" author="author">
+        <preConditions onFail="HALT">
+            <columnExists tableName="tc_devices" columnName="fuelsensorid" />
+            <columnExists tableName="tc_devices" columnName="fuelslope" />
+            <columnExists tableName="tc_devices" columnName="fuelconstant" />
+        </preConditions>
+
+        <dropForeignKeyConstraint baseTableName="tc_devices" constraintName="fk_tc_devices_fuelsensorid" />
+
+        <dropColumn tableName="tc_devices">
+            <column name="fuelsensorid" type="INT" />
+        </dropColumn>
+
+        <dropColumn tableName="tc_devices">
+            <column name="fuelslope" type="DOUBLE" />
+        </dropColumn>
+
+        <dropColumn tableName="tc_devices">
+            <column name="fuelconstant" type="DOUBLE" />
+        </dropColumn>
+
+        <addColumn tableName="tc_devices">
+            <column name="sensors" type="JSON" />
+        </addColumn>
+
+        <addColumn tableName="tc_devices">
+            <column name="sensorgroups" type="JSON" />
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

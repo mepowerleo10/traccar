@@ -5,6 +5,8 @@ import java.util.Map;
 
 import io.netty.channel.ChannelHandler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.database.IdentityManager;
 import org.traccar.model.Device;
 import org.traccar.model.Event;
@@ -12,9 +14,13 @@ import org.traccar.model.Position;
 
 @ChannelHandler.Sharable
 public class FuelRefillEventHandler extends BaseEventHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuelRefillEventHandler.class);
 
+    public static final int REFILL_CHECK_MINUTES = 20;
     public static final String ATTRIBUTE_FUEL_REFILL_THRESHOLD = "fuelRefillThreshold";
     public static final String ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD = "fuelRefillWithinKmThreshold";
+
+    private static final String DEBUG_NAME = FuelRefillEventHandler.class.getName();
 
     private final IdentityManager identityManager;
 
@@ -35,56 +41,60 @@ public class FuelRefillEventHandler extends BaseEventHandler {
             return null;
         }
 
-        if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+        try {
+            if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+                double fuelRefillThreshold = identityManager.lookupAttributeDouble(device.getId(),
+                        ATTRIBUTE_FUEL_REFILL_THRESHOLD, 0, true, false);
+                double fuelRefillTimer = position.getDouble(Position.KEY_FUEL_REFILL_TIMER);
+                if (fuelRefillThreshold > 0 && fuelRefillTimer > REFILL_CHECK_MINUTES) {
+                    event = checkRefillWithinTime(position, fuelRefillThreshold);
+                }
 
-            double fuelRefillThreshold = identityManager.lookupAttributeDouble(device.getId(),
-                    ATTRIBUTE_FUEL_REFILL_THRESHOLD, 0, true, false);
-            if (fuelRefillThreshold > 0) {
-                event = checkRefillWithinHour(position, fuelRefillThreshold);
+                double fuelRefillWithinKmThreshold = identityManager.lookupAttributeDouble(device.getId(),
+                        ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD, 0, true, false);
+                if (fuelRefillWithinKmThreshold > 0 && !device.getBoolean(Device.ATTRIBUTE_STATIC)) {
+                    event = checkRefillWithinKm(position, fuelRefillWithinKmThreshold);
+                }
             }
 
-            double fuelRefillWithinKmThreshold = identityManager.lookupAttributeDouble(device.getId(),
-                    ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD, 0, true, false);
-            if (fuelRefillWithinKmThreshold > 0) {
-                event = checkRefillWithinKm(position, fuelRefillWithinKmThreshold);
-            }
+        } catch (Exception e) {
+            LOGGER.error("id: " + device.getUniqueId() + ", " + e.getStackTrace().toString());
+        }
 
-            if (event != null) {
-                return Collections.singletonMap(event, position);
-            }
-
+        if (event != null) {
+            return Collections.singletonMap(event, position);
         }
 
         return null;
     }
 
     private Event checkRefillWithinKm(Position position, double fuelRefillWithinKmThreshold) {
-        Event event = null;
-        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION_KM_PER_LITRE);
+        Event refillInKmEvent = null;
+        double fuelLevelIncrease = position.getDouble(Position.KEY_FUEL_INCREASE_PER_KM);
 
-        if (averageConsumption > fuelRefillWithinKmThreshold && Math.abs(averageConsumption) != 0) {
-            event = generateFuelRefillEvent(position, ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD,
+        if (fuelLevelIncrease > fuelRefillWithinKmThreshold && Math.abs(fuelLevelIncrease) != 0) {
+            refillInKmEvent = generateFuelRefillEvent(position, ATTRIBUTE_FUEL_REFILL_WITHIN_KM_THRESHOLD,
                     fuelRefillWithinKmThreshold);
         }
 
-        return event;
+        return refillInKmEvent;
     }
 
-    private Event checkRefillWithinHour(Position position, double fuelRefillThreshold) {
-        Event event = null;
-        double averageConsumption = position.getDouble(Position.KEY_FUEL_CONSUMPTION);
+    private Event checkRefillWithinTime(Position position, double fuelRefillThreshold) throws Exception {
+        Event refillInHourEvent = null;
+        double fuelLevelIncrease = position.getDouble(Position.KEY_FUEL_INCREASE_PER_HOUR);
 
-        if (averageConsumption > fuelRefillThreshold && Math.abs(averageConsumption) != 0) {
-            event = generateFuelRefillEvent(position, ATTRIBUTE_FUEL_REFILL_THRESHOLD,
+        if (fuelLevelIncrease > fuelRefillThreshold && Math.abs(fuelLevelIncrease) != 0) {
+            refillInHourEvent = generateFuelRefillEvent(position, ATTRIBUTE_FUEL_REFILL_THRESHOLD,
                     fuelRefillThreshold);
         }
 
-        return event;
+        return refillInHourEvent;
     }
 
-    private Event generateFuelRefillEvent(Position position, String attributeName, double fuelDropThreshold) {
+    private Event generateFuelRefillEvent(Position position, String attributeName, double threshold) {
         Event event = new Event(Event.TYPE_DEVICE_FUEL_REFILL, position);
-        event.set(attributeName, fuelDropThreshold);
+        event.set(attributeName, threshold);
         return event;
     }
 
