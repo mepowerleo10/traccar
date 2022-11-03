@@ -16,10 +16,15 @@
 package org.traccar.handler;
 
 import io.netty.channel.ChannelHandler;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traccar.BaseDataHandler;
 import org.traccar.database.DataManager;
+import org.traccar.database.IdentityManager;
 import org.traccar.model.Position;
 
 @ChannelHandler.Sharable
@@ -28,8 +33,11 @@ public class DefaultDataHandler extends BaseDataHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultDataHandler.class);
 
     private final DataManager dataManager;
+    private final IdentityManager identityManager;
+    private final DateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy hh:mm:ss");
 
-    public DefaultDataHandler(DataManager dataManager) {
+    public DefaultDataHandler(IdentityManager identityManager, DataManager dataManager) {
+        this.identityManager = identityManager;
         this.dataManager = dataManager;
     }
 
@@ -37,7 +45,13 @@ public class DefaultDataHandler extends BaseDataHandler {
     protected Position handlePosition(Position position) {
 
         try {
-            dataManager.addObject(position);
+            Position last = identityManager.getLastPosition(position.getDeviceId());
+            if (!last.getDeviceTime().equals(position.getDeviceTime())) {
+                dataManager.addObject(position);
+            } else {
+                throw new Exception("Device ID: " + position.getDeviceId() + " position time is repeated at Time: "
+                        + dateFormat.format(position.getDeviceTime()));
+            }
         } catch (Exception error) {
             LOGGER.warn("Failed to store position", error);
         }

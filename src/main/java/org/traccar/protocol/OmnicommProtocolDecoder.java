@@ -15,11 +15,11 @@
  */
 package org.traccar.protocol;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
+import java.net.SocketAddress;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.traccar.BaseProtocolDecoder;
 import org.traccar.DeviceSession;
 import org.traccar.NetworkMessage;
@@ -30,10 +30,12 @@ import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Position;
 import org.traccar.protobuf.omnicomm.OmnicommMessageOuterClass;
 
-import java.net.SocketAddress;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 
 public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
 
@@ -134,9 +136,48 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
 
                 if (message.hasLLSDt()) {
                     OmnicommMessageOuterClass.OmnicommMessage.LLSDt data = message.getLLSDt();
-                    position.set("fuel1Temp", data.getTLLS1());
-                    position.set("fuel1", data.getCLLS1());
-                    position.set("fuel1State", data.getFLLS1());
+
+                    try {
+                        if (data.hasTLLS1()) {
+                            setLLSData(1, data.getTLLS1(), data.getCLLS1(), data.getFLLS1(), position);
+                        }
+
+                        if (data.hasTLLS2()) {
+                            setLLSData(2, data.getTLLS2(), data.getCLLS2(), data.getFLLS2(), position);
+                        }
+
+                        if (data.hasTLLS3()) {
+                            setLLSData(3, data.getTLLS3(), data.getCLLS3(), data.getFLLS3(), position);
+                        }
+
+                        if (data.hasTLLS4()) {
+                            setLLSData(4, data.getTLLS4(), data.getCLLS4(), data.getFLLS4(), position);
+                        }
+
+                        if (data.hasTLLS5()) {
+                            setLLSData(5, data.getTLLS5(), data.getCLLS5(), data.getFLLS5(), position);
+                        }
+
+                        if (data.hasTLLS6()) {
+                            setLLSData(6, data.getTLLS6(), data.getCLLS6(), data.getFLLS6(), position);
+                        }
+
+                        if (data.hasTLLS7()) {
+                            setLLSData(7, data.getTLLS7(), data.getCLLS7(), data.getFLLS7(), position);
+                        }
+
+                        if (data.hasTLLS8()) {
+                            setLLSData(8, data.getTLLS8(), data.getCLLS8(), data.getFLLS8(), position);
+                        }
+                    } catch (Exception e) {
+                        position.set("FUEL_PARAMETER_ERROR", e.getMessage());
+                    }
+
+                    /*
+                     * position.set("fuel1Temp", data.getTLLS1());
+                     * position.set("fuel1", data.getCLLS1());
+                     * position.set("fuel1State", data.getFLLS1());
+                     */
                 }
 
                 if (position.getFixTime() != null) {
@@ -153,6 +194,13 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
         }
 
         return null;
+    }
+
+    private void setLLSData(int number, int tllsValue, int cllsValue, int fllsValue, Position position) {
+        String parameterName = "fuel" + number;
+        position.set(parameterName + "Temp", tllsValue);
+        position.set(parameterName, cllsValue);
+        position.set(parameterName + "State", fllsValue);
     }
 
 }
