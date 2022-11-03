@@ -1,9 +1,18 @@
 package org.traccar.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.traccar.storage.StorageName;
 
 @StorageName("tc_fuel_calibrations")
-public class FuelCalibration extends ExtendedModel {
+public class FuelCalibration extends BaseModel {
+
+  public static final String FUEL_LEVEL = "fuel";
+  public static final String VOLTAGE = "voltage";
+  public static final String SLOPE = "slope";
+  public static final String INTERCEPT = "intercept";
 
   public FuelCalibration() {
   }
@@ -18,23 +27,48 @@ public class FuelCalibration extends ExtendedModel {
     this.deviceId = deviceId;
   }
 
-  private Double voltage;
+  private Long sensorId;
 
-  public Double getVoltage() {
-    return voltage;
+  public Long getSensorId() {
+    return sensorId;
   }
 
-  public void setVoltage(Double voltage) {
-    this.voltage = voltage;
+  public void setSensorId(Long sensorId) {
+    this.sensorId = sensorId;
   }
 
-  private Double fuelLevel;
+  private List<Map<String, Double>> calibrationEntries = new ArrayList<>();
 
-  public Double getFuelLevel() {
-    return fuelLevel;
+  public List<Map<String, Double>> getCalibrationEntries() {
+    return calibrationEntries;
   }
 
-  public void setFuelLevel(Double fuelLevel) {
-    this.fuelLevel = fuelLevel;
+  public void setCalibrationEntries(List<Map<String, Double>> calibrationEntries) {
+    this.calibrationEntries = calibrationEntries;
   }
+
+  public double get(int i, String key) {
+    if (key != null && i < calibrationEntries.size() && calibrationEntries.get(i).containsKey(key)) {
+      return ((Number) calibrationEntries.get(i).get(key)).doubleValue();
+    } else {
+      return 0.0;
+    }
+  }
+
+  public void set(int i, Map<String, Double> calibration) {
+    if (calibration != null && !calibration.isEmpty()) {
+      if (i < calibrationEntries.size()) {
+        calibrationEntries.set(i, calibration);
+      } else {
+        add(calibration);
+      }
+    }
+  }
+
+  public void add(Map<String, Double> calibration) {
+    if (calibration != null && !calibration.isEmpty()) {
+      calibrationEntries.add(calibration);
+    }
+  }
+
 }

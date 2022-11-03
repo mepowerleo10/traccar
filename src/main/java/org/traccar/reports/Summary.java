@@ -20,6 +20,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -44,10 +46,19 @@ public final class Summary {
         if (positions != null && !positions.isEmpty()) {
             Position firstPosition = null;
             Position previousPosition = null;
+
+            BigDecimal fuelUsed = BigDecimal.valueOf(0.0);
+
             for (Position position : positions) {
                 if (firstPosition == null) {
                     firstPosition = position;
                 }
+
+                if (previousPosition != null && !previousPosition.getDeviceTime().equals(position.getDeviceTime())) {
+                    fuelUsed = BigDecimal
+                            .valueOf((position.getDouble(Position.KEY_FUEL_USED) + fuelUsed.doubleValue()));
+                }
+
                 previousPosition = position;
                 if (position.getSpeed() > result.getMaxSpeed()) {
                     result.setMaxSpeed(position.getSpeed());
@@ -56,17 +67,16 @@ public final class Summary {
             boolean ignoreOdometer = Context.getDeviceManager()
                     .lookupAttributeBoolean(deviceId, "report.ignoreOdometer", false, false, true);
             result.setDistance(ReportUtils.calculateDistance(firstPosition, previousPosition, !ignoreOdometer));
-            result.setSpentFuel(ReportUtils.calculateFuel(firstPosition, previousPosition));
+            result.setSpentFuel(Math.abs(fuelUsed.setScale(1, RoundingMode.HALF_EVEN).doubleValue()));
 
             long durationMilliseconds;
             if (firstPosition.getAttributes().containsKey(Position.KEY_HOURS)
                     && previousPosition.getAttributes().containsKey(Position.KEY_HOURS)) {
-                durationMilliseconds =
-                        previousPosition.getLong(Position.KEY_HOURS) - firstPosition.getLong(Position.KEY_HOURS);
+                durationMilliseconds = previousPosition.getLong(Position.KEY_HOURS)
+                        - firstPosition.getLong(Position.KEY_HOURS);
                 result.setEngineHours(durationMilliseconds);
             } else {
-                durationMilliseconds =
-                        previousPosition.getFixTime().getTime() - firstPosition.getFixTime().getTime();
+                durationMilliseconds = previousPosition.getFixTime().getTime() - firstPosition.getFixTime().getTime();
             }
 
             if (durationMilliseconds > 0) {
@@ -125,7 +135,7 @@ public final class Summary {
             Collection<Long> groupIds, Date from, Date to, boolean daily) throws StorageException {
         ReportUtils.checkPeriodLimit(from, to);
         ArrayList<SummaryReport> result = new ArrayList<>();
-        for (long deviceId: ReportUtils.getDeviceList(deviceIds, groupIds)) {
+        for (long deviceId : ReportUtils.getDeviceList(deviceIds, groupIds)) {
             Context.getPermissionsManager().checkDevice(userId, deviceId);
             result.addAll(calculateSummaryResults(userId, deviceId, from, to, daily));
         }

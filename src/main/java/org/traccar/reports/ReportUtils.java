@@ -121,6 +121,20 @@ public final class ReportUtils {
         return 0;
     }
 
+    public static double calculateFuelSpent(Collection<Position> positions) {
+        BigDecimal fuelUsed = BigDecimal.valueOf(0.0);
+        Position last = null;
+
+        for (Position position : positions) {
+            if (last != null && !last.getDeviceTime().equals(position.getDeviceTime())) {
+                fuelUsed = BigDecimal.valueOf((position.getDouble(Position.KEY_FUEL_USED) + fuelUsed.doubleValue()));
+            }
+            last = position;
+        }
+
+        return Math.abs(fuelUsed.setScale(1, RoundingMode.HALF_EVEN).doubleValue());
+    }
+
     public static String findDriver(Position firstPosition, Position lastPosition) {
         if (firstPosition.getAttributes().containsKey(Position.KEY_DRIVER_UNIQUE_ID)) {
             return firstPosition.getString(Position.KEY_DRIVER_UNIQUE_ID);
@@ -218,7 +232,7 @@ public final class ReportUtils {
             trip.setAverageSpeed(UnitsConverter.knotsFromMps(trip.getDistance() * 1000 / tripDuration));
         }
         trip.setMaxSpeed(speedMax);
-        trip.setSpentFuel(calculateFuel(startTrip, endTrip));
+        trip.setSpentFuel(calculateFuelSpent(positions));
 
         trip.setDriverUniqueId(findDriver(startTrip, endTrip));
         trip.setDriverName(findDriverName(trip.getDriverUniqueId()));
@@ -263,7 +277,7 @@ public final class ReportUtils {
 
         long stopDuration = endStop.getFixTime().getTime() - startStop.getFixTime().getTime();
         stop.setDuration(stopDuration);
-        stop.setSpentFuel(calculateFuel(startStop, endStop));
+        stop.setSpentFuel(calculateFuelSpent(positions));
 
         if (startStop.getAttributes().containsKey(Position.KEY_HOURS)
                 && endStop.getAttributes().containsKey(Position.KEY_HOURS)) {
@@ -297,11 +311,11 @@ public final class ReportUtils {
     private static boolean isMoving(ArrayList<Position> positions, int index, TripsConfig tripsConfig) {
         if (tripsConfig.getMinimalNoDataDuration() > 0) {
             boolean beforeGap = index < positions.size() - 1
-                    && positions.get(index + 1).getFixTime().getTime() - positions.get(index).getFixTime().getTime()
-                    >= tripsConfig.getMinimalNoDataDuration();
+                    && positions.get(index + 1).getFixTime().getTime()
+                            - positions.get(index).getFixTime().getTime() >= tripsConfig.getMinimalNoDataDuration();
             boolean afterGap = index > 0
-                    && positions.get(index).getFixTime().getTime() - positions.get(index - 1).getFixTime().getTime()
-                    >= tripsConfig.getMinimalNoDataDuration();
+                    && positions.get(index).getFixTime().getTime()
+                            - positions.get(index - 1).getFixTime().getTime() >= tripsConfig.getMinimalNoDataDuration();
             if (beforeGap || afterGap) {
                 return false;
             }
@@ -324,7 +338,7 @@ public final class ReportUtils {
         ArrayList<Position> positions = new ArrayList<>(positionCollection);
         if (!positions.isEmpty()) {
             boolean trips = reportClass.equals(TripReport.class);
-            MotionEventHandler  motionHandler = new MotionEventHandler(identityManager, deviceManager, tripsConfig);
+            MotionEventHandler motionHandler = new MotionEventHandler(identityManager, deviceManager, tripsConfig);
             DeviceState deviceState = new DeviceState();
             deviceState.setMotionState(isMoving(positions, 0, tripsConfig));
             int startEventIndex = trips == deviceState.getMotionState() ? 0 : -1;
@@ -334,7 +348,7 @@ public final class ReportUtils {
                         isMoving(positions, i, tripsConfig));
                 if (startEventIndex == -1
                         && (trips != deviceState.getMotionState() && deviceState.getMotionPosition() != null
-                        || trips == deviceState.getMotionState() && event != null)) {
+                                || trips == deviceState.getMotionState() && event != null)) {
                     startEventIndex = i;
                     startNoEventIndex = -1;
                 } else if (trips != deviceState.getMotionState() && startEventIndex != -1
@@ -343,7 +357,7 @@ public final class ReportUtils {
                 }
                 if (startNoEventIndex == -1
                         && (trips == deviceState.getMotionState() && deviceState.getMotionPosition() != null
-                        || trips != deviceState.getMotionState() && event != null)) {
+                                || trips != deviceState.getMotionState() && event != null)) {
                     startNoEventIndex = i;
                 } else if (startNoEventIndex != -1 && deviceState.getMotionPosition() == null && event == null) {
                     startNoEventIndex = -1;
@@ -357,8 +371,8 @@ public final class ReportUtils {
             }
             if (startEventIndex != -1 && (startNoEventIndex != -1 || !trips)) {
                 result.add(calculateTripOrStop(positions, startEventIndex,
-                            startNoEventIndex != -1 ? startNoEventIndex : positions.size() - 1,
-                            ignoreOdometer, reportClass));
+                        startNoEventIndex != -1 ? startNoEventIndex : positions.size() - 1,
+                        ignoreOdometer, reportClass));
             }
         }
 

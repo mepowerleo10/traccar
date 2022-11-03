@@ -26,6 +26,17 @@ public class Event extends Message {
         setType(type);
         setPositionId(position.getId());
         setDeviceId(position.getDeviceId());
+
+        set(Position.KEY_FUEL_LEVEL, position.getDouble(Position.KEY_FUEL_LEVEL));
+        set(Position.KEY_FUEL_USED, position.getDouble(Position.KEY_FUEL_USED));
+        set(Position.KEY_POWER, position.getDouble(Position.KEY_POWER));
+        set(Position.KEY_BATTERY, position.getDouble(Position.KEY_BATTERY));
+        set(Position.KEY_BATTERY_LEVEL, position.getDouble(Position.KEY_BATTERY_LEVEL));
+        set("speed", position.getSpeed());
+
+        set(KEY_LATITUDE, position.getLatitude());
+        set(KEY_LONGITUDE, position.getLongitude());
+
         eventTime = position.getDeviceTime();
     }
 
@@ -67,6 +78,9 @@ public class Event extends Message {
     public static final String TYPE_TEXT_MESSAGE = "textMessage";
 
     public static final String TYPE_DRIVER_CHANGED = "driverChanged";
+
+    public static final String KEY_LATITUDE = "latitude";
+    public static final String KEY_LONGITUDE = "longitude";
 
     private Date eventTime;
 
