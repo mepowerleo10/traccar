@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-7.13">
+
+
+    <changeSet id="changelog-7.13" author="author">
+        <preConditions onFail="HALT">
+            <columnExists tableName="tc_fuel_calibrations" columnName="calibrationentries" />
+            <columnExists tableName="tc_devices" columnName="sensorgroups" />
+        </preConditions>
+
+        <modifyDataType tableName="tc_fuel_calibrations" columnName="calibrationentries" newDataType="JSON" />
+        <dropColumn tableName="tc_devices" columnName="sensorgroups" />
+        
+    </changeSet>
+</databaseChangeLog>

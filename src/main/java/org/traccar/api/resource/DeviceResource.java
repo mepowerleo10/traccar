@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -35,10 +36,12 @@ import org.traccar.Context;
 import org.traccar.api.BaseObjectResource;
 import org.traccar.database.DeviceManager;
 import org.traccar.database.FuelCalibrationManager;
+import org.traccar.database.SensorManager;
 import org.traccar.helper.LogAction;
 import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
 import org.traccar.model.FuelCalibration;
+import org.traccar.model.Sensor;
 import org.traccar.storage.StorageException;
 
 @Path("devices")
@@ -101,56 +104,23 @@ public class DeviceResource extends BaseObjectResource<Device> {
         return Response.noContent().build();
     }
 
-    private void updateExistingCalibration(long deviceId, FuelCalibrationManager calibrationManager,
-            FuelCalibration calibration)
-            throws StorageException {
-
-        FuelCalibration existingCalibration = calibrationManager.getById(calibration.getId());
-        if (existingCalibration != null && existingCalibration.getDeviceId() == deviceId) {
-            if (calibration.getVoltage() >= 0) {
-                existingCalibration.setVoltage(calibration.getVoltage());
-            }
-
-            if (calibration.getFuelLevel() >= 0) {
-                existingCalibration.setFuelLevel(calibration.getFuelLevel());
-            }
-
-            existingCalibration.setAttributes(calibration.getAttributes());
-            calibrationManager.updateItem(existingCalibration);
-            LogAction.edit(getUserId(), existingCalibration);
-        } else {
-            throw new StorageException("Trying to update an inexistent calibration");
-        }
-    }
-
     @Path("{deviceId}/calibrations")
     @POST
     public Collection<FuelCalibration> addDeviceCalibrations(
             @PathParam("deviceId") long deviceId,
-            List<FuelCalibration> calibrations) throws StorageException {
+            FuelCalibration calibration) throws StorageException {
+
+        if (calibration.getDeviceId() != null && calibration.getDeviceId() != deviceId) {
+            throw new StorageException(
+                    "Device ID mismatch between path " + deviceId + " and POST object " + calibration.getDeviceId());
+        }
+
+        calibration.setDeviceId(deviceId);
 
         Context.getPermissionsManager().checkAdmin(getUserId());
         FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
 
-        Set<Long> existingCalibrations = calibrationManager.getAllDeviceItems(deviceId);
-        if (existingCalibrations.size() > 0) {
-            for (long existingCalibration : existingCalibrations) {
-                calibrationManager.removeItem(existingCalibration);
-            }
-        }
-
-        for (FuelCalibration calibration : calibrations) {
-            calibration.setDeviceId(deviceId);
-            if (calibration.getId() == 0) {
-                calibrationManager.addItem(calibration);
-                LogAction.create(getUserId(), calibration);
-            } else {
-                updateExistingCalibration(deviceId, calibrationManager, calibration);
-
-            }
-
-        }
-        Context.getDeviceManager().updateFuelSlopeAndConstant(deviceId);
+        calibrationManager.addItem(calibration);
 
         return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }
@@ -159,16 +129,11 @@ public class DeviceResource extends BaseObjectResource<Device> {
     @PUT
     public Collection<FuelCalibration> updateDeviceFuelCalibrations(
             @PathParam("deviceId") long deviceId,
-            List<FuelCalibration> calibrations) throws StorageException {
+            FuelCalibration calibration) throws StorageException {
 
         Context.getPermissionsManager().checkAdmin(getUserId());
         FuelCalibrationManager calibrationManager = Context.getFuelCalibrationManager();
-        for (FuelCalibration calibration : calibrations) {
-            updateExistingCalibration(deviceId, calibrationManager, calibration);
-        }
-
-        Context.getDeviceManager().updateFuelSlopeAndConstant(deviceId);
-
+        calibrationManager.updateItem(calibration);
         return calibrationManager.getDeviceFuelCalibrations(deviceId);
     }
 
@@ -177,7 +142,60 @@ public class DeviceResource extends BaseObjectResource<Device> {
     public Collection<FuelCalibration> getDeviceFuelCalibrations(
             @PathParam("deviceId") long deviceId) throws StorageException {
 
+        Context.getPermissionsManager().checkAdmin(getUserId());
         return Context.getFuelCalibrationManager().getDeviceFuelCalibrations(deviceId);
+    }
+
+    @Path("{deviceId}/sensors")
+    @GET
+    public List<Sensor> getDeviceSensor(@PathParam("deviceId") long deviceId)
+            throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        return Context.getSensorManager().getDeviceSensors(deviceId);
+    }
+
+    @Path("{deviceId}/sensors")
+    @POST
+    public List<Sensor> addDeviceSensors(@PathParam("deviceId") long deviceId,
+            List<Sensor> sensors)
+            throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        SensorManager sensorManager = Context.getSensorManager();
+        for (Sensor s : sensors) {
+            sensorManager.addItem(s);
+        }
+        sensorManager.refreshItems();
+        return sensorManager.getDeviceSensors(deviceId);
+    }
+
+    @Path("{deviceId}/sensors")
+    @PUT
+    public List<Sensor> updateDeviceSensors(@PathParam("deviceId") long deviceId, List<Sensor> sensors)
+            throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        SensorManager sensorManager = Context.getSensorManager();
+        for (Sensor s : sensors) {
+            sensorManager.updateItem(s);
+        }
+        sensorManager.refreshItems();
+        return sensorManager.getDeviceSensors(deviceId);
+    }
+
+    @Path("{deviceId}/sensors")
+    @DELETE
+    public List<Sensor> deleteDeviceSensors(@PathParam("deviceId") long deviceId, List<Long> sensorIds)
+            throws StorageException {
+
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        SensorManager sensorManager = Context.getSensorManager();
+        for (Long id : sensorIds) {
+            sensorManager.removeItem(id);
+        }
+        sensorManager.refreshItems();
+        return sensorManager.getDeviceSensors(deviceId);
     }
 
 }

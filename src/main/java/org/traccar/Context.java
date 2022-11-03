@@ -45,6 +45,7 @@ import org.traccar.database.NotificationManager;
 import org.traccar.database.OrderManager;
 import org.traccar.database.PermissionsManager;
 import org.traccar.database.ReadingTypeManager;
+import org.traccar.database.SensorManager;
 import org.traccar.database.TripManager;
 import org.traccar.database.UsersManager;
 import org.traccar.geocoder.Geocoder;
@@ -210,6 +211,12 @@ public final class Context {
 
     public static FuelSensorManager getFuelSensorManager() {
         return fuelSensorManager;
+    }
+
+    private static SensorManager sensorManager;
+
+    public static SensorManager getSensorManager() {
+        return sensorManager;
     }
 
     private static ReadingTypeManager readingTypeManager;
@@ -410,6 +417,7 @@ public final class Context {
         notificationManager = new NotificationManager(dataManager);
         tripManager = new TripManager(dataManager);
         fuelSensorManager = new FuelSensorManager(dataManager);
+        sensorManager = new SensorManager(dataManager);
         readingTypeManager = new ReadingTypeManager(dataManager);
         fuelPortManager = new FuelPortManager(dataManager);
         fuelCalibrationManager = new FuelCalibrationManager(dataManager);
