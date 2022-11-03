@@ -22,7 +22,10 @@ import io.netty.channel.ChannelHandler;
 
 @ChannelHandler.Sharable
 public class FuelLevelHandler extends BaseDataHandler {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FuelLevelHandler.class);
+
+    private static final double Q_VALUE = 0.01;
 
     private final IdentityManager identityManager;
     private final ReadingTypeManager readingTypeManager;
@@ -44,12 +47,11 @@ public class FuelLevelHandler extends BaseDataHandler {
     protected Position handlePosition(Position position) {
         if (!position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
             Device device = identityManager.getById(position.getDeviceId());
-            try {
-                Collection<Sensor> sensors;
-                this.sensorsFuelLevels = new HashMap<>();
-                this.sensorsGroupCount = new HashMap<>();
-
-                if (device != null) {
+            if (device != null) {
+                try {
+                    Collection<Sensor> sensors;
+                    this.sensorsFuelLevels = new HashMap<>();
+                    this.sensorsGroupCount = new HashMap<>();
 
                     Position lastPosition = identityManager != null
                             ? identityManager.getLastPosition(position.getDeviceId())
@@ -58,9 +60,11 @@ public class FuelLevelHandler extends BaseDataHandler {
                     sensors = sensorManager.getDeviceSensors(device.getId());
 
                     if (sensors.size() > 0) {
-                        for (Sensor sensor : sensors) {
+                        for (int i = 0; i < sensors.size(); i++) {
+                            Sensor sensor = (Sensor) sensors.toArray()[i];
+
                             try {
-                                calculateSensorFuelAtPosition(position, device, sensor);
+                                calculateSensorFuelAtPosition(i, position, lastPosition, device, sensor);
                             } catch (Exception e) {
                                 LOGGER.info("id: " + device.getUniqueId() + ", Sensor Fuel Error",
                                         e.getStackTrace().toString());
@@ -89,16 +93,40 @@ public class FuelLevelHandler extends BaseDataHandler {
                         }
 
                     }
+
+                } catch (Exception e) {
+                    LOGGER.error(e.getStackTrace().toString());
                 }
-            } catch (Exception e) {
-                LOGGER.error(e.getStackTrace().toString());
             }
         }
 
         return position;
     }
 
-    private void calculateSensorFuelAtPosition(Position position, Device device,
+    private double getFilteredVoltageData(Position position, Position lastPosition, double voltage, int index) {
+        double rValue = 0.1;
+        double xHatMinus = lastPosition.getDouble(Position.KEY_X_HAT + index);
+        double pMinus = lastPosition.getDouble(Position.KEY_P + index) + Q_VALUE;
+
+        double kalmanGain = pMinus / (pMinus + rValue); // Kalman Gain
+        double xHat = xHatMinus + kalmanGain * (voltage - xHatMinus);
+        double pValue = (1 - kalmanGain) * pMinus;
+
+        position.set(Position.KEY_X_HAT + index, xHat);
+        position.set(Position.KEY_P + index, pValue);
+        position.set(Position.KEY_X_HAT_MINUS + index, xHatMinus);
+        position.set(Position.KEY_K + index, kalmanGain);
+        position.set(Position.KEY_P_MINUS + index, pMinus);
+        position.set(Position.KEY_FUEL_FILTERED_VOLTAGE + index, xHat);
+
+        if (xHatMinus == 0) {
+            return voltage;
+        }
+
+        return xHat;
+    }
+
+    private void calculateSensorFuelAtPosition(int sensorIndex, Position position, Position last, Device device,
             Sensor sensor) throws Exception {
 
         String fuelLevelPort = sensor.getFuelPort();
@@ -114,15 +142,30 @@ public class FuelLevelHandler extends BaseDataHandler {
             throw new NullPointerException("Fuel port: " + fuelLevelPort + " does not have a value");
         }
 
+        double currentVoltageReading = position.getDouble(fuelLevelPort);
+        double filteredVoltage = 0.0;
+
+        position.set(Position.KEY_FUEL_VOLTAGE + sensorIndex, currentVoltageReading);
+
+        if (last != null) {
+            filteredVoltage = getFilteredVoltageData(position, last, currentVoltageReading, sensorIndex);
+        }
+
+        double voltageDiff = currentVoltageReading - filteredVoltage;
+        double measurementErrorRange = currentVoltageReading * Q_VALUE * 10;
+        if (measurementErrorRange > voltageDiff) {
+            currentVoltageReading = filteredVoltage;
+        }
+
         if (sensorIsCalibrated) {
 
             FuelCalibration fuelCalibration = fuelCalibrationManager
                     .getById(sensor.getCalibrationId());
-            fuelLevel = getCalibratedSensorFuelLevel(position, fuelLevelPort,
+            fuelLevel = getCalibratedSensorFuelLevel(position, currentVoltageReading,
                     fuelCalibration);
 
         } else {
-            fuelLevel = position.getDouble(fuelLevelPort) * readingType.getConversionMultiplier();
+            fuelLevel = currentVoltageReading * readingType.getConversionMultiplier();
         }
 
         double groupFuelLevel = sensorsFuelLevels.getOrDefault(sensorGroup, 0.0);
@@ -135,10 +178,8 @@ public class FuelLevelHandler extends BaseDataHandler {
 
     }
 
-    private double getCalibratedSensorFuelLevel(Position position, String fuelLevelPort,
+    private double getCalibratedSensorFuelLevel(Position position, double currentVoltageReading,
             FuelCalibration fuelCalibration) throws Exception {
-
-        double currentVoltageReading = position.getDouble(fuelLevelPort);
 
         double fuelLevel = 0;
         double index = -1;

@@ -54,11 +54,8 @@ public class FuelDataSmoothingHandler extends BaseDataHandler {
         int windowSize = identityManager.lookupAttributeInteger(device.getId(),
                 ATTRIBUTE_FUEL_SMOOTHING_WINDOW_SIZE, 5, true, false);
         FuelHistory fuelHistory;
-        try {
-            fuelHistory = (FuelHistory) last.getAttributes().get(Position.KEY_FUEL_HISTORY);
-        } catch (Exception e) {
-            fuelHistory = new FuelHistory(new LinkedList<FuelHistoryEntry>(), windowSize);
-        }
+        fuelHistory = (FuelHistory) last.getAttributes().getOrDefault(Position.KEY_FUEL_HISTORY,
+                new FuelHistory(new LinkedList<FuelHistoryEntry>(), windowSize));
 
         FuelHistoryEntry entry = new FuelHistoryEntry(position.getId(), position.getDouble(Position.KEY_FUEL_LEVEL));
         fuelHistory.push(entry);

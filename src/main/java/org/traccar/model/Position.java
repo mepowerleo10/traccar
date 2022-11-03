@@ -56,11 +56,13 @@ public class Position extends Message {
     public static final String KEY_BATTERY_LEVEL = "batteryLevel"; // percentage
     public static final String KEY_TANK = "fuelTank"; // litres
     public static final String KEY_FUEL_LEVEL = "fuel"; // liters
+    public static final String KEY_FUEL_NORMALIZED = "fuelNormalized"; // litres
     public static final String KEY_FUEL_USED = "fuelUsed"; // liters
     public static final String KEY_FUEL_CURRENT_MAX_VOLTAGE = "fuelCurrentMaxVoltage";
 
     public static final String KEY_FUEL_HISTORY = "fuelHistory";
-    public static final String KEY_FUEL_NORMALIZED = "fuelNormalized";
+    public static final String KEY_FUEL_FILTERED_VOLTAGE = "fuelFilteredVoltage";
+    public static final String KEY_FUEL_VOLTAGE = "fuelVoltage";
     public static final String KEY_FUEL_RAW = "fuelRaw";
     public static final String KEY_FUEL_CONSUMPTION_PER_HOUR = "fuelConsumptionPerHour";
     public static final String KEY_FUEL_INCREASE_PER_HOUR = "fuelIncreasePerHour";
@@ -165,6 +167,13 @@ public class Position extends Message {
     public static final String ALARM_FUEL_LEAK = "fuelLeak";
     public static final String ALARM_TAMPERING = "tampering";
     public static final String ALARM_REMOVING = "removing";
+    public static final String KEY_INITIAL_ESTIMATE = "initialEstimate";
+    public static final String KEY_INITIAL_COVARIANCE = "initialCovariance";
+    public static final String KEY_X_HAT = "xHat";
+    public static final String KEY_P = "P";
+    public static final String KEY_X_HAT_MINUS = "xHatMinus";
+    public static final String KEY_K = "K"; // Kalman Gain
+    public static final String KEY_P_MINUS = "pMinus";
 
     public Position() {
     }
