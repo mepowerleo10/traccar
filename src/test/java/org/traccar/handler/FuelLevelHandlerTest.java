@@ -33,10 +33,10 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
 
         initialPosition = fuelLevelHandler.handlePosition(initialPosition);
         assertFuelRange(initialExpectedFuelLevel, initialMinimumFuelLevel, initialMaximumFuelLevel, initialPosition);
-        
+
         fuelLevelHandler = new FuelLevelHandler(new TestIdentityManager(initialPosition), readingManager,
                 calibrationManager, sensorManager);
-        
+
         lastPosition = fuelLevelHandler.handlePosition(lastPosition);
         assertFuelRange(lastExpectedFuelLevel, lastMinimumFuelLevel, lastMaximumFuelLevel, lastPosition);
 
@@ -47,6 +47,11 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
         position = fuelLevelHandler.handlePosition(position);
         assertFuelRange(currentExpectedFuelLevel, currentMinimumFuelLevel, currentMaximumFuelLevel, position);
 
+        position.set(FUEL_KEY, calibrationManager.getMaximumCalibration() + 1);
+        position.getAttributes().remove(Position.KEY_FUEL_LEVEL);
+        position = fuelLevelHandler.handlePosition(position);
+        assertFalse("Out of range fuel levels should not be computed",
+                position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL));
     }
 
     @Test
@@ -142,7 +147,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     public void assertFuelRange(double expected, double minimumLevel, double maximumLevel, Position position) {
-        assertTrue("Position must have: " + Position.KEY_FUEL_LEVEL,
+        assertTrue("Position must have key: \"" + Position.KEY_FUEL_LEVEL + "\"",
                 position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL));
 
         double actual = position.getDouble(Position.KEY_FUEL_LEVEL);

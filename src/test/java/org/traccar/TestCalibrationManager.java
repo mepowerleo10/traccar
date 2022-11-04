@@ -34,6 +34,32 @@ public class TestCalibrationManager extends FuelCalibrationManager {
             { 3800.0, 90.0 }
     };
 
+    /*
+     * private Double[][] calibrationEntries = {
+     * { 0.0, 0.0 },
+     * { 142d, 5d, },
+     * { 834d, 15d, },
+     * { 1488d, 25d },
+     * { 2069d, 35d },
+     * { 2441d, 45d },
+     * { 2789d, 55d },
+     * { 3143d, 65d },
+     * { 3522d, 75d },
+     * { 3891d, 85d },
+     * { 4064d, 90d },
+     * { 4095d, 92d }
+     * };
+     */
+
+    public double getMaximumCalibration() {
+        int size = calibrationEntries.length;
+        return calibrationEntries[size - 1][0];
+    }
+
+    public double getMinimumCalibration() {
+        return calibrationEntries[0][1];
+    }
+
     private void setUpCalibrationEntries() {
         for (Double[] entryArray : calibrationEntries) {
             Map<String, Double> entry = new HashMap<>();

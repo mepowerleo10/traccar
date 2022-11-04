@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.math3.exception.OutOfRangeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traccar.BaseDataHandler;
@@ -103,29 +104,6 @@ public class FuelLevelHandler extends BaseDataHandler {
         return position;
     }
 
-    private double getFilteredVoltageData(Position position, Position lastPosition, double voltage, int index) {
-        double rValue = 0.1;
-        double xHatMinus = lastPosition.getDouble(Position.KEY_X_HAT + index);
-        double pMinus = lastPosition.getDouble(Position.KEY_P + index) + Q_VALUE;
-
-        double kalmanGain = pMinus / (pMinus + rValue); // Kalman Gain
-        double xHat = xHatMinus + kalmanGain * (voltage - xHatMinus);
-        double pValue = (1 - kalmanGain) * pMinus;
-
-        position.set(Position.KEY_X_HAT + index, xHat);
-        position.set(Position.KEY_P + index, pValue);
-        position.set(Position.KEY_X_HAT_MINUS + index, xHatMinus);
-        position.set(Position.KEY_K + index, kalmanGain);
-        position.set(Position.KEY_P_MINUS + index, pMinus);
-        position.set(Position.KEY_FUEL_FILTERED_VOLTAGE + index, xHat);
-
-        if (xHatMinus == 0) {
-            return voltage;
-        }
-
-        return xHat;
-    }
-
     private void calculateSensorFuelAtPosition(int sensorIndex, Position position, Position last, Device device,
             Sensor sensor) throws Exception {
 
@@ -143,19 +121,8 @@ public class FuelLevelHandler extends BaseDataHandler {
         }
 
         double currentVoltageReading = position.getDouble(fuelLevelPort);
-        double filteredVoltage = 0.0;
 
         position.set(Position.KEY_FUEL_VOLTAGE + sensorIndex, currentVoltageReading);
-
-        if (last != null) {
-            filteredVoltage = getFilteredVoltageData(position, last, currentVoltageReading, sensorIndex);
-        }
-
-        double voltageDiff = currentVoltageReading - filteredVoltage;
-        double measurementErrorRange = currentVoltageReading * Q_VALUE * 10;
-        if (measurementErrorRange > voltageDiff) {
-            currentVoltageReading = filteredVoltage;
-        }
 
         if (sensorIsCalibrated) {
 
@@ -185,6 +152,15 @@ public class FuelLevelHandler extends BaseDataHandler {
         double index = -1;
 
         Map<String, Double> lastLeastCalibration = fuelCalibration.getCalibrationEntries().get(0);
+
+        double calibrationsSize = fuelCalibration.getCalibrationEntries().size();
+        double minimumVoltageLevel = lastLeastCalibration.get(FuelCalibration.VOLTAGE);
+        double maximumVoltageLevel = fuelCalibration.getCalibrationEntries().get((int) (calibrationsSize - 1))
+                .get(FuelCalibration.VOLTAGE);
+
+        if (currentVoltageReading < minimumVoltageLevel || currentVoltageReading > maximumVoltageLevel) {
+            throw new OutOfRangeException(currentVoltageReading, minimumVoltageLevel, maximumVoltageLevel);
+        }
 
         for (Map<String, Double> calibrationEntry : fuelCalibration.getCalibrationEntries()) {
 
