@@ -1,11 +1,10 @@
 #!/usr/bin/python
 
-import base64
 import sys
 import os
 import xml.etree.ElementTree
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
+import urllib
+import urllib2
 import json
 import socket
 import time
@@ -93,7 +92,7 @@ messages = {
     'vtfms' : '(123456789012345,00I76,00,000,,,,,A,133755,210617,10.57354,077.24912,SW,000,00598,00000,K,0017368,1,12.7,,,0.000,,,0,0,0,0,1,1,0,,)074'
 }
 
-baseUrl = 'http://localhost:8080'
+baseUrl = 'http://localhost:8082'
 user = { 'email' : 'admin', 'password' : 'admin' }
 
 debug = '-v' in sys.argv
@@ -107,35 +106,35 @@ def load_ports():
         if key.endswith('.port'):
             ports[key[:-5]] = int(entry.text)
     if debug:
-        print('\nports: %s\n' % repr(ports))
+        print '\nports: %s\n' % repr(ports)
     return ports
 
 def login():
-    request = urllib.request.Request(baseUrl + '/api/session')
-    response = urllib.request.urlopen(request, urllib.parse.urlencode(user).encode("utf-8"))
+    request = urllib2.Request(baseUrl + '/api/session')
+    response = urllib2.urlopen(request, urllib.urlencode(user))
     if debug:
-        print('\nlogin: %s\n' % repr(json.load(response)))
+        print '\nlogin: %s\n' % repr(json.load(response))
     return response.headers.get('Set-Cookie')
 
 def remove_devices(cookie):
-    request = urllib.request.Request(baseUrl + '/api/devices')
+    request = urllib2.Request(baseUrl + '/api/devices')
     request.add_header('Cookie', cookie)
-    response = urllib.request.urlopen(request)
+    response = urllib2.urlopen(request)
     data = json.load(response)
     if debug:
-        print('\ndevices: %s\n' % repr(data))
+        print '\ndevices: %s\n' % repr(data)
     for device in data:
-        request = urllib.request.Request(baseUrl + '/api/devices/' + str(device['id']))
+        request = urllib2.Request(baseUrl + '/api/devices/' + str(device['id']))
         request.add_header('Cookie', cookie)
         request.get_method = lambda: 'DELETE'
-        response = urllib.request.urlopen(request)
+        response = urllib2.urlopen(request)
 
 def add_device(cookie, unique_id):
-    request = urllib.request.Request(baseUrl + '/api/devices')
+    request = urllib2.Request(baseUrl + '/api/devices')
     request.add_header('Cookie', cookie)
     request.add_header('Content-Type', 'application/json')
     device = { 'name' : unique_id, 'uniqueId' : unique_id }
-    response = urllib.request.urlopen(request, json.dumps(device).encode("utf-8"))
+    response = urllib2.urlopen(request, json.dumps(device))
     data = json.load(response)
     return data['id']
 
@@ -148,11 +147,11 @@ def send_message(port, message):
 
 def get_protocols(cookie, device_id):
     params = { 'deviceId' : device_id, 'from' : '2000-01-01T00:00:00.000Z', 'to' : '2050-01-01T00:00:00.000Z' }
-    request = urllib.request.Request(baseUrl + '/api/positions?' + urllib.parse.urlencode(params))
+    request = urllib2.Request(baseUrl + '/api/positions?' + urllib.urlencode(params))
     request.add_header('Cookie', cookie)
     request.add_header('Content-Type', 'application/json')
     request.add_header('Accept', 'application/json')
-    response = urllib.request.urlopen(request)
+    response = urllib2.urlopen(request)
     protocols = []
     for position in json.load(response):
         protocols.append(position['protocol'])
@@ -175,15 +174,15 @@ if __name__ == "__main__":
     all = set(ports.keys())
     protocols = set(messages.keys())
 
-    print('Total: %d' % len(all))
-    print('Missing: %d' % len(all - protocols))
-    print('Covered: %d' % len(protocols))
+    print 'Total: %d' % len(all)
+    print 'Missing: %d' % len(all - protocols)
+    print 'Covered: %d' % len(protocols)
 
     #if all - protocols:
     #    print '\nMissing: %s\n' % repr(list((all - protocols)))
 
     for protocol in messages:
-        thread = threading.Thread(target = send_message, args = (ports[protocol], messages[protocol].encode("utf-8")))
+        thread = threading.Thread(target = send_message, args = (ports[protocol], messages[protocol]))
         thread.start()
 
     time.sleep(10)
@@ -191,8 +190,8 @@ if __name__ == "__main__":
     for device in devices:
         protocols -= set(get_protocols(cookie, devices[device]))
 
-    print('Success: %d' % (len(messages) - len(protocols)))
-    print('Failed: %d' % len(protocols))
+    print 'Success: %d' % (len(messages) - len(protocols))
+    print 'Failed: %d' % len(protocols)
 
     if protocols:
-        print('\nFailed: %s' % repr(list(protocols)))
+        print '\nFailed: %s' % repr(list(protocols))
