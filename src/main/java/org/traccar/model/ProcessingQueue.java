@@ -54,7 +54,7 @@ public class ProcessingQueue extends ExtendedModel {
     return positions.stream().map(id -> Long.valueOf(id)).collect(Collectors.toList());
   }
 
-  public void setPositions(HashSet<String> positions) {
+  public synchronized void setPositions(HashSet<String> positions) {
     this.positions = positions;
   }
 
@@ -68,7 +68,7 @@ public class ProcessingQueue extends ExtendedModel {
     return dirty;
   }
 
-  public void setDirty(boolean dirty) {
+  public synchronized void setDirty(boolean dirty) {
     this.dirty = dirty;
   }
 
