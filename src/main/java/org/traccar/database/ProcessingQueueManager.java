@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.Context;
 import org.traccar.model.Position;
 import org.traccar.model.ProcessingQueue;
@@ -14,6 +16,7 @@ import org.traccar.storage.query.Condition;
 import org.traccar.storage.query.Request;
 
 public class ProcessingQueueManager extends ExtendedObjectManager<ProcessingQueue> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingQueueManager.class);
 
   public ProcessingQueueManager(DataManager dataManager) {
     super(dataManager, ProcessingQueue.class);
@@ -49,8 +52,8 @@ public class ProcessingQueueManager extends ExtendedObjectManager<ProcessingQueu
     Collection<Position> result = ids.parallelStream().map(id -> {
       try {
         return Context.getDataManager().getObject(Position.class, id);
-      } catch (StorageException e) {
-        e.printStackTrace();
+      } catch (Throwable t) {
+        LOGGER.error("Failed to getch positions", t);
       }
       return null;
     }).dropWhile(position -> position == null).collect(Collectors.toList());
@@ -64,7 +67,8 @@ public class ProcessingQueueManager extends ExtendedObjectManager<ProcessingQueu
      * }
      */
 
-    return result;
+
+     return result;
   }
 
 }

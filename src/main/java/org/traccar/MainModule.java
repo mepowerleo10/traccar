@@ -423,8 +423,8 @@ public class MainModule extends AbstractModule {
 
     @Singleton
     @Provides
-    public static QueueDataHandler provideQueueDataHandler(ProcessingQueueManager processingQueueManager) {
-        return new QueueDataHandler(processingQueueManager);
+    public static QueueDataHandler provideQueueDataHandler(DirtyPositionManager dirtyPositionManager) {
+        return new QueueDataHandler(dirtyPositionManager);
     }
 
     @Singleton

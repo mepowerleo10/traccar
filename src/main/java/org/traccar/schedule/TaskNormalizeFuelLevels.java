@@ -2,7 +2,7 @@ package org.traccar.schedule;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traccar.Context;
 import org.traccar.config.Keys;
+import org.traccar.database.DataManager;
 import org.traccar.database.ProcessingQueueManager;
 import org.traccar.filter.MovingModeFilter;
 import org.traccar.model.Position;
@@ -40,15 +41,27 @@ public class TaskNormalizeFuelLevels implements Runnable {
       Collection<ProcessingQueue> dirtyQueues = queueManager.getDirtyQueues();
 
       for (ProcessingQueue queue : dirtyQueues) {
-        List<Long> positionIds = queue.getPositionsAsLong();
-        ArrayList<Position> positions = (ArrayList<Position>) queueManager.getPositions(positionIds);
+        ArrayList<Position> positions = new ArrayList<>();
+        DataManager dataManager = Context.getDataManager();
+        HashSet<String> orderedPositions = new HashSet<>();
+
+        for (Long id : queue.getPositionsAsLong()) {
+          Position position = dataManager.getObject(Position.class, id);
+          if (position != null) {
+            positions.add(position);
+          } else {
+            queue.getPositions().remove(String.valueOf(id));
+          }
+        }
 
         filter.filterPositions(positions);
 
         for (Position position : positions) {
-          Context.getDataManager().updateObject(position);
+          orderedPositions.add(String.valueOf(position.getId()));
+          dataManager.updateObject(position);
         }
 
+        queue.setPositions(orderedPositions);
         queue.setDirty(false);
         queueManager.updateItem(queue);
       }

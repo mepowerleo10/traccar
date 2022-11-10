@@ -15,10 +15,10 @@
  */
 package org.traccar.schedule;
 
-import org.traccar.LifecycleObject;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
+import org.traccar.LifecycleObject;
 
 public class ScheduleManager implements LifecycleObject {
 
@@ -34,6 +34,7 @@ public class ScheduleManager implements LifecycleObject {
         new TaskWebSocketKeepalive().schedule(executor);
         new TaskHealthCheck().schedule(executor);
         new TaskNormalizeFuelLevels().shedule(executor);
+        new TaskPopulateQueues().schedule(executor);
         new TaskResetFuelQueues().shedule(executor);
     }
 

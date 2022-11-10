@@ -1,17 +1,11 @@
 package org.traccar.handler;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traccar.BaseDataHandler;
-import org.traccar.database.ProcessingQueueManager;
+import org.traccar.database.DirtyPositionManager;
+import org.traccar.model.DirtyPosition;
 import org.traccar.model.Position;
-import org.traccar.model.ProcessingQueue;
-import org.traccar.model.QueueTime;
 
 import io.netty.channel.ChannelHandler;
 
@@ -19,57 +13,24 @@ import io.netty.channel.ChannelHandler;
 public class QueueDataHandler extends BaseDataHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueueDataHandler.class);
 
-  private final ProcessingQueueManager processingQueueManager;
+  private final DirtyPositionManager dirtyPositionManager;
 
-  public QueueDataHandler(ProcessingQueueManager processingQueueManager) {
-    this.processingQueueManager = processingQueueManager;
+  public QueueDataHandler(DirtyPositionManager dirtyPositionManager) {
+    this.dirtyPositionManager = dirtyPositionManager;
   }
 
   @Override
   protected Position handlePosition(Position position) {
     try {
-      long deviceId = position.getDeviceId();
       long positionId = position.getId();
 
-      if (positionId > 0) {
-        Date deviceTime = position.getDeviceTime();
+      if (positionId > 0 && position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+        DirtyPosition dirtyPosition = new DirtyPosition();
+        dirtyPosition.setDeviceId(position.getDeviceId());
+        dirtyPosition.setPositionId(positionId);
+        dirtyPosition.setDeviceTime(position.getDeviceTime());
 
-        final LocalDate localDate = (new Date(deviceTime.getTime())).toInstant().atZone(ZoneId.systemDefault())
-            .toLocalDate();
-        LocalDateTime localDeviceTime = position.getDeviceTime().toInstant().atZone(ZoneId.systemDefault())
-            .toLocalDateTime();
-        String queueTime;
-
-        if (QueueTime.MORNING.isInQueueTime(localDeviceTime)) {
-          queueTime = QueueTime.MORNING.name();
-        } else if (QueueTime.AFTERNOON.isInQueueTime(localDeviceTime)) {
-          queueTime = QueueTime.AFTERNOON.name();
-        } else if (QueueTime.EVENING.isInQueueTime(localDeviceTime)) {
-          queueTime = QueueTime.EVENING.name();
-        } else if (QueueTime.NIGHT.isInQueueTime(localDeviceTime)) {
-          queueTime = QueueTime.NIGHT.name();
-        } else {
-          queueTime = "UNKNOWN";
-        }
-
-        String date = localDate.getYear() + "-" + localDate.getMonthValue() + "-" + localDate.getDayOfMonth();
-        ProcessingQueue queue = processingQueueManager.getDeviceQueue(deviceId, date, queueTime);
-
-        if (queue == null) {
-          queue = new ProcessingQueue();
-          queue.setDeviceId(deviceId);
-          queue.setQueueTime(queueTime);
-        }
-
-        queue.addPosition(String.valueOf(positionId));
-        queue.setDirty(true);
-        queue.setQueueDate(date);
-
-        if (queue.getId() > 0) {
-          processingQueueManager.updateItem(queue);
-        } else {
-          processingQueueManager.addItem(queue);
-        }
+        dirtyPositionManager.addItem(dirtyPosition);
       }
 
     } catch (Exception e) {
