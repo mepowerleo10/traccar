@@ -1,19 +1,11 @@
 #!../.venv/bin/python
 
 from typing import List
+
+from progress.bar import ShadyBar
+from sqlalchemy import (JSON, Boolean, Column, DateTime, Float, Integer,
+                        Sequence, String, __version__, create_engine)
 from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    JSON,
-    DateTime,
-    Boolean,
-    Float,
-    Sequence,
-    create_engine,
-    __version__,
-)
 
 Base = declarative_base()
 
@@ -67,21 +59,40 @@ class DirtyPosition(Base):
         )
 
 
-engine = create_engine("mysql://root:welcome@localhost/traccar", echo=True)
+engine = create_engine("mysql://root:welcome@localhost/traccar", echo=False)
 Session = sessionmaker(bind=engine)
 
 session = Session()
 
-dirty_positions: List[DirtyPosition] = list()
-for position in session.query(Position).all():
-    contains_fuel_key = "fuel" in position.attributes
-    if contains_fuel_key:
-        dirty_position = DirtyPosition(
-            device_id=position.device_id,
-            position_id=position.id,
-            device_time=position.device_time,
-        )
-        dirty_positions.append(dirty_position)
+positions = session.query(Position).all()
+progress_suffix = (
+    "Item %(index)d of %(max)d items - Remaining: %(eta_td)s"
+)
 
-session.add_all(dirty_positions)
+dirty_positions: List[DirtyPosition] = list()
+with ShadyBar(
+    f"Querying all from {Position.__tablename__}",
+    max=len(positions),
+    suffix=progress_suffix,
+) as bar:
+    for position in positions:
+        contains_fuel_key = "fuel" in position.attributes
+        if contains_fuel_key:
+            dirty_position = DirtyPosition(
+                device_id=position.device_id,
+                position_id=position.id,
+                device_time=position.device_time,
+            )
+            dirty_positions.append(dirty_position)
+        bar.next()
+
+with ShadyBar(
+    f"Inserting to {DirtyPosition.__tablename__}",
+    max=len(dirty_positions),
+    suffix=progress_suffix,
+) as bar:
+    for dirty_position in dirty_positions:
+        session.add(dirty_position)
+        bar.next()
+
 session.commit()

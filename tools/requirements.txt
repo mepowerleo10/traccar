@@ -5,4 +5,5 @@ mypy-extensions==0.4.3
 mysqlclient==2.1.1
 pathspec==0.10.1
 platformdirs==2.5.3
+progress==1.6
 SQLAlchemy==1.4.43
