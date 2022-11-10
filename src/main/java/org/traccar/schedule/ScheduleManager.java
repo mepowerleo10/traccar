@@ -26,11 +26,15 @@ public class ScheduleManager implements LifecycleObject {
 
     @Override
     public void start() {
-        executor = Executors.newSingleThreadScheduledExecutor();
-
+        executor = Executors.newScheduledThreadPool(8);
+        /*
+         * newSingleThreadScheduledExecutor();
+         */
         new TaskDeviceInactivityCheck().schedule(executor);
         new TaskWebSocketKeepalive().schedule(executor);
         new TaskHealthCheck().schedule(executor);
+        new TaskNormalizeFuelLevels().shedule(executor);
+        new TaskResetFuelQueues().shedule(executor);
     }
 
     @Override

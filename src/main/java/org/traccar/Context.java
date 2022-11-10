@@ -44,6 +44,7 @@ import org.traccar.database.MediaManager;
 import org.traccar.database.NotificationManager;
 import org.traccar.database.OrderManager;
 import org.traccar.database.PermissionsManager;
+import org.traccar.database.ProcessingQueueManager;
 import org.traccar.database.ReadingTypeManager;
 import org.traccar.database.SensorManager;
 import org.traccar.database.TripManager;
@@ -237,6 +238,12 @@ public final class Context {
         return fuelCalibrationManager;
     }
 
+    private static ProcessingQueueManager processingQueueManager;
+
+    public static ProcessingQueueManager getProcessingQueueManager() {
+        return processingQueueManager;
+    }
+
     private static NotificationManager notificationManager;
 
     public static NotificationManager getNotificationManager() {
@@ -421,6 +428,7 @@ public final class Context {
         readingTypeManager = new ReadingTypeManager(dataManager);
         fuelPortManager = new FuelPortManager(dataManager);
         fuelCalibrationManager = new FuelCalibrationManager(dataManager);
+        processingQueueManager = new ProcessingQueueManager(dataManager);
         notificatorManager = new NotificatorManager();
         Properties velocityProperties = new Properties();
         velocityProperties.setProperty("file.resource.loader.path",

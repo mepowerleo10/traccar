@@ -1,12 +1,18 @@
 package org.traccar.model;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.traccar.storage.QueryIgnore;
 import org.traccar.storage.StorageName;
 
 @StorageName("tc_processing_queues")
 public class ProcessingQueue extends ExtendedModel {
+  public ProcessingQueue() {
+    this.positions = new HashSet<String>();
+  }
+
   private long deviceId;
 
   public long getDeviceId() {
@@ -27,24 +33,33 @@ public class ProcessingQueue extends ExtendedModel {
     this.queueTime = queueTime;
   }
 
-  private LocalDate date;
+  private String queueDate;
 
-  public LocalDate getDate() {
-    return date;
+  public String getQueueDate() {
+    return queueDate;
   }
 
-  public void setDate(LocalDate date) {
-    this.date = date;
+  public void setQueueDate(String queueDate) {
+    this.queueDate = queueDate;
   }
 
-  private ArrayList<Long> positions = new ArrayList<>();
+  private HashSet<String> positions;
 
-  public ArrayList<Long> getPositions() {
+  public HashSet<String> getPositions() {
     return positions;
   }
 
-  public void setPositions(ArrayList<Long> positions) {
+  @QueryIgnore
+  public List<Long> getPositionsAsLong() {
+    return positions.stream().map(id -> Long.valueOf(id)).collect(Collectors.toList());
+  }
+
+  public void setPositions(HashSet<String> positions) {
     this.positions = positions;
+  }
+
+  public void addPosition(String positionId) {
+    this.positions.add(positionId);
   }
 
   private boolean dirty = false;

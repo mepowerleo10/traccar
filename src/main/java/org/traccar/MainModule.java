@@ -30,6 +30,7 @@ import org.traccar.database.FuelSensorManager;
 import org.traccar.database.GeofenceManager;
 import org.traccar.database.IdentityManager;
 import org.traccar.database.MaintenancesManager;
+import org.traccar.database.ProcessingQueueManager;
 import org.traccar.database.ReadingTypeManager;
 import org.traccar.database.SensorManager;
 import org.traccar.database.StatisticsManager;
@@ -69,6 +70,7 @@ import org.traccar.handler.GeocoderHandler;
 import org.traccar.handler.GeolocationHandler;
 import org.traccar.handler.HemisphereHandler;
 import org.traccar.handler.MotionHandler;
+import org.traccar.handler.QueueDataHandler;
 import org.traccar.handler.RemoteAddressHandler;
 import org.traccar.handler.SpeedLimitHandler;
 import org.traccar.handler.TimeHandler;
@@ -175,6 +177,11 @@ public class MainModule extends AbstractModule {
     @Provides
     public static SensorManager provideSensorManager() {
         return Context.getSensorManager();
+    }
+
+    @Provides
+    public static ProcessingQueueManager provideProcessingQueueManager() {
+        return Context.getProcessingQueueManager();
     }
 
     @Provides
@@ -406,6 +413,12 @@ public class MainModule extends AbstractModule {
             return new TimeHandler(config);
         }
         return null;
+    }
+
+    @Singleton
+    @Provides
+    public static QueueDataHandler provideQueueDataHandler(ProcessingQueueManager processingQueueManager) {
+        return new QueueDataHandler(processingQueueManager);
     }
 
     @Singleton

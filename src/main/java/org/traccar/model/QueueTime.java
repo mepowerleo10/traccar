@@ -1,7 +1,7 @@
 package org.traccar.model;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 
 public enum QueueTime {
   MORNING("MORNING", LocalTime.of(05, 59), LocalTime.of(12, 00)),
@@ -31,8 +31,8 @@ public enum QueueTime {
     return to;
   }
 
-  boolean isInQueueTime(Date time) {
-    LocalTime localTime = LocalTime.from(time.toInstant());
+  public boolean isInQueueTime(LocalDateTime time) {
+    LocalTime localTime = LocalTime.of(time.getHour(), time.getMinute());
     return localTime.isAfter(from) && localTime.isBefore(to);
   }
 }

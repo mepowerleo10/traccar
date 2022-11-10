@@ -13,21 +13,75 @@
       <column name="id" type="INT" autoIncrement="true">
         <constraints nullable="false" primaryKey="true" />
       </column>
-      <column name="queue_time" type="TIME">
+      <column name="deviceid" type="INT">
         <constraints nullable="false" />
       </column>
-      <column name="date" type="DATE">
+      <column name="queuedate" type="DATE">
         <constraints nullable="false" />
       </column>
-      <column name="positions" type="JSON">
+      <column name="queuetime" type="VARCHAR(11)">
+        <constraints nullable="false" />
+      </column>
+      <column name="positions" type="CLOB">
         <constraints nullable="false" />
       </column>
       <column name="dirty" type="BOOLEAN" defaultValue="True">
         <constraints nullable="false" />
       </column>
+      <column name="attributes" type="JSON">
+        <constraints nullable="true" />
+      </column>
     </createTable>
 
-    <addUniqueConstraint tableName="tc_processing_queues" columnNames="id,queue_time,date" constraintName="queue_id_queue_time_date_unique" />
+    <addUniqueConstraint tableName="tc_processing_queues" columnNames="id,deviceid,queuetime,queuedate" constraintName="queue_id_deviceid_queuetime_date_unique" />
+
+    <createIndex tableName="tc_processing_queues" indexName="tc_processing_queues_index">
+      <column name="deviceid" />
+      <column name="queuetime" />
+      <column name="queuedate" />
+    </createIndex>
+
+    <createTable tableName="tc_device_processingQueue">
+      <column name="deviceid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_device_processing_queue_deviceid" references="tc_devices(id)" />
+      </column>
+      <column name="processingqueueid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_device_processing_queue_sensorid" references="tc_processing_queues(id)" />
+      </column>
+    </createTable>
+
+    <createIndex tableName="tc_device_processingQueue" indexName="tc_device_processing_queue_index">
+      <column name="deviceid" />
+      <column name="processingqueueid" />
+    </createIndex>
+
+    <createTable tableName="tc_group_processingQueue">
+      <column name="groupid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_group_processing_queue_deviceid" references="tc_groups(id)" />
+      </column>
+      <column name="processingqueueid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_group_processing_queue_sensorid" references="tc_processing_queues(id)" />
+      </column>
+    </createTable>
+
+    <createIndex tableName="tc_group_processingQueue" indexName="tc_group_processing_queue_index">
+      <column name="groupid" />
+      <column name="processingqueueid" />
+    </createIndex>
+
+    <createTable tableName="tc_user_processingQueue">
+      <column name="userid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_user_processing_queue_deviceid" references="tc_users(id)" />
+      </column>
+      <column name="processingqueueid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_user_processing_queue_sensorid" references="tc_processing_queues(id)" />
+      </column>
+    </createTable>
+
+    <createIndex tableName="tc_user_processingQueue" indexName="tc_user_processing_queue_index">
+      <column name="userid" />
+      <column name="processingqueueid" />
+    </createIndex>
 
   </changeSet>
 </databaseChangeLog>
