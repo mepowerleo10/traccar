@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd" logicalFilePath="changelog-8.1">
+
+
+  <changeSet id="changelog-8.1" author="author">
+    <preConditions onFail="CONTINUE">
+      <not>
+        <tableExists tableName="tc_dirty_positions" />
+      </not>
+    </preConditions>
+
+    <createTable tableName="tc_dirty_positions">
+      <column name="id" type="INT" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" />
+      </column>
+      <column name="deviceid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="positionid" type="INT">
+        <constraints nullable="false" />
+      </column>
+      <column name="devicetime" type="TIMESTAMP">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addUniqueConstraint tableName="tc_dirty_positions" columnNames="id,deviceid,positionid" constraintName="dirty_positions_unique_deviceid_positionid" />
+
+    <createIndex tableName="tc_processing_queues" indexName="tc_processing_queues_index">
+      <column name="deviceid" />
+      <column name="positionid" />
+    </createIndex>
+
+  </changeSet>
+</databaseChangeLog>

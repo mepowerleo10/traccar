@@ -15,9 +15,14 @@
  */
 package org.traccar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Properties;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.ext.ContextResolver;
+
 import org.apache.velocity.app.VelocityEngine;
 import org.eclipse.jetty.util.URIUtil;
 import org.traccar.broadcast.BroadcastService;
@@ -30,6 +35,7 @@ import org.traccar.database.CommandsManager;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
 import org.traccar.database.DeviceManager;
+import org.traccar.database.DirtyPositionManager;
 import org.traccar.database.DriversManager;
 import org.traccar.database.FuelCalibrationManager;
 import org.traccar.database.FuelPortManager;
@@ -78,12 +84,9 @@ import org.traccar.sms.SmsManager;
 import org.traccar.sms.SnsSmsClient;
 import org.traccar.web.WebServer;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.ext.ContextResolver;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Properties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 
 public final class Context {
 
@@ -242,6 +245,12 @@ public final class Context {
 
     public static ProcessingQueueManager getProcessingQueueManager() {
         return processingQueueManager;
+    }
+
+    private static DirtyPositionManager dirtyPositionManager;
+
+    public static DirtyPositionManager getDirtyPositionManager() {
+        return dirtyPositionManager;
     }
 
     private static NotificationManager notificationManager;
@@ -429,7 +438,9 @@ public final class Context {
         fuelPortManager = new FuelPortManager(dataManager);
         fuelCalibrationManager = new FuelCalibrationManager(dataManager);
         processingQueueManager = new ProcessingQueueManager(dataManager);
+        dirtyPositionManager = new DirtyPositionManager(dataManager);
         notificatorManager = new NotificatorManager();
+
         Properties velocityProperties = new Properties();
         velocityProperties.setProperty("file.resource.loader.path",
                 Context.getConfig().getString("templates.rootPath", "templates") + "/");
@@ -493,6 +504,10 @@ public final class Context {
             return (BaseObjectManager<T>) fuelPortManager;
         } else if (clazz.equals(FuelCalibration.class)) {
             return (BaseObjectManager<T>) fuelCalibrationManager;
+        } else if (clazz.equals(ProcessingQueueManager.class)) {
+            return (BaseObjectManager<T>) processingQueueManager;
+        } else if (clazz.equals(DirtyPositionManager.class)) {
+            return (BaseObjectManager<T>) dirtyPositionManager;
         }
         return null;
     }

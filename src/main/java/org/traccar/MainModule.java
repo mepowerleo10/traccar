@@ -25,6 +25,7 @@ import org.traccar.database.CalendarManager;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
 import org.traccar.database.DeviceManager;
+import org.traccar.database.DirtyPositionManager;
 import org.traccar.database.FuelCalibrationManager;
 import org.traccar.database.FuelSensorManager;
 import org.traccar.database.GeofenceManager;
@@ -182,6 +183,11 @@ public class MainModule extends AbstractModule {
     @Provides
     public static ProcessingQueueManager provideProcessingQueueManager() {
         return Context.getProcessingQueueManager();
+    }
+
+    @Provides
+    public static DirtyPositionManager proviDirtyPositionManager() {
+        return Context.getDirtyPositionManager();
     }
 
     @Provides

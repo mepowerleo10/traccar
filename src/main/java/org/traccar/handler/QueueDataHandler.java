@@ -41,13 +41,13 @@ public class QueueDataHandler extends BaseDataHandler {
         String queueTime;
 
         if (QueueTime.MORNING.isInQueueTime(localDeviceTime)) {
-          queueTime = QueueTime.MORNING.id();
+          queueTime = QueueTime.MORNING.name();
         } else if (QueueTime.AFTERNOON.isInQueueTime(localDeviceTime)) {
-          queueTime = QueueTime.AFTERNOON.id();
+          queueTime = QueueTime.AFTERNOON.name();
         } else if (QueueTime.EVENING.isInQueueTime(localDeviceTime)) {
-          queueTime = QueueTime.EVENING.id();
+          queueTime = QueueTime.EVENING.name();
         } else if (QueueTime.NIGHT.isInQueueTime(localDeviceTime)) {
-          queueTime = QueueTime.NIGHT.id();
+          queueTime = QueueTime.NIGHT.name();
         } else {
           queueTime = "UNKNOWN";
         }
