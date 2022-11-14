@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public enum QueueTime {
-  MORNING(1, LocalTime.of(05, 59), LocalTime.of(12, 00), 4, 2),
-  AFTERNOON(2, LocalTime.of(11, 59), LocalTime.of(18, 00), 1, 3),
-  EVENING(3, LocalTime.of(17, 59), LocalTime.of(00, 00), 2, 4),
-  NIGHT(4, LocalTime.of(23, 59), LocalTime.of(06, 00), 3, 1);
+  MORNING(1, LocalTime.of(06, 00), LocalTime.of(12, 01), 4, 2),
+  AFTERNOON(2, LocalTime.of(12, 00), LocalTime.of(18, 01), 1, 3),
+  EVENING(3, LocalTime.of(18, 00), LocalTime.of(00, 01), 2, 4),
+  NIGHT(4, LocalTime.of(00, 00), LocalTime.of(06, 01), 3, 1);
 
   private final int id;
   private final LocalTime from;
@@ -62,7 +62,15 @@ public enum QueueTime {
   }
 
   public boolean isInQueueTime(LocalDateTime time) {
-    LocalTime localTime = LocalTime.of(time.getHour(), time.getMinute());
-    return localTime.isAfter(from) && localTime.isBefore(to);
+    LocalDateTime fromTime = LocalDateTime.of(time.toLocalDate(), from);
+    LocalDateTime toTime;
+
+    if (name().equals("EVENING")) {
+      toTime = LocalDateTime.of(time.plusDays(1).toLocalDate(), to());
+    } else {
+      toTime = LocalDateTime.of(time.toLocalDate(), to);
+    }
+
+    return time.isAfter(fromTime) && time.isBefore(toTime);
   }
 }
