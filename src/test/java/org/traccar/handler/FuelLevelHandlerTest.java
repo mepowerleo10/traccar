@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.traccar.BaseFuelTest;
 import org.traccar.TestIdentityManager;
@@ -55,6 +56,19 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    public void testFuelNearZeroIsZero() {
+        fuelLevelHandler = new FuelLevelHandler(new TestIdentityManager(),
+                readingManager, calibrationManager, sensorManager);
+
+        assertFalse(position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL));
+
+        position.set(FUEL_KEY, 10);
+        position = fuelLevelHandler.handlePosition(position);
+
+        assertEquals(0, position.getDouble(Position.KEY_FUEL_LEVEL), 0);
+    }
+
+    @Test
     public void testCalculateFuelWithNoSensorValue() {
 
         Position positionWithNoFuelValue = new Position();
@@ -71,6 +85,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    // @Ignore
     public void testFuelConsumptionOverHourBelowKm() {
         setUpParameters(timeDiff, 500);
         assertEquals(0.0, lastPosition.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR), 0);
@@ -78,6 +93,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    // @Ignore
     public void testFuelConsumptionBelowHourBelowKm() {
         setUpParameters(720000, 500);
         assertNotEquals(0.0, position.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR), 0);
@@ -85,6 +101,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    // @Ignore
     public void testFuelConsumptionBelowHourOverKm() {
         setUpParameters(720000, 1500);
         assertNotEquals(0.0, position.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR), 0);
@@ -92,6 +109,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    // @Ignore
     public void testFuelConsumptionOverHourOverKm() {
         setUpParameters(timeDiff, 1500);
         assertEquals(0.0, lastPosition.getDouble(Position.KEY_FUEL_TOTAL_CONSUMED_WITHIN_HOUR), 0);
@@ -99,6 +117,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    // @Ignore
     public void testFuelIncreaseOverHourBelowKm() {
         increaseVoltage();
         setUpParameters(timeDiff, 500);
@@ -107,6 +126,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    // @Ignore
     public void testFuelIncreaseBelowHourBelowKm() {
         increaseVoltage();
         setUpParameters(720000, 500);
@@ -115,6 +135,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    // @Ignore
     public void testFuelIncreaseBelowHourOverKm() {
         increaseVoltage();
         setUpParameters(720000, 1500);
@@ -123,6 +144,7 @@ public class FuelLevelHandlerTest extends BaseFuelTest {
     }
 
     @Test
+    // @Ignore
     public void testFuelIncreaseOverHourOverKm() {
         increaseVoltage();
         setUpParameters(timeDiff, 1500);

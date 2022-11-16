@@ -46,7 +46,7 @@
         <constraints nullable="false" foreignKeyName="fk_device_processing_queue_deviceid" references="tc_devices(id)" />
       </column>
       <column name="processingqueueid" type="INT">
-        <constraints nullable="false" foreignKeyName="fk_device_processing_queue_sensorid" references="tc_processing_queues(id)" />
+        <constraints nullable="false" foreignKeyName="fk_device_processing_queue_queueid" references="tc_processing_queues(id)" />
       </column>
     </createTable>
 
@@ -60,7 +60,7 @@
         <constraints nullable="false" foreignKeyName="fk_group_processing_queue_deviceid" references="tc_groups(id)" />
       </column>
       <column name="processingqueueid" type="INT">
-        <constraints nullable="false" foreignKeyName="fk_group_processing_queue_sensorid" references="tc_processing_queues(id)" />
+        <constraints nullable="false" foreignKeyName="fk_group_processing_queue_queueid" references="tc_processing_queues(id)" />
       </column>
     </createTable>
 
@@ -74,7 +74,7 @@
         <constraints nullable="false" foreignKeyName="fk_user_processing_queue_deviceid" references="tc_users(id)" />
       </column>
       <column name="processingqueueid" type="INT">
-        <constraints nullable="false" foreignKeyName="fk_user_processing_queue_sensorid" references="tc_processing_queues(id)" />
+        <constraints nullable="false" foreignKeyName="fk_user_processing_queue_queueid" references="tc_processing_queues(id)" />
       </column>
     </createTable>
 

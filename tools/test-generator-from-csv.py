@@ -1,20 +1,31 @@
 #!/usr/bin/python
 
 import csv
+from datetime import datetime, timedelta
 import math
 import urllib.request, urllib.parse, urllib.error
 import http.client
 import time
 import random
+import sys
 
-id = "123456789012345"
+if len(sys.argv) >= 2:
+    id = sys.argv[1]
+    file_path = sys.argv[2]
+else:
+    id = "123456789012345"
+    file_path = "Route.csv"
+
+if len(sys.argv) > 2:
+    period = int(sys.argv[3])
+else:
+    period = 1
+
 server = "localhost:5055"
-period = 1
+
 step = 0.001
 device_speed = 40
 driver_id = "123456"
-
-file_path = "Route_JU0175.csv"
 
 waypoints = []
 
@@ -54,9 +65,11 @@ def send(
     fuel: tuple[float],
     driverUniqueId,
 ):
+    devicetime = (datetime.now() - timedelta(hours=0)).timestamp()
+
     params = (
         ("id", id),
-        ("timestamp", int(time.time())),
+        ("timestamp", int(devicetime)),
         ("lat", lat),
         ("lon", lon),
         ("bearing", course),
