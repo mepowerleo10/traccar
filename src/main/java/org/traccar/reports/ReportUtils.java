@@ -127,12 +127,28 @@ public final class ReportUtils {
 
         for (Position position : positions) {
             if (last != null && !last.getDeviceTime().equals(position.getDeviceTime())) {
-                fuelUsed = BigDecimal.valueOf((position.getDouble(Position.KEY_FUEL_USED) + fuelUsed.doubleValue()));
+
+                fuelUsed = BigDecimal.valueOf(getFuelDifference(last, position) + fuelUsed.doubleValue());
             }
             last = position;
         }
 
         return Math.abs(fuelUsed.setScale(1, RoundingMode.HALF_EVEN).doubleValue());
+    }
+
+    private static double getFuelDifference(Position last, Position position) {
+        double difference = 0.0;
+
+        if (hasFuelAttribute(position) && hasFuelAttribute(last)) {
+            difference = position.getDouble(Position.KEY_FUEL_LEVEL) - last.getDouble(Position.KEY_FUEL_LEVEL);
+            difference = Math.abs(difference);
+        }
+
+        return difference;
+    }
+
+    private static boolean hasFuelAttribute(Position position) {
+        return position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL);
     }
 
     public static String findDriver(Position firstPosition, Position lastPosition) {

@@ -25,11 +25,13 @@ import org.traccar.database.CalendarManager;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
 import org.traccar.database.DeviceManager;
+import org.traccar.database.DirtyPositionManager;
 import org.traccar.database.FuelCalibrationManager;
 import org.traccar.database.FuelSensorManager;
 import org.traccar.database.GeofenceManager;
 import org.traccar.database.IdentityManager;
 import org.traccar.database.MaintenancesManager;
+import org.traccar.database.ProcessingQueueManager;
 import org.traccar.database.ReadingTypeManager;
 import org.traccar.database.SensorManager;
 import org.traccar.database.StatisticsManager;
@@ -69,6 +71,7 @@ import org.traccar.handler.GeocoderHandler;
 import org.traccar.handler.GeolocationHandler;
 import org.traccar.handler.HemisphereHandler;
 import org.traccar.handler.MotionHandler;
+import org.traccar.handler.QueueDataHandler;
 import org.traccar.handler.RemoteAddressHandler;
 import org.traccar.handler.SpeedLimitHandler;
 import org.traccar.handler.TimeHandler;
@@ -175,6 +178,16 @@ public class MainModule extends AbstractModule {
     @Provides
     public static SensorManager provideSensorManager() {
         return Context.getSensorManager();
+    }
+
+    @Provides
+    public static ProcessingQueueManager provideProcessingQueueManager() {
+        return Context.getProcessingQueueManager();
+    }
+
+    @Provides
+    public static DirtyPositionManager proviDirtyPositionManager() {
+        return Context.getDirtyPositionManager();
     }
 
     @Provides
@@ -406,6 +419,12 @@ public class MainModule extends AbstractModule {
             return new TimeHandler(config);
         }
         return null;
+    }
+
+    @Singleton
+    @Provides
+    public static QueueDataHandler provideQueueDataHandler(DirtyPositionManager dirtyPositionManager) {
+        return new QueueDataHandler(dirtyPositionManager);
     }
 
     @Singleton

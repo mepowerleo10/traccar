@@ -1,5 +1,7 @@
 package org.traccar.helper;
 
+import java.util.List;
+
 import org.apache.commons.math3.exception.OutOfRangeException;
 
 public class ExponentialMovingAverageFilter {
@@ -13,13 +15,13 @@ public class ExponentialMovingAverageFilter {
         this.smoothingFactor = smoothingFactor;
     }
 
-    public double[] filter(double[] values) {
-        int length = values.length;
+    public double[] filter(List<Double> rawFuelLevels) {
+        int length = rawFuelLevels.size();
         double[] result = new double[length];
-        result[0] = values[0];
+        result[0] = rawFuelLevels.get(0);
         double k = 1 - smoothingFactor;
         for (int i = 1; i < length; i++) {
-            result[i] = values[i] * smoothingFactor + result[i - 1] * k;
+            result[i] = rawFuelLevels.get(i) * smoothingFactor + result[i - 1] * k;
         }
 
         return result;

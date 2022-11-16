@@ -1,9 +1,10 @@
 package org.traccar.handler;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.math3.exception.OutOfRangeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traccar.BaseDataHandler;
@@ -12,7 +13,6 @@ import org.traccar.database.IdentityManager;
 import org.traccar.database.ReadingTypeManager;
 import org.traccar.database.SensorManager;
 import org.traccar.handler.events.FuelRefillEventHandler;
-import org.traccar.model.Device;
 import org.traccar.model.FuelCalibration;
 import org.traccar.model.Position;
 import org.traccar.model.ReadingType;
@@ -25,15 +25,10 @@ public class FuelLevelHandler extends BaseDataHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FuelLevelHandler.class);
 
-    private static final double Q_VALUE = 0.01;
-
     private final IdentityManager identityManager;
     private final ReadingTypeManager readingTypeManager;
     private final FuelCalibrationManager fuelCalibrationManager;
     private final SensorManager sensorManager;
-
-    private Map<Integer, Double> sensorsFuelLevels;
-    private Map<Integer, Integer> sensorsGroupCount;
 
     public FuelLevelHandler(IdentityManager identityManager, ReadingTypeManager readingTypeManager,
             FuelCalibrationManager fuelCalibrationManager, SensorManager sensorManager) {
@@ -43,52 +38,61 @@ public class FuelLevelHandler extends BaseDataHandler {
         this.sensorManager = sensorManager;
     }
 
+    class Groups {
+        private Map<Integer, Double> fuelLevels;
+        private Map<Integer, Integer> count;
+
+        Groups() {
+            this.fuelLevels = new ConcurrentHashMap<>();
+            this.count = new ConcurrentHashMap<>();
+        }
+    }
+
     @Override
     protected Position handlePosition(Position position) {
+        Groups groups = new Groups();
+
         if (!position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
-            Device device = identityManager.getById(position.getDeviceId());
-            if (device != null) {
+            Long deviceId = position.getDeviceId();
+            if (deviceId != null) {
                 try {
                     Collection<Sensor> sensors;
-                    this.sensorsFuelLevels = new HashMap<>();
-                    this.sensorsGroupCount = new HashMap<>();
-
                     Position lastPosition = identityManager != null
                             ? identityManager.getLastPosition(position.getDeviceId())
                             : null;
 
-                    sensors = sensorManager.getDeviceSensors(device.getId());
+                    sensors = sensorManager.getDeviceSensors(deviceId);
 
                     if (sensors.size() > 0) {
-                        for (int i = 0; i < sensors.size(); i++) {
-                            Sensor sensor = (Sensor) sensors.toArray()[i];
+                        int i = -1;
+                        for (Sensor sensor : sensors) {
+                            ++i;
 
                             try {
-                                calculateSensorFuelAtPosition(i, position, lastPosition, device, sensor);
+                                calculateSensorFuelAtPosition(i, position, lastPosition, deviceId, sensor, groups);
                             } catch (Exception e) {
-                                LOGGER.info("id: " + device.getUniqueId() + ", Sensor Fuel Error",
+                                LOGGER.error("DeviceId: " + deviceId + ", Sensor Fuel Error",
                                         e.getStackTrace().toString());
                             }
                         }
 
                         double fuelLevel = 0.0;
-                        for (int group : sensorsGroupCount.keySet()) {
-                            double tankFuelLevel = sensorsFuelLevels.getOrDefault(group, 0.0)
-                                    / sensorsGroupCount.getOrDefault(group, 0);
+                        for (int group : groups.count.keySet()) {
+                            double tankFuelLevel = groups.fuelLevels.getOrDefault(group, 0.0)
+                                    / groups.count.getOrDefault(group, 0);
                             fuelLevel += tankFuelLevel; // update the total fuel level
                             position.set(Position.KEY_TANK + group, tankFuelLevel); // update tank fuel level
+                            LOGGER.error("[" + position.getDeviceTime() + "] DeviceId: " + deviceId + ", tank" + group
+                                    + "FuelLevel: " + tankFuelLevel);
                         }
 
-                        boolean hasFuelData = sensorsGroupCount.keySet().size() > 0;
+                        boolean hasFuelData = groups.count.keySet().size() > 0;
 
                         if (hasFuelData && fuelLevel >= 0) {
                             position.set(Position.KEY_FUEL_LEVEL, fuelLevel);
                         }
 
                         if (lastPosition != null && hasFuelData) {
-                            if (fuelLevel < 0) {
-                                position.set(Position.KEY_FUEL_LEVEL, lastPosition.getDouble(Position.KEY_FUEL_LEVEL));
-                            }
                             calculateFuelConsumption(lastPosition, position);
                         }
 
@@ -103,31 +107,8 @@ public class FuelLevelHandler extends BaseDataHandler {
         return position;
     }
 
-    private double getFilteredVoltageData(Position position, Position lastPosition, double voltage, int index) {
-        double rValue = 0.1;
-        double xHatMinus = lastPosition.getDouble(Position.KEY_X_HAT + index);
-        double pMinus = lastPosition.getDouble(Position.KEY_P + index) + Q_VALUE;
-
-        double kalmanGain = pMinus / (pMinus + rValue); // Kalman Gain
-        double xHat = xHatMinus + kalmanGain * (voltage - xHatMinus);
-        double pValue = (1 - kalmanGain) * pMinus;
-
-        position.set(Position.KEY_X_HAT + index, xHat);
-        position.set(Position.KEY_P + index, pValue);
-        position.set(Position.KEY_X_HAT_MINUS + index, xHatMinus);
-        position.set(Position.KEY_K + index, kalmanGain);
-        position.set(Position.KEY_P_MINUS + index, pMinus);
-        position.set(Position.KEY_FUEL_FILTERED_VOLTAGE + index, xHat);
-
-        if (xHatMinus == 0) {
-            return voltage;
-        }
-
-        return xHat;
-    }
-
-    private void calculateSensorFuelAtPosition(int sensorIndex, Position position, Position last, Device device,
-            Sensor sensor) throws Exception {
+    private void calculateSensorFuelAtPosition(int sensorIndex, Position position, Position last, Long deviceId,
+            Sensor sensor, Groups groups) throws Exception {
 
         String fuelLevelPort = sensor.getFuelPort();
         ReadingType readingType = readingTypeManager
@@ -143,19 +124,8 @@ public class FuelLevelHandler extends BaseDataHandler {
         }
 
         double currentVoltageReading = position.getDouble(fuelLevelPort);
-        double filteredVoltage = 0.0;
 
         position.set(Position.KEY_FUEL_VOLTAGE + sensorIndex, currentVoltageReading);
-
-        if (last != null) {
-            filteredVoltage = getFilteredVoltageData(position, last, currentVoltageReading, sensorIndex);
-        }
-
-        double voltageDiff = currentVoltageReading - filteredVoltage;
-        double measurementErrorRange = currentVoltageReading * Q_VALUE * 10;
-        if (measurementErrorRange > voltageDiff) {
-            currentVoltageReading = filteredVoltage;
-        }
 
         if (sensorIsCalibrated) {
 
@@ -164,17 +134,21 @@ public class FuelLevelHandler extends BaseDataHandler {
             fuelLevel = getCalibratedSensorFuelLevel(position, currentVoltageReading,
                     fuelCalibration);
 
+            LOGGER.error("Computed fuel for: " + " DeviceID: " + deviceId + ", Sensor ID: " + sensor.getId()
+                    + ", Calibration ID: " + fuelCalibration.getId());
+            position.set("fuelSensor" + sensorIndex, sensor.toString());
+
         } else {
             fuelLevel = currentVoltageReading * readingType.getConversionMultiplier();
         }
 
-        double groupFuelLevel = sensorsFuelLevels.getOrDefault(sensorGroup, 0.0);
+        double groupFuelLevel = groups.fuelLevels.getOrDefault(sensorGroup, 0.0);
         groupFuelLevel += fuelLevel;
-        sensorsFuelLevels.put(sensorGroup, groupFuelLevel);
+        groups.fuelLevels.put(sensorGroup, groupFuelLevel);
 
-        int groupCount = sensorsGroupCount.getOrDefault(sensorGroup, 0);
+        int groupCount = groups.count.getOrDefault(sensorGroup, 0);
         groupCount += 1;
-        sensorsGroupCount.put(sensorGroup, groupCount);
+        groups.count.put(sensorGroup, groupCount);
 
     }
 
@@ -185,6 +159,15 @@ public class FuelLevelHandler extends BaseDataHandler {
         double index = -1;
 
         Map<String, Double> lastLeastCalibration = fuelCalibration.getCalibrationEntries().get(0);
+
+        double calibrationsSize = fuelCalibration.getCalibrationEntries().size();
+        double minimumVoltageLevel = lastLeastCalibration.get(FuelCalibration.VOLTAGE);
+        double maximumVoltageLevel = fuelCalibration.getCalibrationEntries().get((int) (calibrationsSize - 1))
+                .get(FuelCalibration.VOLTAGE);
+
+        if (currentVoltageReading < minimumVoltageLevel || currentVoltageReading > maximumVoltageLevel) {
+            throw new OutOfRangeException(currentVoltageReading, minimumVoltageLevel, maximumVoltageLevel);
+        }
 
         for (Map<String, Double> calibrationEntry : fuelCalibration.getCalibrationEntries()) {
 
@@ -203,6 +186,15 @@ public class FuelLevelHandler extends BaseDataHandler {
 
         fuelLevel = lastLeastCalibration.get(FuelCalibration.SLOPE) * currentVoltageReading
                 + lastLeastCalibration.get(FuelCalibration.INTERCEPT);
+
+        if (0 <= fuelLevel && fuelLevel < 1) {
+            fuelLevel = 0;
+        }
+
+        LOGGER.error("[" + position.getDeviceTime() + "] Done computing fuel level for deviceid: "
+                + position.getDeviceId() + ", calibration: "
+                + lastLeastCalibration + "fuelLevel: " + fuelLevel);
+        position.set("fuelCalibration" + fuelCalibration.getId(), lastLeastCalibration.toString());
 
         return fuelLevel;
     }
