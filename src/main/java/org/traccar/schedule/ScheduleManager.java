@@ -26,7 +26,7 @@ public class ScheduleManager implements LifecycleObject {
 
     @Override
     public void start() {
-        executor = Executors.newScheduledThreadPool(8);
+        executor = Executors.newScheduledThreadPool(16);
         /*
          * newSingleThreadScheduledExecutor();
          */

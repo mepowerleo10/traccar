@@ -1,6 +1,7 @@
 package org.traccar.database;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,14 +38,19 @@ public class ProcessingQueueManager extends ExtendedObjectManager<ProcessingQueu
     return queue;
   }
 
-  public synchronized Collection<ProcessingQueue> getDirtyQueues() throws StorageException {
+  public synchronized Collection<Long> getDirtyQueues() throws StorageException {
     Collection<ProcessingQueue> dirtyProcessingQueues;
     Storage storage = getDataManager().getStorage();
 
     dirtyProcessingQueues = storage.getObjects(ProcessingQueue.class,
-        new Request(new Columns.All(), new Condition.Equals("dirty", "dirty", true)));
+        new Request(new Columns.Include("id"), new Condition.Equals("dirty", "dirty", true)));
 
-    return dirtyProcessingQueues;
+    if (dirtyProcessingQueues != null && dirtyProcessingQueues.size() > 0) {
+      return dirtyProcessingQueues.stream()
+          .map(queue -> queue.getId()).toList();
+    }
+
+    return Collections.emptyList();
   }
 
   public synchronized Collection<Position> getPositions(List<Long> ids) throws StorageException {
@@ -53,10 +59,10 @@ public class ProcessingQueueManager extends ExtendedObjectManager<ProcessingQueu
       try {
         return Context.getDataManager().getObject(Position.class, id);
       } catch (Throwable t) {
-        LOGGER.error("Failed to getch positions", t);
+        LOGGER.error("Failed to fetch positions", t);
       }
       return null;
-    }).dropWhile(position -> position == null).collect(Collectors.toList());
+    }).filter(position -> position != null).collect(Collectors.toList());
 
     /*
      * for (long itemId : itemIds) {
@@ -67,8 +73,7 @@ public class ProcessingQueueManager extends ExtendedObjectManager<ProcessingQueu
      * }
      */
 
-
-     return result;
+    return result;
   }
 
 }

@@ -38,9 +38,10 @@ public class TaskNormalizeFuelLevels implements Runnable {
     LOGGER.info("Start work on Dirty Queues");
     try {
       ProcessingQueueManager queueManager = Context.getProcessingQueueManager();
-      Collection<ProcessingQueue> dirtyQueues = queueManager.getDirtyQueues();
+      Collection<Long> dirtyQueues = queueManager.getDirtyQueues();
 
-      for (ProcessingQueue queue : dirtyQueues) {
+      for (Long queueId : dirtyQueues) {
+        ProcessingQueue queue = queueManager.getById(queueId);
         ArrayList<Position> positions = new ArrayList<>();
         DataManager dataManager = Context.getDataManager();
         HashSet<String> orderedPositions = new HashSet<>();
