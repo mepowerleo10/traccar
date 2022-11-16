@@ -67,8 +67,8 @@ public class FuelDataSmoothingHandler extends BaseDataHandler {
             values[++i] = item.getValue();
         }
 
-        double[] results = emaFilter.filter(values);
-        updateFuelValues(fuelHistory, results);
+        // double[] results = emaFilter.filter(values);
+        // updateFuelValues(fuelHistory, results);
 
         position.getAttributes().put(Position.KEY_FUEL_HISTORY, fuelHistory);
 

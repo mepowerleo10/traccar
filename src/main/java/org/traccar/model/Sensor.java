@@ -86,4 +86,12 @@ public class Sensor extends ExtendedModel {
     public void setGroupNo(int groupNo) {
         this.groupNo = groupNo;
     }
+
+    @Override
+    public String toString() {
+        return "Sensor [name=" + name + ", deviceId=" + deviceId + ", typeId=" + typeId + ", readingTypeId="
+                + readingTypeId + ", fuelPort=" + fuelPort + ", isCalibrated=" + isCalibrated + ", calibrationId="
+                + calibrationId + ", groupNo=" + groupNo + "]";
+    }
+
 }

@@ -15,13 +15,8 @@
  */
 package org.traccar;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelInboundHandler;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOutboundHandler;
-import io.netty.channel.ChannelPipeline;
-import io.netty.handler.timeout.IdleStateHandler;
+import java.util.Map;
+
 import org.traccar.config.Keys;
 import org.traccar.handler.ComputedAttributesHandler;
 import org.traccar.handler.CopyAttributesHandler;
@@ -36,6 +31,7 @@ import org.traccar.handler.HemisphereHandler;
 import org.traccar.handler.MotionHandler;
 import org.traccar.handler.NetworkMessageHandler;
 import org.traccar.handler.OpenChannelHandler;
+import org.traccar.handler.QueueDataHandler;
 import org.traccar.handler.RemoteAddressHandler;
 import org.traccar.handler.SpeedLimitHandler;
 import org.traccar.handler.StandardLoggingHandler;
@@ -52,7 +48,13 @@ import org.traccar.handler.events.MaintenanceEventHandler;
 import org.traccar.handler.events.MotionEventHandler;
 import org.traccar.handler.events.OverspeedEventHandler;
 
-import java.util.Map;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelInboundHandler;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOutboundHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.handler.timeout.IdleStateHandler;
 
 public abstract class BasePipelineFactory extends ChannelInitializer<Channel> {
 
@@ -138,6 +140,7 @@ public abstract class BasePipelineFactory extends ChannelInitializer<Channel> {
                 FuelLevelHandler.class,
                 WebDataHandler.class,
                 DefaultDataHandler.class,
+                QueueDataHandler.class,
                 CommandResultEventHandler.class,
                 FuelDropEventHandler.class,
                 FuelRefillEventHandler.class,
