@@ -48,10 +48,12 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DataManager {
 
@@ -226,6 +228,51 @@ public class DataManager {
                         new Condition.Equals("deviceId", "deviceId", deviceId),
                         new Condition.Between("eventTime", "from", from, "to", to)),
                 new Order("eventTime")));
+    }
+
+    public Collection<Event> getEventsByPage(long lastId, List<String> types) throws StorageException {
+        List<Condition> conditions = new ArrayList<>();
+
+        Condition hasDevice = new Condition.Compare("deviceid", ">", "deviceid", 0);
+        conditions.add(hasDevice);
+
+        Condition isNotOfType = ignoreEventsOfTypes(types);
+        // conditions.add(isNotOfType);
+
+        Condition lastIdIsGreaterThan = new Condition.Compare("id", ">", "id", lastId);
+        conditions.add(lastIdIsGreaterThan);
+
+        Collection<Event> events = storage.getObjects(Event.class,
+                new Request(new Columns.All(), Condition.merge(conditions), new Order("id"),
+                        new Limit(1000)));
+
+        return events.stream().filter(event -> !(types.stream().anyMatch(type -> type.equals(event.getType()))))
+                .map(event -> setEventProperties(storage, event))
+                .collect(Collectors.toList());
+
+    }
+
+    private Condition ignoreEventsOfTypes(List<String> types) {
+        List<Condition> conditions = new ArrayList<>();
+
+        for (String type : types) {
+            conditions.add(new Condition.Compare("type", "!=", "type", type));
+        }
+        return Condition.merge(conditions);
+
+    }
+
+    private Event setEventProperties(Storage storage, Event event) {
+        String uniqueId = Context.getDeviceManager().getById(event.getDeviceId()).getUniqueId();
+        event.setDeviceUniqueId(uniqueId);
+        try {
+            Position eventPosition = storage.getObject(Position.class,
+                    new Request(new Columns.All(), new Condition.Equals("id", "id", event.getPositionId())));
+            event.setPosition(eventPosition);
+        } catch (StorageException e) {
+            event.setPosition(null);
+        }
+        return event;
     }
 
     public Collection<Statistics> getStatistics(Date from, Date to) throws StorageException {

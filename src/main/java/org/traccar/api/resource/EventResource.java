@@ -16,7 +16,7 @@
 package org.traccar.api.resource;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -29,14 +29,9 @@ import javax.ws.rs.core.Response;
 
 import org.traccar.Context;
 import org.traccar.api.BaseResource;
+import org.traccar.database.DataManager;
 import org.traccar.model.Event;
-import org.traccar.storage.Storage;
 import org.traccar.storage.StorageException;
-import org.traccar.storage.query.Columns;
-import org.traccar.storage.query.Condition;
-import org.traccar.storage.query.Limit;
-import org.traccar.storage.query.Order;
-import org.traccar.storage.query.Request;
 
 @Path("events")
 @Produces(MediaType.APPLICATION_JSON)
@@ -56,17 +51,15 @@ public class EventResource extends BaseResource {
 
     @Path("page/{lastId}")
     @GET
-    public Collection<Event> getEventByPage(@PathParam("lastId") long lastId) throws StorageException {
-        Storage storage = Context.getDataManager().getStorage();
-        Collection<Event> events = storage.getObjects(Event.class,
-                new Request(new Columns.All(), new Condition.Compare("id", ">", "id", lastId), new Order("id"),
-                        new Limit(1000)));
+    public Collection<Event> getEventsByPage(@PathParam("lastId") long lastId) throws StorageException {
+        List<String> ignoreTypes = List.of(
+                Event.TYPE_DEVICE_OFFLINE,
+                Event.TYPE_DEVICE_ONLINE,
+                Event.TYPE_DEVICE_UNKNOWN);
 
-        return events.stream().filter(event -> event.getDeviceId() > 0).map(event -> {
-            String uniqueId = Context.getDeviceManager().getById(event.getDeviceId()).getUniqueId();
-            event.setDeviceUniqueId(uniqueId);
-            return event;
-        }).collect(Collectors.toList());
+        DataManager dataManager = Context.getDataManager();
+        return dataManager.getEventsByPage(lastId, ignoreTypes);
 
     }
+
 }
