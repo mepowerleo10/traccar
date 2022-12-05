@@ -72,7 +72,7 @@ public class FuelLevelHandler extends BaseDataHandler {
                                 calculateSensorFuelAtPosition(i, position, lastPosition, deviceId, sensor, groups);
                             } catch (Exception e) {
                                 LOGGER.error("DeviceId: " + deviceId + ", Sensor Fuel Error",
-                                        e.getStackTrace().toString());
+                                        e);
                             }
                         }
 
@@ -82,7 +82,7 @@ public class FuelLevelHandler extends BaseDataHandler {
                                     / groups.count.getOrDefault(group, 0);
                             fuelLevel += tankFuelLevel; // update the total fuel level
                             position.set(Position.KEY_TANK + group, tankFuelLevel); // update tank fuel level
-                            LOGGER.error("[" + position.getDeviceTime() + "] DeviceId: " + deviceId + ", tank" + group
+                            LOGGER.info("[" + position.getDeviceTime() + "] DeviceId: " + deviceId + ", tank" + group
                                     + "FuelLevel: " + tankFuelLevel);
                         }
 
@@ -134,7 +134,7 @@ public class FuelLevelHandler extends BaseDataHandler {
             fuelLevel = getCalibratedSensorFuelLevel(position, currentVoltageReading,
                     fuelCalibration);
 
-            LOGGER.error("Computed fuel for: " + " DeviceID: " + deviceId + ", Sensor ID: " + sensor.getId()
+            LOGGER.info("Computed fuel for: " + " DeviceID: " + deviceId + ", Sensor ID: " + sensor.getId()
                     + ", Calibration ID: " + fuelCalibration.getId());
             position.set("fuelSensor" + sensorIndex, sensor.toString());
 
@@ -191,7 +191,7 @@ public class FuelLevelHandler extends BaseDataHandler {
             fuelLevel = 0;
         }
 
-        LOGGER.error("[" + position.getDeviceTime() + "] Done computing fuel level for deviceid: "
+        LOGGER.info("[" + position.getDeviceTime() + "] Done computing fuel level for deviceid: "
                 + position.getDeviceId() + ", calibration: "
                 + lastLeastCalibration + "fuelLevel: " + fuelLevel);
         position.set("fuelCalibration" + fuelCalibration.getId(), lastLeastCalibration.toString());
