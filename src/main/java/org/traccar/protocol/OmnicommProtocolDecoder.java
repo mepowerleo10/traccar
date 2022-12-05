@@ -104,7 +104,6 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
             if (device != null && device.getId() != 0) {
                 long recordNumber = device.getLong(Device.KEY_OMNICOMM_RECORD_NUMBER);
                 deviceSession.setRecordNumber(recordNumber);
-
                 sendResponse(channel, MSG_ARCHIVE_INQUIRY, deviceSession.getRecordNumber() + 1);
             }
 
