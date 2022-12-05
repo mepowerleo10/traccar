@@ -29,11 +29,10 @@ public class TaskPopulateQueues implements Runnable {
     LOGGER.warn("Populating Processing Queues");
     try {
       DirtyPositionManager dirtyPositionManager = Context.getDirtyPositionManager();
-      for (Long id : dirtyPositionManager.getAllItems()) {
-        DirtyPosition dirtyPosition = dirtyPositionManager.getById(id);
+      for (DirtyPosition dirtyPosition : dirtyPositionManager.getIterator()) {
         if (dirtyPosition != null) {
           addPositionToQueue(dirtyPosition);
-          dirtyPositionManager.removeItem(id);
+          dirtyPositionManager.removeItem(dirtyPosition.getId());
         }
       }
     } catch (Throwable t) {
