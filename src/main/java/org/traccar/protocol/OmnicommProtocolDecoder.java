@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.BaseProtocolDecoder;
 import org.traccar.DeviceSession;
 import org.traccar.NetworkMessage;
@@ -27,6 +29,7 @@ import org.traccar.Protocol;
 import org.traccar.helper.BitUtil;
 import org.traccar.helper.Checksum;
 import org.traccar.helper.UnitsConverter;
+import org.traccar.model.Device;
 import org.traccar.model.Position;
 import org.traccar.protobuf.omnicomm.OmnicommMessageOuterClass;
 
@@ -38,6 +41,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 
 public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OmnicommProtocolDecoder.class);
 
     public OmnicommProtocolDecoder(Protocol protocol) {
         super(protocol);
@@ -47,6 +51,8 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     public static final int MSG_ARCHIVE_INQUIRY = 0x85;
     public static final int MSG_ARCHIVE_DATA = 0x86;
     public static final int MSG_REMOVE_ARCHIVE_INQUIRY = 0x87;
+    public static final int MSG_REMOVE_ARCHIVE_CONFIRMATION = 0x88;
+    public static final int MSG_TERMINAL_KEEP_SESSION = 0x95;
 
     private OmnicommMessageOuterClass.OmnicommMessage parseProto(
             ByteBuf buf, int length) throws InvalidProtocolBufferException {
@@ -66,13 +72,13 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
                 .getDefaultInstance().getParserForType().parseFrom(array, offset, length);
     }
 
-    private void sendResponse(Channel channel, int type, long index) {
+    private void sendResponse(Channel channel, int commandType, long recordNumber) {
         if (channel != null) {
             ByteBuf response = Unpooled.buffer();
             response.writeByte(0xC0);
-            response.writeByte(type);
+            response.writeByte(commandType);
             response.writeShortLE(4);
-            response.writeIntLE((int) index);
+            response.writeIntLE((int) recordNumber);
             response.writeShortLE(Checksum.crc16(Checksum.CRC16_CCITT_FALSE,
                     response.nioBuffer(1, response.writerIndex() - 1)));
             channel.writeAndFlush(new NetworkMessage(response, channel.remoteAddress()));
@@ -84,24 +90,37 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
             Channel channel, SocketAddress remoteAddress, Object msg) throws Exception {
 
         ByteBuf buf = (ByteBuf) msg;
+        Device device;
 
         buf.readUnsignedByte(); // prefix
-        int type = buf.readUnsignedByte();
-        buf.readUnsignedShortLE(); // length
+        int commandType = buf.readUnsignedByte();
+        int length = buf.readUnsignedShortLE();
 
-        if (type == MSG_IDENTIFICATION) {
+        if (commandType == MSG_IDENTIFICATION) {
+            long terminalID = buf.readUnsignedIntLE();
+            DeviceSession deviceSession = getDeviceSession(channel, remoteAddress, String.valueOf(terminalID));
+            device = getIdentityManager().getById(deviceSession.getDeviceId());
 
-            getDeviceSession(channel, remoteAddress, String.valueOf(buf.readUnsignedIntLE()));
-            sendResponse(channel, MSG_ARCHIVE_INQUIRY, 0);
+            if (device != null && device.getId() != 0) {
+                long recordNumber = device.getLong(Device.KEY_OMNICOMM_RECORD_NUMBER);
+                deviceSession.setRecordNumber(recordNumber);
 
-        } else if (type == MSG_ARCHIVE_DATA) {
+                sendResponse(channel, MSG_ARCHIVE_INQUIRY, deviceSession.getRecordNumber() + 1);
+            }
+
+        } else if (commandType == MSG_ARCHIVE_DATA || commandType == MSG_TERMINAL_KEEP_SESSION) {
 
             DeviceSession deviceSession = getDeviceSession(channel, remoteAddress);
             if (deviceSession == null) {
                 return null;
             }
 
-            long index = buf.readUnsignedIntLE();
+            if (length == 0) {
+                sendResponse(channel, MSG_REMOVE_ARCHIVE_INQUIRY, deviceSession.getRecordNumber());
+                return null;
+            }
+
+            long recordNumber = buf.readUnsignedIntLE();
             buf.readUnsignedIntLE(); // time
             buf.readUnsignedByte(); // priority
 
@@ -185,12 +204,15 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
                 }
             }
 
-            if (positions.isEmpty()) {
-                sendResponse(channel, MSG_REMOVE_ARCHIVE_INQUIRY, index + 1);
-                return null;
-            } else {
+            device = getIdentityManager().getById(deviceSession.getDeviceId());
+            device.set(Device.KEY_OMNICOMM_RECORD_NUMBER, recordNumber);
+            deviceSession.setRecordNumber(recordNumber);
+
+            if (!positions.isEmpty()) {
                 return positions;
             }
+        } else if (commandType == MSG_REMOVE_ARCHIVE_CONFIRMATION) {
+            LOGGER.warn("Clearing data in device");
         }
 
         return null;

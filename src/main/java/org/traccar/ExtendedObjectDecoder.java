@@ -21,6 +21,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.traccar.config.Keys;
 import org.traccar.helper.DataConverter;
 import org.traccar.model.Position;
@@ -30,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 public abstract class ExtendedObjectDecoder extends ChannelInboundHandlerAdapter {
+    public static final Logger LOGGER = LoggerFactory.getLogger(ExtendedObjectDecoder.class);
 
     private void saveOriginal(Object decodedMessage, Object originalMessage) {
         if (Context.getConfig().getBoolean(Keys.DATABASE_SAVE_ORIGINAL) && decodedMessage instanceof Position) {
@@ -41,6 +45,10 @@ public abstract class ExtendedObjectDecoder extends ChannelInboundHandlerAdapter
                 position.set(Position.KEY_ORIGINAL, DataConverter.printHex(
                         ((String) originalMessage).getBytes(StandardCharsets.US_ASCII)));
             }
+
+            // if (position.getDeviceId() == 6) {
+                LOGGER.error("Received data for device", position);
+            // }
         }
     }
 

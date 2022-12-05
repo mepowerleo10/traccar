@@ -59,6 +59,7 @@ public class Device extends GroupedModel {
     public static final String SENSOR_GROUP = "group";
     public static final String SENSOR_NAME = "name";
     public static final String ATTRIBUTE_STATIC = "static";
+    public static final String KEY_OMNICOMM_RECORD_NUMBER = "omnicommRecordNumber";
 
     private String status;
 
@@ -81,6 +82,17 @@ public class Device extends GroupedModel {
     @QueryExtended
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    private Date lastPositionUpdate;
+
+    public Date getLastPositionUpdate() {
+        return this.lastPositionUpdate;
+    }
+
+    @QueryExtended
+    public void setLastPositionUpdate(Date lastPositionUpdate) {
+        this.lastPositionUpdate = lastPositionUpdate;
     }
 
     private long positionId;

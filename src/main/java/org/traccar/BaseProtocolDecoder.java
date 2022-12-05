@@ -58,6 +58,10 @@ public abstract class BaseProtocolDecoder extends ExtendedObjectDecoder {
         statisticsManager = Main.getInjector() != null ? Main.getInjector().getInstance(StatisticsManager.class) : null;
     }
 
+    public IdentityManager getIdentityManager() {
+        return identityManager;
+    }
+
     public String getProtocolName() {
         return protocol != null ? protocol.getName() : PROTOCOL_UNKNOWN;
     }

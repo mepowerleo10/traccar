@@ -21,6 +21,8 @@
 
     <entry key='atrack.custom'>true</entry>
     <entry key='intellitrac.port'>6037</entry>
+    <entry key='omnicomm.port'>5203</entry>
+
     <entry key='queues.recompute'>true</entry>
     <entry key='queues.filteringWindow'>15</entry>
     <entry key='queues.filteringPeriod'>1</entry>
