@@ -112,6 +112,12 @@ public class Position extends Message {
     public static final String KEY_ICCID = "iccid";
     public static final String KEY_PHONE = "phone";
     public static final String KEY_SPEED_LIMIT = "speedLimit";
+    public static final String KEY_GSM_CONNECTION_AVAILABLE = "gsmConnectionAvailable";
+    public static final String KEY_GPS_DATA_ACCURATE = "gpsDataAccurate";
+    public static final String KEY_RESERVE_POWER = "reservePower";
+    public static final String KEY_PANIC_BUTTON_PRESSED = "panicButtonPressed";
+    public static final String KEY_DEVICE_OPENING = "deviceOpening";
+    public static final String KEY_DISCRETE_OUTPUT_ENABLED = "discreteOutputEnabled";
 
     public static final String KEY_DTCS = "dtcs";
     public static final String KEY_OBD_SPEED = "obdSpeed"; // knots

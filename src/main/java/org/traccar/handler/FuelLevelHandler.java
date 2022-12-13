@@ -52,7 +52,7 @@ public class FuelLevelHandler extends BaseDataHandler {
     protected Position handlePosition(Position position) {
         Groups groups = new Groups();
 
-        if (!position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+        if (!position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL) && position.getValid()) {
             Long deviceId = position.getDeviceId();
             if (deviceId != null) {
                 try {

@@ -126,6 +126,10 @@ public final class ReportUtils {
         Position last = null;
 
         for (Position position : positions) {
+            if (!position.getValid()) {
+                continue;
+            }
+
             if (last != null && !last.getDeviceTime().equals(position.getDeviceTime())) {
 
                 fuelUsed = BigDecimal.valueOf(getFuelDifference(last, position) + fuelUsed.doubleValue());

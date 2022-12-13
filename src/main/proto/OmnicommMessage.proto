@@ -4,6 +4,454 @@ package org.traccar.protobuf.omnicomm;
 
 message OmnicommMessage {
 
+  repeated uint32 mID = 1 [packed=true]; // event identifier (there can be multiple events in one message.)
+  
+  optional group General = 2 { // Main parameters
+  optional uint32 Time = 1;//[4] Time/date of the event (in OmnicommTime)
+  optional uint32 IDFAS = 2;//[4] On-board equipment identifier
+  optional bytes  IDDrv = 3;//[8] iButton ID (8 byte)
+  optional uint32 FLG = 4;//[1] General status flags
+  /* Bitmask:
+  Bit 0 = Position of the ignition key
+  0 – ignition off,
+  1. – ignition on.
+  1. bit = GSM connection	
+  0 – No connection,
+  1. – Connection available.
+  2. bit = Correctness of GPS data	
+  0 – The data is incorrect,
+  1. – The data is correct.
+  Bit 3 = Roaming	
+  0 – In the home network,
+  1. – In roaming.
+  Bit 4 = Power supply status	
+  0 – External power supply,
+  1. – Backup power supply.
+  Bit 5 = Panic button (the current panic button status)	
+  0 – The button is disengaged,
+  1. – The button is pressed.
+  Bit 6 = Device tampering	
+  0 – The device is closed,
+  1. – The device has been opened.
+  Bit 7 = Digital output status	
+  0 – Disabled,
+  1. – Enabled.
+  Bit 8 = ???
+  Bit 9 = GPS signal jamming
+  0 – Disabled,
+  1. – Enabled.
+  Bit 10 = GSM signal jamming
+  0 – Disabled,
+  1. – Enabled.
+  */
+  optional uint32 Mileage = 5;//[4] Mileage (1LSB = 0.1 meters)
+  optional uint32 VImp = 6;//[2] Speed according to the sensor (1LSB = 0.1 km/h)
+  optional uint32 TImp = 7;//[2] Revolutions according to the sensor (1LSB = 1 rpm)
+  optional uint32 Uboard = 8;//[4] Power supply voltage (1LSB = 0.1 V)
+  optional uint32 BatLife =9;//[4] Battery charge level (1LSB = 1%)
+  optional sint32 SumAcc = 10;//[4] The root of the sum of squares of the x, y, z axes acceleration (1LSB = 0.01 g)
+  optional bytes Phone = 11;//[6] Caller or recipient number
+  optional sint32 AmtrX = 12;//[4] Acceleration on the X axis
+  optional sint32 AmtrY = 13;//[4] Acceleration on the Y axis
+  optional sint32 AmtrZ = 14;//[4] Acceleration on the Z axis
+      optional bytes TachoCardID = 15;//[16] tachograph card ID (16 bytes)
+      optional uint32 AccelStatus = 16;//[1] Accelerometer calibration status: 0 - not in use, 1 - calibrating, 2 - calibration complete, 3 - An error occurred while determining the axes
+      optional uint32 HoursKoef = 17;// Engine hours using the coefficient
+  }
+  
+  optional group Photo = 4 { // Description of the transfer block of a part of the image
+  optional uint32 POSBLK=1;//[4] Position of the current block (in bytes, from the beginning of the image)
+  optional uint32 SZPHOTO=2; //[4] Size of the whole image (in bytes)
+  optional uint32 SIZEBLK=3;//[4] Size of the current block of the image (in bytes)
+  optional bytes IMGDAT=4;//[2048] Image buffer (image data)
+  optional uint32 IDPH=5;//[4] Image identifier
+  optional uint32 IMGSTAT=6;//[1] Image status, see the "Camera status codes" table.
+  }
+  
+  optional group NAV = 5 { // Navigation
+  required sint32 LAT=1;//[4] Latitude (1LSB = 0.0000001°)
+  required sint32 LON=2;//[4] Longitude (1LSB = 0.0000001°)
+  required uint32 GPSVel=3;//[2] Speed according to GPS data (1LSB = 0.1 km/h)
+  required uint32 GPSDir=4;//[2] Direction (1LSB = 1°)
+  required uint32 GPSNSat=5;//[1] Number of satellites
+  required sint32 GPSAlt=6;//[2] Elevation above sea level (1LSB = 0.1 m)
+      optional uint32 GPSTime = 7;//[4] Time/date of the event according to GPS data (in OmnicommTime)
+  }
+  
+  optional group UniDt = 6 { // Universal inputs
+  optional sint32 UniVal0 = 1;//[4] Data from UI 1
+  optional sint32 UniVal1 = 2;//[4] Data from UI 2
+  optional sint32 UniVal2 = 3;//[4] Data from UI 3
+  optional sint32 UniVal3 = 4;//[4] Data from UI 4
+  optional sint32 UniVal4 = 5;//[4] Data from UI 5
+  optional sint32 UniVal5 = 6;//[4] Data from UI 6
+  }
+  
+  optional group CanDt_J1939 = 7 { // Data from the CAN-bus (J1939 protocol)
+  optional uint32 SPN70 = 70;//[1] Parking brake status
+  /* Possible values
+  00 - Parking brake not set
+  01 - Parking brake set
+  10 - Error
+  11 - Not available
+  */
+  optional uint32 SPN91 = 91;//[1] Position of the accelerator pedal (0.4%)
+          /* Errors:
+            254 = Error
+            255 = Not available
+          */
+  optional uint32 SPN100 = 100;//[1] Engine oil pressure (1 LSB=4 kPa)
+          /* Errors:
+            254 = Error
+            255 = Not available
+          */				
+  optional uint32 SPN110 = 110;//[1] Engine coolant temperature. Offset value: -40 (data range: from -40 to 210 °C)
+          /* Errors:
+            254 = Error
+            255 = Not available
+          */
+  optional uint32 SPN174 = 174;//[1] fuel temperature. Offset value: -40 (data range: from -40 to 210 °C)
+          /* Errors:
+            254=Error
+            255= Not available
+          */
+  optional uint32 SPN175 = 175;//[2] engine oil temperature. Offset value: -273 (data range: from -273 to 1735 °C)	
+  optional uint32 SPN182 = 182;//[4] daily fuel consumption (0.5 L)
+          /* Errors:
+            4 261 412 864 .. 4 278 190 079 =Error
+            4 278 190 080 .. 4 294 967 294 = Not available
+          */
+  optional uint32 SPN184 = 184;//[2] instantaneous fuel economy (1/512 km/L)
+          /* Errors:
+            65 024 .. 65 279 =Error
+            65 280 .. 65 535 = Not available
+          */	
+  optional uint32 SPN190 = 190;//[2] engine revolutions (0.125 rpm)
+          /* Errors:
+            65 024 .. 65 279 =Error
+            65 280 .. 65 535 = Not available
+          */
+  optional uint32 SPN244 = 244;//[4] daily mileage (0.125 km)
+          /* Errors:
+            4 261 412 864 .. 4 278 190 079 =Error
+            4 278 190 080 .. 4 294 967 294 = Not available
+          */
+  optional uint32 SPN245 = 245;//[4] total mileage (0.125 km)
+          /* Errors:
+            4 261 412 864 .. 4 278 190 079 =Error
+            4 278 190 080 .. 4 294 967 294 = Not available
+          */
+  optional uint32 SPN247 = 247;//[4] total engine operation time (0.05 hr)
+          /* Errors:
+            4 261 412 864 .. 4 278 190 079 =Error
+            4 278 190 080 .. 4 294 967 294 = Not available
+          */
+  optional uint32 SPN250 = 250;//[4] total fuel consumption for all time (0.5 L)
+          /* Errors:
+            4 261 412 864 .. 4 278 190 079 =Error
+            4 278 190 080 .. 4 294 967 294 = Not available
+          */
+  optional uint32 SPN521 = 521;//[1] position of the service brake pedal (0.4 %)
+          /* Errors:
+            254=Error
+            255= Not available
+          */	
+  optional uint32 SPN522 = 522;//[1] position of the clutch pedal (0.4 %)
+          /* Errors:
+            254=Error
+            255= Not available
+          */	
+  optional uint32 SPN527 = 527;//[1] cruise control status
+          /* Possible values:
+            0 = Off/Disabled
+            1 = Hold
+            2 = Accelerate
+            3 = Decelerate
+            4 = Resume
+            5 = Set
+            6 = Accelerator Override
+            7 = Not available
+          */
+  repeated uint32 SPN582 = 582 [packed=true]; /*PGN 65258 */  //[2*8] Axle load
+  optional uint32 SPN597 = 597;//[1] status of the service brake pedal
+          /* Possible values:
+            0 = Brake pedal released
+            1 = Brake pedal depressed
+            2 = Error
+            3 = Not Available
+          */
+  optional uint32 SPN598 = 598;//[1] status of the clutch pedal
+          /* Possible values:
+            0 = Clutch pedal released
+            1 = Clutch pedal depressed
+            2 = Error
+            3 = Not Available
+          */
+  optional uint32 SPN914 = 914;//[2] mileage before the next maintenance. Offset value -160635 km (5 km)
+          /* Errors:
+            65 024 .. 65 279 =Error
+            65 280 .. 65 535 = Not available
+          */
+  optional uint32 SPN916 = 916;//[1] engine operation time before the next maintenance. Offset value -32127 hr (1 hr)
+          /* Errors:
+            65 024 .. 65 279 =Error
+            65 280 .. 65 535 = Not available
+          */	
+  repeated uint32 SPN928 = 928 [packed=true]; /*PGN 65258 */ //[1*8] axle index
+  optional uint32 SPN1624 = 1624;//[2] instantaneous speed (1/256 km/h)
+  // (on CAN it's SPN 84, I didn't change the number to avoid conflicts with previous versions of the firmware)
+          /* Errors:
+            65 024 .. 65 279 =Error
+            65 280 .. 65 535 = Not available
+          */
+  optional uint32 SPN1821 = 1821;//[1] door status
+          /* Possible values:
+            0 = At least 1 door is open
+            1 = Closing last door
+            2 =  All doors closed
+            3..13 = Not defined
+            14 = Error
+            15 = Not available
+          */
+  optional uint32 SPN1856 = 1856;//[1] seat belt status
+          /* Possible values:
+            0 = NOT Buckled
+            1 = OK - Seat Belt is buckled
+            2 = Error - Switch state cannot be determined
+            3 = Not Available
+          */	
+  }
+  
+  optional group LLSDt = 8 { // Fuel sensors LLS/LLS-AF
+  optional sint32 TLLS1 = 1; //[1] temperature (1LSB = 1°C)
+  optional uint32 CLLS1 = 2; //[2] level
+  optional sint32 FLLS1 = 3; //[1] status code, see the "LLS status codes" table.
+  
+  optional sint32 TLLS2 = 4; //[1] temperature (1LSB = 1°C)
+  optional uint32 CLLS2 = 5; //[4] level
+  optional sint32 FLLS2 = 6; //[1] status code, see the "LLS status codes" table.
+  
+  optional sint32 TLLS3 = 7; //[1] temperature (1LSB = 1°C)
+  optional uint32 CLLS3 = 8; //[4] level
+  optional sint32 FLLS3 = 9; //[1] status code, see the "LLS status codes" table.
+  
+  optional sint32 TLLS4 = 10; //[1] temperature (1LSB = 1°C)
+  optional uint32 CLLS4 = 11; //[4] level
+  optional sint32 FLLS4 = 12; //[1] status code, see the "LLS status codes" table.
+  
+  optional sint32 TLLS5 = 13; //[1] temperature (1LSB = 1°C)
+  optional uint32 CLLS5 = 14; //[4] level
+  optional sint32 FLLS5 = 15; //[1] status code, see "LLS status codes".
+  
+  optional sint32 TLLS6 = 16; //[1] temperature (1LSB = 1°C)
+  optional uint32 CLLS6 = 17; //[4] level
+  optional sint32 FLLS6 = 18; //[1] status code, see "LLS status codes".
+  
+  optional sint32 TLLS7 = 19; //[1] temperature (1LSB = 1°C)
+  optional uint32 CLLS7 = 20; //[4] level
+  optional sint32 FLLS7 = 21; //[1] status code, see "LLS status codes".
+  
+  optional sint32 TLLS8 = 22; //[1] temperature (1LSB = 1°C)
+  optional uint32 CLLS8 = 23; //[4] level
+  optional sint32 FLLS8 = 24; //[1] status code, see "LLS status codes".
+  
+  repeated uint32 LLSRefKoef= 25 [packed=true]; //[8] a set of eight LLS correction coefficients (pos. 0 - LLS1, pos. 1 - LLS2, ...)
+  }
+  
+  optional group Other = 9 { // other equipment
+  optional group OneWire = 1 {
+  // 1-wire temperature sensors. Only temperature readings from the configured sensors are displayed
+  optional sint32 OneWire1 = 1; //[1] temperature from sensor 1
+  optional sint32 OneWire2 = 2; //[1] temperature from sensor 2
+  optional sint32 OneWire3 = 3; //[1] temperature from sensor 3
+  optional sint32 OneWire4 = 4; //[1] temperature from sensor 4
+  optional sint32 OneWire5 = 5; //[1] temperature from sensor 5
+  optional sint32 OneWire6 = 6; //[1] temperature from sensor 6
+  optional sint32 OneWire7 = 7; //[1] temperature from sensor 7
+  optional sint32 OneWire8 = 8; //[1] temperature from sensor 8
+  }
+  optional group Pherip = 2 { // Only the readings from connected and configured peripheral devices are stored in the archive
+  optional uint32 PassengerIn= 1; //[1] The number of passengers who boarded the vehicle
+  optional uint32 PassengerOut= 2; //[1] The number of passengers who alighted from the vehicle
+  optional uint32 DoorMask= 3; //[1] door mask of the passenger throughput sensor
+  optional uint32 DriverStatus= 4; //[1] Driver status
+  optional bytes TPMS = 5; //[92] Tire pressure monitoring system, up to 46 sensors. An array of 46 structures, with 2 bytes each.
+        optional bytes iQFreeze = 6; //[512] Refrigerator control system: iQFreeze.json - http://wiki.omnicomm.ru/pages/viewpage.action?pageId=11567726
+  }
+  optional group ExCAN = 3 { // Advanced CAN-bus parameters
+  repeated uint32 SPNid = 1; //[24] SPN codes
+  repeated uint32 SPNval = 2; //[24] SPN values
+  optional uint64 Adr64TEREX = 10;
+  optional uint64 Adr65TEREX = 11;
+  optional uint64 Adr66TEREX = 12;
+  optional uint64 Adr67TEREX = 13;
+  repeated uint64 Adr11TEREX = 14; //[10] Error codes
+  optional uint64 Adr69TEREX = 15;
+      }
+  optional group Taho_DDD = 4 { // Description of the transfer block of a part of a DDD-file
+  optional uint32 BLKPOS=1;// Position of the current block (in bytes, from the beginning of the file)
+  optional bytes FILEDATA=2;//[1024] Block data
+  optional bytes CARDID=3;//[16] Driver's card identifier
+  optional uint32 STATUS_DATA=4; // the parameter is equal to 1 - if the current block is the last one in the file, 2 - if an error occurred while reading data, 0 - if it is a regular data block
+  }
+      optional group APC = 5 { // Data from the IRMA APC.
+  optional uint32 APCStatus1 = 1; //[1] IRMA APC #1 status: 0 – ok, 1 – "obstruction", 2 – "fault", 3 – "sensor not responding"
+  optional uint32 APCStatus2 = 2; //[1] IRMA APC #2 status: 0 – ok, 1 – "obstruction", 2 – "fault", 3 – "sensor not responding"
+  optional uint32 APCStatus3 = 3; //[1] IRMA APC #3 status: 0 – ok, 1 – "obstruction", 2 – "fault", 3 – "sensor not responding"
+  optional uint32 APCStatus4 = 4; //[1] IRMA APC #4 status: 0 – ok, 1 – "obstruction", 2 – "fault", 3 – "sensor not responding"
+  optional uint32 APCNumberIn1 = 5; //[2] Number of passengers who boarded the vehicle as counted by the IRMA APC #1
+  optional uint32 APCNumberOut1 = 6; //[2] Number of passengers who alighted from the vehicle as counted by the IRMA APC #1
+  optional uint32 APCNumberIn2 = 7; //[2] Number of passengers who boarded the vehicle as counted by the IRMA APC #2
+  optional uint32 APCNumberOut2 = 8; //[2] Number of passengers who alighted from the vehicle as counted by the IRMA APC #2
+  optional uint32 APCNumberIn3 = 9; //[2] Number of passengers who boarded the vehicle as counted by the IRMA APC #3
+  optional uint32 APCNumberOut31 = 10; //[2] Number of passengers who alighted from the vehicle as counted by the IRMA APC #3
+  optional uint32 APCNumberIn4 = 11; //[2] Number of passengers who boarded the vehicle as counted by the IRMA APC #4
+  optional uint32 APCNumberOut4 = 12; //[2] Number of passengers who alighted from the vehicle as counted by the IRMA APC #4
+  }
+      optional group MobileEye = 6 { // Data from MobileEye
+  optional uint32 MobileEyeStatus = 1; //[1] MobileEye status (bitmask of events)
+  repeated bytes CAN700 = 2; // Data from MobileEye, address: CAN 700
+  repeated bytes CAN727 = 3; // Data from MobileEye, address: CAN 727
+  repeated bytes CAN760 = 4; // Data from MobileEye, address: CAN 760
+  }
+      optional group SafeDriving = 7 { // Data on Safe Driving
+  optional uint32 EventMask = 1; //[4] Event trigger (Bitmask) 0 – Speed, 1 – Revolutions, 2 – Acceleration, 3 – Lateral acceleration, 4 - Braking acceleration, 5 - Vertical acceleration
+  optional uint32 SpeedThreshold = 2; //[4] Speed Threshold, the field is present if EventMask/Bit 0 = 1
+  optional uint32 RPMThreshold = 3; //[4] Rpm Threshold, the field is present if EventMask/Bit 1 = 1
+        repeated float AccelDangThs = 4 [packed=true]; //[4]
+  }
+      optional group GenComm= 8{ // Data on the GenComm generator
+                optional uint32 GEN_OILPRESS1 = 1;
+                optional sint32 GEN_TEMP1 = 2;
+                optional float GEN_VOLT1 = 3;
+                optional uint32 GEN_RPM1 = 4;
+                optional float GEN_UL1_1 = 5;
+                optional float GEN_UL2_1 = 6;
+                optional float GEN_UL3_1 = 7;
+                optional float GEN_IL1_1 = 8;
+                optional float GEN_IL2_1 = 9;
+                optional float GEN_IL3_1 = 10;
+                optional uint32 GEN_STATUS1 = 11;
+                optional uint32 GEN_HOURS1 = 12;
+          repeated bytes GEN_ALARM1 = 13; //[28]
+  
+                optional uint32 GEN_OILPRESS2 = 14;
+                optional sint32 GEN_TEMP2 = 15;
+                optional float GEN_VOLT2 = 16;
+                optional uint32 GEN_RPM2 = 17;
+                optional float GEN_UL1_2 = 18;
+                optional float GEN_UL2_2 = 19;
+                optional float GEN_UL3_2 = 20;
+                optional float GEN_IL1_2 = 21;
+                optional float GEN_IL2_2 = 22;
+                optional float GEN_IL3_2 = 23;
+                optional uint32 GEN_STATUS2 = 24;
+                optional uint32 GEN_HOURS2 = 25;
+          repeated bytes GEN_ALARM2 = 26; //[28]
+  
+                optional uint32 GEN_OILPRESS3 = 27;
+                optional sint32 GEN_TEMP3 = 28;
+                optional float GEN_VOLT3 = 29;
+                optional uint32 GEN_RPM3 = 30;
+                optional float GEN_UL1_3 = 31;
+                optional float GEN_UL2_3 = 32;
+                optional float GEN_UL3_3 = 33;
+                optional float GEN_IL1_3 = 34;
+                optional float GEN_IL2_3 = 35;
+                optional float GEN_IL3_3 = 36;
+                optional uint32 GEN_STATUS3 = 37;
+                optional uint32 GEN_HOURS3 = 38;
+          repeated bytes GEN_ALARM3 = 39; //[28]
+  optional float GEN_UC = 40; // voltage parameter of the charging generator
+          optional uint32 GEN_IC = 41; // starter battery charge current
+  optional float GEN_FREQ = 42; // output voltage frequency
+          optional float GEN_UL1L2 = 43; // linear voltage
+          optional float GEN_UL2L3 = 44; // --
+          optional float GEN_UL1L3 = 45; // --
+          optional uint32 POW_ACT_L1 = 46; // active power
+          optional uint32 POW_ACT_L2 = 47; // --
+          optional uint32 POW_ACT_L3 = 48; // --
+          optional uint32 POW_FULL_L1 = 49; // full power
+          optional uint32 POW_FULL_L2 = 50; // --
+          optional uint32 POW_FULL_L3 = 51; // --
+          optional uint32 POW_REACT_L1 = 52; // reactive power
+          optional uint32 POW_REACT_L2 = 53; // --
+          optional uint32 POW_REACT_L3 = 54; // --
+          optional float POW_KOEF = 55; // power coefficient
+          optional uint32 POW_GEN_TOTAL = 56; // total power generated
+          optional uint32 FUEL_LEVEL = 57; // current fuel level
+  
+          optional uint32 SMS_REGS_0 = 60; // status of the status register 0 for SMS alerts (for debugging)
+          optional uint32 SMS_REGS_1 = 61; // status of the status register 1 for SMS alerts (for debugging)
+          optional uint32 SMS_REGS_2 = 62; // status of the status register 2 for SMS alerts (for debugging)
+          optional uint32 SMS_REGS_3 = 63; // status of the status register 3 for SMS alerts (for debugging)
+          optional uint32 SMS_REGS_4 = 64; // status of the status register 4 for SMS alerts (for debugging)
+  }
+      optional group FuelSensorModbus= 9 { // Data on third-party fuel level sensors
+                optional float FuelLevel = 1;
+                optional float MedianLevel = 2;
+                optional uint32 LevelPercent = 3;
+                optional float FuelVolume = 4;
+                optional sint32 FuelTemp = 5;
+                optional float FuelWeight = 6;
+                optional float FuelDensity = 7;
+                optional sint32 VaporTemp = 8;
+                optional float VaporWeight = 9;
+                optional float LiquidWeight = 10;
+                repeated sint32 PointTemp = 11;
+  }
+      optional group WeightControl= 10 { // Data on weight control
+                repeated float AxelWeight = 1;
+                repeated float AxelLimit = 2;
+                optional float TotalWeight = 3;
+                optional float TotalWeightLimit = 4;
+  }
+  }
+  
+  optional group ICONDt = 10 { // ICON data
+  optional bytes VehicleStatus = 1; //[24] Vehicle status bar. Currently, ICON can transfer 20 characters+NULL. [Hex2ASCII]
+  optional uint32 VehicleStatusID = 2; //[1] Vehicle status ID. [Hex2Dec]
+  optional uint32 VehicleStatusGroupID = 3; //[1] Vehicle status group ID. Reserved. [Hex2Dec]
+  optional uint64 MsgID = 4; //[8] Message UID
+  optional uint32 MsgStatus = 5; //[4] message status flag, see CMDPBF.proto
+  optional uint32 StatDate = 6; //[4] Date/time the message status was modified (in OmnicommTime)
+  optional bytes VehicleStatusPrev = 7; //[24] previous vehicle status bar. Currently, ICON can transfer 20 characters+NULL. [Hex2ASCII]
+  optional uint32 VehicleStatusFlags = 8; // flag of the current vehicle status activity (0x1 - active, 0x0 - completed)
+  }
+  optional group OBDDt_J1979 = 11 { // Data from the CAN-bus (J1979 protocol)
+  // the symbols A, B, C, and D are used in the formulas for calculating the OBD values
+  // uint32 data = [D | C | B | A], where А is the low byte and D is the high byte
+  optional uint32 SID_0x01_PID_0x0D = 1;// Vehicle speed = A (km/h) - Vehicle Speed Sensor
+  optional uint32 SID_0x01_PID_0x31 = 2;// Distance travelled after error reset  = (256 * A + B), (km) - Distance travelled after the DTCs were cleared
+  optional uint32 SID_0x01_PID_0x4E = 3;// Engine operation time after trouble codes reset = (A*256)+B (minutes) - Engine Running Time after the diagnostic trouble codes were cleared
+  optional uint32 SID_0x01_PID_0x42 = 4;// On-board voltage, V = ((A*256) + B)/1000 (В) - Control module voltage
+  optional uint32 SID_0x01_PID_0x0C = 5;// Revolutions = (256 * A + B) / 4 (rpm) - Engine RPM
+  optional uint32 SID_0x01_PID_0x2F = 6;// Fuel volume = (100 * A / 255) (%) - Fuel Level Input
+  optional uint32 SID_0x01_PID_0x5E = 7;// Mean value of instantaneous consumption = (256 * A + B) *0,05 (L/h) - Engine Fuel Rate
+  // The terminal receives several values of instantaneous consumption from OBD, from which it calculates and returns the mean average
+  optional uint32 SID_0x01_PID_0x5C = 8;// Oil temperature = (A - 40) (°C)- Engine Oil Temperature
+  optional uint32 SID_0x01_PID_0x05 = 9;// Coolant temperature = (A - 40) (°C) - Engine Coolant Temperature
+  optional uint32 SID_0x01_PID_0x01 = 10;// Check Engine fault status - Monitor status after the DTCs were cleared
+          /* Malfunction Indicator Lamp (MIL) Status:
+  If A/bit 7 = 0, there are no errors
+  If A/bit 7 = 1, there is an error
+          */	
+      optional bytes SID_0x09_PID_0x02 = 11;// [18] VIN
+      optional uint32 SID_0x01_PID_0x5E_quantity = 12; // The number of successfully received responses during the calculation of the mean value of instantaneous consumption (optional uint32 SID_0x01_PID_0x5E = 7)
+  }
+  optional group LOG = 16 {
+  repeated string Debug = 1; //[1024] Debugging log
+      optional uint32 LLSRefNum= 2; // Shows the presence of REF sensors connected to the terminal - a bitmask. The bit 0 corresponds to the 1st connected sensor, etc.
+      repeated uint32 LLSRefLevelBef= 3 [packed=true];
+      repeated uint32 LLSRefLevelAfter= 4 [packed=true];
+      repeated uint32 LLSRefKoef= 5 [packed=true];
+      repeated uint32 LLSRefSens= 6 [packed=true];
+      repeated uint32 LLSRefTemp= 7 [packed=true];
+  }
+  }
+
+message OmnicommMessageOld {
+
     repeated uint32 mID = 1 [packed=true]; // идентификатор события (возможно несколько событий в одном сообщении.)
 
     optional group General = 2 { // Основные параметры

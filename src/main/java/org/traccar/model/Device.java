@@ -60,6 +60,8 @@ public class Device extends GroupedModel {
     public static final String SENSOR_NAME = "name";
     public static final String ATTRIBUTE_STATIC = "static";
     public static final String KEY_OMNICOMM_RECORD_NUMBER = "omnicommRecordNumber";
+    public static final String KEY_OMNICOMM_LAST_IDENTIFICATION_TIME = "omnicommLastIdentificationTime";
+    public static final String KEY_OMNICOMM_LAST_ARCHIVE_TIME = "omnicommLastArchiveTime";
 
     private String status;
 
