@@ -74,6 +74,46 @@ public class BaseReport {
         this.maxSpeed = maxSpeed;
     }
 
+    private double startFuel;
+
+    public double getStartFuel() {
+        return startFuel;
+    }
+
+    public void setStartFuel(double startFuel) {
+        this.startFuel = startFuel;
+    }
+
+    private double endFuel;
+
+    public double getEndFuel() {
+        return endFuel;
+    }
+
+    public void setEndFuel(double endFuel) {
+        this.endFuel = endFuel;
+    }
+
+    private double refilledFuel;
+
+    public double getRefilledFuel() {
+        return refilledFuel;
+    }
+
+    public void setRefilledFuel(double refilledFuel) {
+        this.refilledFuel = refilledFuel;
+    }
+
+    private int numberOfRefills;
+
+    public int getNumberOfRefills() {
+        return numberOfRefills;
+    }
+
+    public void setNumberOfRefills(int numberOfRefills) {
+        this.numberOfRefills = numberOfRefills;
+    }
+
     private double spentFuel;
 
     public double getSpentFuel() {
@@ -93,6 +133,7 @@ public class BaseReport {
     public void setStartOdometer(double startOdometer) {
         this.startOdometer = startOdometer;
     }
+
     private double endOdometer;
 
     public double getEndOdometer() {

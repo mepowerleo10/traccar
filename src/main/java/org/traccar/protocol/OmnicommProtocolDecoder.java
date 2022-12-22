@@ -26,9 +26,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.traccar.BaseProtocolDecoder;
+import org.traccar.Context;
 import org.traccar.DeviceSession;
 import org.traccar.NetworkMessage;
 import org.traccar.Protocol;
+import org.traccar.database.IdentityManager;
 import org.traccar.helper.BitUtil;
 import org.traccar.helper.Checksum;
 import org.traccar.helper.UnitsConverter;
@@ -42,6 +44,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 
 public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     private static final Logger LOGGER = LoggerFactory.getLogger(OmnicommProtocolDecoder.class);
@@ -50,6 +53,8 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
         super(protocol);
     }
 
+    private static IdentityManager identityManager = Context.getIdentityManager();
+
     public static final int MSG_IDENTIFICATION = 0x80;
     public static final int MSG_ARCHIVE_INQUIRY = 0x85;
     public static final int MSG_ARCHIVE_DATA = 0x86;
@@ -57,6 +62,7 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     public static final int MSG_REMOVE_ARCHIVE_CONFIRMATION = 0x88;
     public static final int MSG_TERMINAL_KEEP_SESSION = 0x95;
 
+    // #region Message Codes
     public static final int MSG_MID_TIMER = 0x01;
     private static final int MSG_MID_DRIVER_ASSIGNMENT = 0x02;
     private static final int MSG_MID_IGNITION_OF_POWER_SUPP_DISCONNECTION = 0x03;
@@ -76,6 +82,7 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     private static final int MSG_MID_TERMINAL_SET_CHANGE = 0x11;
     private static final int MSG_MID_LOGS_RECORDING = 0x12;
     private static final int MSG_MID_ATTEMPY_CONN_IN_SLEEP = 0x13;
+    // #endregion
 
     public static final HashMap<Integer, String> MSG_MID_DESCRIPTIONS = new HashMap<Integer, String>();
 
@@ -137,99 +144,141 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
             Channel channel, SocketAddress remoteAddress, Object msg) throws Exception {
 
         ByteBuf buf = (ByteBuf) msg;
-        Device device;
+        Device device = null;
 
         buf.readUnsignedByte(); // prefix
         int commandType = buf.readUnsignedByte();
         int length = buf.readUnsignedShortLE();
 
-        if (commandType == MSG_IDENTIFICATION) {
-            long terminalID = buf.readUnsignedIntLE();
-            DeviceSession deviceSession = getDeviceSession(channel, remoteAddress, String.valueOf(terminalID));
-            device = getIdentityManager().getById(deviceSession.getDeviceId());
+        DeviceSession deviceSession;
 
-            if (device != null && device.getId() != 0) {
-                device.set(Device.KEY_OMNICOMM_LAST_IDENTIFICATION_TIME,
-                        DateFormat.getDateInstance().format(new Date()));
+        switch (commandType) {
+            case MSG_IDENTIFICATION:
+                long terminalID = buf.readUnsignedIntLE();
+                deviceSession = getDeviceSession(channel, remoteAddress, String.valueOf(terminalID));
 
-                long recordNumber = device.getLong(Device.KEY_OMNICOMM_RECORD_NUMBER);
-                recordNumber = recordNumber == 0 ? 0 : recordNumber + 1;
-                deviceSession.setRecordNumber(recordNumber);
+                if (deviceSession != null) {
+                    device = getDeviceFromSession(deviceSession);
+                    sendArchiveInquiryCommand(channel, device, deviceSession);
+                }
+                break;
 
+            case MSG_ARCHIVE_DATA:
+            case MSG_TERMINAL_KEEP_SESSION:
+                deviceSession = getDeviceSession(channel, remoteAddress);
+                if (deviceSession == null) {
+                    return null;
+                }
+
+                device = getDeviceFromSession(deviceSession);
+                device.set(Device.KEY_OMNICOMM_LAST_ARCHIVE_TIME, getFormattedNowTime());
+
+                if (length == 0) {
+                    device.set(Device.KEY_OMNICOMM_LAST_DELETE_TIME, getFormattedNowTime());
+                    sendResponse(channel, MSG_REMOVE_ARCHIVE_INQUIRY, deviceSession.getRecordNumber());
+                    return null;
+                }
+
+                long recordNumber = buf.readUnsignedIntLE();
+                buf.readUnsignedIntLE(); // time
+                buf.readUnsignedByte(); // priority
+
+                List<Position> positions = new LinkedList<>();
+
+                decodePositionsData(buf, deviceSession, positions);
+
+                updateDeviceRecordNumber(device, deviceSession, recordNumber);
+
+                if (!positions.isEmpty()) {
+                    return positions;
+                }
+
+                break;
+            case MSG_REMOVE_ARCHIVE_CONFIRMATION:
+                LOGGER.warn("Clearing data in device");
+                break;
+            default:
+                LOGGER.warn("We have no idea what this is. Received command: " + commandType);
+
+                deviceSession = getDeviceSession(channel, remoteAddress);
                 sendResponse(channel, MSG_ARCHIVE_INQUIRY, deviceSession.getRecordNumber());
-                LOGGER.error(device.getName() + " MSG_IDENTIFICATION");
-            }
-
-        } else if (commandType == MSG_ARCHIVE_DATA || commandType == MSG_TERMINAL_KEEP_SESSION) {
-
-            LOGGER.error("OPENING DEVICE SESSION");
-
-            DeviceSession deviceSession = getDeviceSession(channel, remoteAddress);
-            if (deviceSession == null) {
-                return null;
-            }
-
-            device = getIdentityManager().getById(deviceSession.getDeviceId());
-            device.set(Device.KEY_OMNICOMM_LAST_ARCHIVE_TIME, DateFormat.getDateInstance().format(new Date()));
-
-            LOGGER.error(deviceSession.getDeviceId() + " MSG_ARCHIVE_DATA");
-
-            if (length == 0) {
-                sendResponse(channel, MSG_REMOVE_ARCHIVE_INQUIRY, deviceSession.getRecordNumber());
-                return null;
-            }
-
-            long recordNumber = buf.readUnsignedIntLE();
-            buf.readUnsignedIntLE(); // time
-            buf.readUnsignedByte(); // priority
-
-            List<Position> positions = new LinkedList<>();
-
-            LOGGER.error(deviceSession.getDeviceId() + " READING DATA");
-
-            while (buf.readableBytes() > 2) {
-
-                OmnicommMessageOuterClass.OmnicommMessage message = parseProto(buf, buf.readUnsignedShortLE());
-
-                Position position = new Position(getProtocolName());
-                position.setDeviceId(deviceSession.getDeviceId());
-
-                if (message.hasGeneral()) {
-                    readGeneralParameters(message, position);
-                }
-
-                if (message.hasNAV()) {
-                    readNAVParameters(message, position);
-                }
-
-                if (message.hasLLSDt()) {
-                    readLLSData(message, position);
-                }
-
-                readMessageIDs(message, position);
-
-                if (position.getFixTime() != null) {
-                    positions.add(position);
-                }
-            }
-
-            updateDeviceRecordNumber(device, deviceSession, recordNumber);
-
-            if (!positions.isEmpty()) {
-                return positions;
-            }
-        } else if (commandType == MSG_REMOVE_ARCHIVE_CONFIRMATION) {
-            LOGGER.warn("Clearing data in device");
+                break;
         }
 
         return null;
     }
 
+    private void decodePositionsData(ByteBuf buf, DeviceSession deviceSession, List<Position> positions)
+            throws InvalidProtocolBufferException {
+        while (buf.readableBytes() > 2) {
+
+            OmnicommMessageOuterClass.OmnicommMessage message = parseProto(buf, buf.readUnsignedShortLE());
+
+            Position position = new Position(getProtocolName());
+            position.setDeviceId(deviceSession.getDeviceId());
+
+            if (message.hasGeneral()) {
+                readGeneralParameters(message, position);
+            }
+
+            if (message.hasNAV()) {
+                readNAVParameters(message, position);
+            }
+
+            if (message.hasLLSDt()) {
+                readLLSData(message, position);
+            }
+
+            readMessageIDs(message, position);
+
+            if (position.getFixTime() != null) {
+                positions.add(position);
+            }
+        }
+    }
+
+    private void sendArchiveInquiryCommand(Channel channel, Device device, DeviceSession deviceSession) {
+        try {
+            if (device != null && device.getId() != 0) {
+                device.set(Device.KEY_OMNICOMM_LAST_IDENTIFICATION_TIME,
+                        getFormattedNowTime());
+
+                long recordNumber = device.getLong(Device.KEY_OMNICOMM_RECORD_NUMBER);
+                recordNumber = recordNumber == 0 ? 0 : getRandomRecordBetween(0, 20, recordNumber);
+                deviceSession.setRecordNumber(recordNumber);
+
+                sendResponse(channel, MSG_ARCHIVE_INQUIRY, deviceSession.getRecordNumber());
+
+            }
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage());
+        }
+    }
+
+    private long getRandomRecordBetween(int min, int max, long currentRecordNumber) {
+        if (currentRecordNumber > max) {
+            return currentRecordNumber - Math.round(Math.random() * (max - min + 1) + max);
+        }
+
+        return currentRecordNumber + 1;
+
+    }
+
+    private Device getDeviceFromSession(DeviceSession deviceSession) {
+        Device device;
+        device = identityManager.getById(deviceSession.getDeviceId());
+        return device;
+    }
+
+    private String getFormattedNowTime() {
+        return DateFormat.getDateTimeInstance().format(new Date());
+    }
+
     private void updateDeviceRecordNumber(Device device, DeviceSession deviceSession, long recordNumber) {
         if (device != null) {
+            device.set(Device.KEY_OMNICOMM_ATTEMPTS_TIMER, 0); // reset attempts timer
             device.set(Device.KEY_OMNICOMM_RECORD_NUMBER, recordNumber);
             deviceSession.setRecordNumber(recordNumber);
-            LOGGER.error(device.getName() + " UPDATE RECORD NUMBER");
         }
     }
 
@@ -238,14 +287,14 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     }
 
     /**
-     * Reads the Sensor Fuel Data
      * @param message
      * @param position
      */
     private void readLLSData(OmnicommMessageOuterClass.OmnicommMessage message, Position position) {
-        OmnicommMessageOuterClass.OmnicommMessage.LLSDt data = message.getLLSDt();
+        if (message.hasLLSDt()) {
+            OmnicommMessageOuterClass.OmnicommMessage.LLSDt data = message.getLLSDt();
+            position.set(Position.KEY_HAS_FUEL_DATA, true);
 
-        try {
             if (data.hasTLLS1()) {
                 setLLSData(1, data.getTLLS1(), data.getCLLS1(), data.getFLLS1(), position);
             }
@@ -277,8 +326,6 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
             if (data.hasTLLS8()) {
                 setLLSData(8, data.getTLLS8(), data.getCLLS8(), data.getFLLS8(), position);
             }
-        } catch (Exception e) {
-            position.set("FUEL_PARAMETER_ERROR", e.getMessage());
         }
     }
 
@@ -300,6 +347,7 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
         position.set(Position.KEY_DISCRETE_OUTPUT_ENABLED, BitUtil.check(flg, 7));
 
         position.set(Position.KEY_RPM, data.getTImp());
+        position.set(Position.KEY_DISTANCE, data.getMileage() * 0.1);
     }
 
     private void readNAVParameters(OmnicommMessageOuterClass.OmnicommMessage message, Position position) {
@@ -338,6 +386,13 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
         position.set(parameterName + "Temp", tllsValue);
         position.set(parameterName, cllsValue);
         position.set(parameterName + "State", fllsValue);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOGGER.error(getProtocolName(), cause);
+
+        super.exceptionCaught(ctx, cause);
     }
 
 }

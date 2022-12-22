@@ -137,7 +137,7 @@ public class MainEventHandler extends ChannelInboundHandlerAdapter {
         while (cause.getCause() != null && cause.getCause() != cause) {
             cause = cause.getCause();
         }
-        LOGGER.info("[{}] error", NetworkUtil.session(ctx.channel()), cause);
+        LOGGER.error("[{}] error", NetworkUtil.session(ctx.channel()), cause);
         closeChannel(ctx.channel());
     }
 

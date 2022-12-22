@@ -62,6 +62,8 @@ public class Device extends GroupedModel {
     public static final String KEY_OMNICOMM_RECORD_NUMBER = "omnicommRecordNumber";
     public static final String KEY_OMNICOMM_LAST_IDENTIFICATION_TIME = "omnicommLastIdentificationTime";
     public static final String KEY_OMNICOMM_LAST_ARCHIVE_TIME = "omnicommLastArchiveTime";
+    public static final String KEY_OMNICOMM_LAST_DELETE_TIME = "omnicommLastDeleteTime";
+    public static final String KEY_OMNICOMM_ATTEMPTS_TIMER = "omnicommAttemptsTimer";
 
     private String status;
 

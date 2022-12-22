@@ -90,6 +90,7 @@ public class Position extends Message {
     public static final String KEY_CHARGE = "charge";
     public static final String KEY_IP = "ip";
     public static final String KEY_ARCHIVE = "archive";
+    public static final String KEY_MILEAGE = "mileage"; // meters
     public static final String KEY_DISTANCE = "distance"; // meters
     public static final String KEY_TOTAL_DISTANCE = "totalDistance"; // meters
     public static final String KEY_RPM = "rpm";
@@ -118,6 +119,7 @@ public class Position extends Message {
     public static final String KEY_PANIC_BUTTON_PRESSED = "panicButtonPressed";
     public static final String KEY_DEVICE_OPENING = "deviceOpening";
     public static final String KEY_DISCRETE_OUTPUT_ENABLED = "discreteOutputEnabled";
+    public static final String KEY_HAS_FUEL_DATA = "hasFuelData";
 
     public static final String KEY_DTCS = "dtcs";
     public static final String KEY_OBD_SPEED = "obdSpeed"; // knots
