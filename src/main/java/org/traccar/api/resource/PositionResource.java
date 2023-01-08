@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("positions")
 @Produces(MediaType.APPLICATION_JSON)
@@ -56,7 +57,8 @@ public class PositionResource extends BaseResource {
             Context.getPermissionsManager().checkDevice(getUserId(), deviceId);
             if (from != null && to != null) {
                 permissionsService.checkReports(getUserId());
-                return Context.getDataManager().getPositions(deviceId, from, to);
+                return Context.getDataManager().getPositions(deviceId, from, to).stream()
+                        .filter(position -> position.getValid()).collect(Collectors.toList());
             } else {
                 return Collections.singleton(Context.getDeviceManager().getLastPosition(deviceId));
             }

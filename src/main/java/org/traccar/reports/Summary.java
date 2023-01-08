@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jxls.util.JxlsHelper;
 import org.traccar.Context;
@@ -51,7 +51,8 @@ public final class Summary {
 
             BigDecimal fuelUsed = BigDecimal.valueOf(0.0);
 
-            FuelStatisticsReport fuelReport = new FuelStatisticsReport(positions);
+            FuelStatisticsReport fuelReport = new FuelStatisticsReport(
+                    positions.stream().filter(p -> p.hasFuelData()).collect(Collectors.toList()));
             fuelReport.compute();
 
             boolean ignoreOdometer = Context.getDeviceManager()

@@ -351,28 +351,31 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     }
 
     private void readNAVParameters(OmnicommMessageOuterClass.OmnicommMessage message, Position position) {
-        OmnicommMessageOuterClass.OmnicommMessage.NAV data = message.getNAV();
-        position.setValid(true);
+        if (message.hasNAV()) {
+            OmnicommMessageOuterClass.OmnicommMessage.NAV data = message.getNAV();
+            position.setValid(true);
 
-        int gpsTime = data.getGPSTime();
-        if (gpsTime > 0 || position.getDeviceTime() == null) {
-            position.setTime(getUnixTime(gpsTime));
+            int gpsTime = data.getGPSTime();
+            if (gpsTime > 0 || position.getDeviceTime() == null) {
+                position.setTime(getUnixTime(gpsTime));
+            }
+
+            position.setLatitude(data.getLAT() * 0.0000001);
+            position.setLongitude(data.getLON() * 0.0000001);
+            position.setSpeed(UnitsConverter.knotsFromKph(data.getGPSVel() * 0.1));
+            position.setCourse(data.getGPSDir());
+            position.setAltitude(data.getGPSAlt() * 0.1);
+            position.set(Position.KEY_SATELLITES, data.getGPSNSat());
+        } else {
+            position.setValid(false);
         }
-
-        position.setLatitude(data.getLAT() * 0.0000001);
-        position.setLongitude(data.getLON() * 0.0000001);
-        position.setSpeed(UnitsConverter.knotsFromKph(data.getGPSVel() * 0.1));
-        position.setCourse(data.getGPSDir());
-        position.setAltitude(data.getGPSAlt() * 0.1);
-        position.set(Position.KEY_SATELLITES, data.getGPSNSat());
     }
 
     private void readMessageIDs(OmnicommMessageOuterClass.OmnicommMessage message, Position position) {
         List<String> messageIDs = new ArrayList<>();
-        position.setValid(false);
 
         for (int mid : message.getMIDList()) {
-            if (mid == MSG_MID_TIMER) {
+            if (mid == MSG_MID_TIMER && position.getValid()) {
                 position.setValid(true);
             }
             messageIDs.add(MSG_MID_DESCRIPTIONS.get(mid));

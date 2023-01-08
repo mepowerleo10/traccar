@@ -323,7 +323,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
     public void updateLatestPosition(Position position) throws StorageException {
 
-        if (isLatestPosition(position)) {
+        if (isLatestPosition(position) && position.getValid()) {
 
             getDataManager().updateLatestPosition(position);
 

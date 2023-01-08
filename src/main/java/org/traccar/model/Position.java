@@ -353,4 +353,16 @@ public class Position extends Message {
         super.setType(type);
     }
 
+    @JsonIgnore
+    @QueryIgnore
+    public boolean hasFuelData() {
+        return getAttributes().containsKey(KEY_FUEL_LEVEL);
+    }
+
+    @JsonIgnore
+    @QueryIgnore
+    public double getFuelLevel() {
+        return getDouble(KEY_FUEL_LEVEL);
+    }
+
 }

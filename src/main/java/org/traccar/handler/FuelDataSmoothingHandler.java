@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.traccar.BaseDataHandler;
 import org.traccar.database.DataManager;
 import org.traccar.database.IdentityManager;
-import org.traccar.helper.ExponentialMovingAverageFilter;
+import org.traccar.filter.ExponentialMovingAverageFilter;
 import org.traccar.model.Device;
 import org.traccar.model.FuelHistory;
 import org.traccar.model.FuelHistoryEntry;

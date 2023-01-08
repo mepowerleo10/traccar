@@ -3,7 +3,8 @@ package org.traccar.reports;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.traccar.filter.MedianFilter;
+import org.traccar.filter.BaseFilter;
+import org.traccar.filter.MovingModeFilter;
 import org.traccar.model.Position;
 
 public class FuelStatisticsReport {
@@ -85,15 +86,17 @@ public class FuelStatisticsReport {
   public void compute() {
     if (positions != null && !positions.isEmpty()) {
 
-      MedianFilter filter = new MedianFilter(25);
+      BaseFilter filter = new MovingModeFilter(15);
+
       filter.filterPositions(positions);
 
       Position initialPosition = null;
       Position previousPosition = null;
 
       for (Position position : positions) {
-        if (!position.getValid())
+        if (!position.getValid()) {
           continue;
+        }
 
         if (initialPosition == null || initialFuelLevel <= 0) {
           initialPosition = position;
