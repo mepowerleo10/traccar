@@ -21,6 +21,7 @@
 
     <entry key='atrack.custom'>true</entry>
     <entry key='intellitrac.port'>6037</entry>
+    <entry key='osmand.port'>5055</entry>
     <entry key='omnicomm.port'>5203</entry>
 
     <entry key='queues.recompute'>true</entry>
