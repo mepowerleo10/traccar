@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+  logicalFilePath="changelog-8.3">
+
+  <changeSet id="changelog-8.3" author="author">
+    <preConditions onFail="HALT">
+      <not>
+        <tableExists tableName="tc_device_classes" />
+      </not>
+      <tableExists tableName="tc_devices" />
+    </preConditions>
+
+    <createTable tableName="tc_device_classes"
+      remarks="Calling the table device_class instead of model to avoid confusion with BseModel">
+      <column name="id" type="INT" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(64)">
+        <constraints unique="true" nullable="false" />
+      </column>
+      <column name="attributes" type="JSON">
+        <constraints nullable="true" />
+      </column>
+    </createTable>
+
+    <addColumn tableName="tc_devices">
+      <column name="class" type="INT" afterColumn="model">
+        <constraints nullable="true" referencedTableName="tc_device_classes"
+          referencedColumnNames="id" />
+      </column>
+    </addColumn>
+
+  </changeSet>
+</databaseChangeLog>
