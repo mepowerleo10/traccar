@@ -34,6 +34,7 @@ import org.traccar.database.CalendarManager;
 import org.traccar.database.CommandsManager;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
+import org.traccar.database.DeviceClassManager;
 import org.traccar.database.DeviceManager;
 import org.traccar.database.DirtyPositionManager;
 import org.traccar.database.DriversManager;
@@ -227,6 +228,12 @@ public final class Context {
 
     public static ReadingTypeManager getReadingTypeManager() {
         return readingTypeManager;
+    }
+
+    private static DeviceClassManager deviceClassManager;
+
+    public static DeviceClassManager getDeviceClassManager() {
+        return deviceClassManager;
     }
 
     private static FuelPortManager fuelPortManager;
@@ -435,6 +442,7 @@ public final class Context {
         fuelSensorManager = new FuelSensorManager(dataManager);
         sensorManager = new SensorManager(dataManager);
         readingTypeManager = new ReadingTypeManager(dataManager);
+        deviceClassManager = new DeviceClassManager(dataManager);
         fuelPortManager = new FuelPortManager(dataManager);
         fuelCalibrationManager = new FuelCalibrationManager(dataManager);
         processingQueueManager = new ProcessingQueueManager(dataManager);
