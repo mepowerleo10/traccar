@@ -183,4 +183,13 @@ public class Device extends GroupedModel {
         this.sensors = sensors;
     }
 
+    private long classId;
+
+    public long getClassId() {
+        return classId;
+    }
+
+    public void setClassId(long classId) {
+        this.classId = classId;
+    }
 }
