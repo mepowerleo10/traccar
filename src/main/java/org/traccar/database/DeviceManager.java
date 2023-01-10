@@ -441,7 +441,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
     public void resetDeviceAccumulators(DeviceAccumulators deviceAccumulators) throws StorageException {
         Position last = positions.get(deviceAccumulators.getDeviceId());
-        if (last != null) {
+        if (last != null && last.getValid()) {
             if (deviceAccumulators.getTotalDistance() != null) {
                 last.getAttributes().put(Position.KEY_TOTAL_DISTANCE, deviceAccumulators.getTotalDistance());
             }

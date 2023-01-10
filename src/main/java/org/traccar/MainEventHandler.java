@@ -57,7 +57,9 @@ public class MainEventHandler extends ChannelInboundHandlerAdapter {
 
             Position position = (Position) msg;
             try {
-                Context.getDeviceManager().updateLatestPosition(position);
+                if (position.getValid()) {
+                    Context.getDeviceManager().updateLatestPosition(position);
+                }
             } catch (StorageException error) {
                 LOGGER.warn("Failed to update device", error);
             }

@@ -198,12 +198,14 @@ public class DataManager {
     }
 
     public void updateLatestPosition(Position position) throws StorageException {
-        Device device = new Device();
-        device.setId(position.getDeviceId());
-        device.setPositionId(position.getId());
-        storage.updateObject(device, new Request(
-                new Columns.Include("positionId"),
-                new Condition.Equals("id", "id")));
+        if (position.getValid()) {
+            Device device = new Device();
+            device.setId(position.getDeviceId());
+            device.setPositionId(position.getId());
+            storage.updateObject(device, new Request(
+                    new Columns.Include("positionId"),
+                    new Condition.Equals("id", "id")));
+        }
     }
 
     public Collection<Position> getLatestPositions() throws StorageException {
