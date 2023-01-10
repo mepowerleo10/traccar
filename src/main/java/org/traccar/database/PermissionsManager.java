@@ -508,6 +508,9 @@ public class PermissionsManager {
             } else if (permission.getPropertyClass().equals(FuelPort.class)
                     && Context.getFuelPortManager() != null) {
                 Context.getFuelPortManager().refreshExtendedPermissions();
+            } else if (permission.getPropertyClass().equals(DeviceClassManager.class)
+                    && Context.getDeviceClassManager() != null) {
+                Context.getDeviceClassManager().refreshExtendedPermissions();
             }
         }
     }
