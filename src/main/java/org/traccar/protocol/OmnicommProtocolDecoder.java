@@ -374,6 +374,8 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     private void readMessageIDs(OmnicommMessageOuterClass.OmnicommMessage message, Position position) {
         List<String> messageIDs = new ArrayList<>();
 
+        position.setValid(false);
+
         for (int mid : message.getMIDList()) {
             if (mid == MSG_MID_TIMER && position.getValid()) {
                 position.setValid(true);
