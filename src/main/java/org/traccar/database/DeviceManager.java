@@ -32,6 +32,7 @@ import org.traccar.config.Keys;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
+import org.traccar.model.DeviceClass;
 import org.traccar.model.DeviceState;
 import org.traccar.model.Group;
 import org.traccar.model.Position;
@@ -426,6 +427,12 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
                     } else {
                         groupId = 0;
                     }
+                }
+
+                long classId = device.getClassId();
+                if (groupId == 0 && classId != 0) {
+                    DeviceClass deviceClass = Context.getDeviceClassManager().getById(groupId);
+                    result = deviceClass != null ? deviceClass.getAttributes().get(attributeName) : result;
                 }
             }
             if (result == null && lookupServer) {

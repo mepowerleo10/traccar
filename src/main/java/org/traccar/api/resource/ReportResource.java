@@ -45,6 +45,8 @@ import org.traccar.model.Position;
 import org.traccar.reports.Events;
 import org.traccar.reports.Summary;
 import org.traccar.reports.Trips;
+import org.traccar.reports.model.AssetReport;
+import org.traccar.reports.model.AssetsSummary;
 import org.traccar.reports.model.StopReport;
 import org.traccar.reports.model.SummaryReport;
 import org.traccar.reports.model.TripReport;
@@ -168,6 +170,14 @@ public class ReportResource extends BaseResource {
             LogAction.logReport(getUserId(), "summary", from, to, deviceIds, groupIds);
             Summary.getExcel(stream, getUserId(), deviceIds, groupIds, from, to, daily);
         });
+    }
+
+    @Path("assets")
+    @GET
+    public Collection<AssetReport> getAssetSummary()
+            throws StorageException {
+        permissionsService.checkReports(getUserId());
+        return AssetsSummary.getObjects(getUserId());
     }
 
     @Path("trips")

@@ -59,6 +59,8 @@ public class Position extends Message {
     public static final String KEY_FUEL_NORMALIZED = "fuelNormalized"; // litres
     public static final String KEY_FUEL_USED = "fuelUsed"; // liters
     public static final String KEY_FUEL_CURRENT_MAX_VOLTAGE = "fuelCurrentMaxVoltage";
+    public static final String KEY_TOTAL_FUEL_USED = "totalfuelUsed"; // liters
+    public static final String KEY_TOTAL_FUEL_REFILLED = "totalFuelRefilled"; // litres
 
     public static final String KEY_FUEL_HISTORY = "fuelHistory";
     public static final String KEY_FUEL_FILTERED_VOLTAGE = "fuelFilteredVoltage";
