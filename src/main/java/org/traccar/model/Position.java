@@ -367,4 +367,19 @@ public class Position extends Message {
         return getDouble(KEY_FUEL_LEVEL);
     }
 
+    private boolean validGPS;
+
+    @QueryIgnore
+    public boolean isValidGPS() {
+        if (getAttributes().containsKey(Position.KEY_GPS_DATA_ACCURATE)) {
+            return getBoolean(Position.KEY_GPS_DATA_ACCURATE);
+        }
+        return true;
+    }
+
+    @QueryIgnore
+    public void setValidGPS(boolean validGPS) {
+        this.validGPS = validGPS;
+    }
+
 }

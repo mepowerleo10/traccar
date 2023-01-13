@@ -46,12 +46,11 @@ public final class AssetsSummary {
     }
 
     HashMap<Integer, Integer> sensorMap = new HashMap<>();
-    sensors.stream().map(sensor -> {
+    for (Sensor sensor : sensors) {
       int groupCount = sensorMap.getOrDefault(sensor.getGroupNo(), -1);
       sensorMap.put(sensor.getGroupNo(), groupCount);
       report.setNoOfSensors(report.getNoOfSensors() + 1);
-      return sensor;
-    });
+    }
 
     if (position != null) {
       report.setTotalDistance(position.getDouble(Position.KEY_TOTAL_DISTANCE));
