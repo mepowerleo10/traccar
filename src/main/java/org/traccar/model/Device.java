@@ -94,7 +94,6 @@ public class Device extends GroupedModel {
         return this.lastPositionUpdate;
     }
 
-    @QueryExtended
     public void setLastPositionUpdate(Date lastPositionUpdate) {
         this.lastPositionUpdate = lastPositionUpdate;
     }

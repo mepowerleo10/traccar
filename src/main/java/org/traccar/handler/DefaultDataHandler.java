@@ -65,7 +65,7 @@ public class DefaultDataHandler extends BaseDataHandler {
     }
 
     private void updateDeviceLastPositionTime(Position position, Position last) throws StorageException {
-        if (last == null || last.getDeviceTime().before(position.getDeviceTime())) {
+        if ((last == null || last.getDeviceTime().before(position.getDeviceTime())) && position.getValid()) {
             Device device = identityManager.getById(position.getDeviceId());
             device.setLastPositionUpdate(position.getDeviceTime());
             dataManager.updateObject(device);

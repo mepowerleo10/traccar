@@ -17,11 +17,11 @@ package org.traccar.protocol;
 
 import java.net.SocketAddress;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +63,7 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     public static final int MSG_TERMINAL_KEEP_SESSION = 0x95;
 
     // #region Message Codes
-    public static final int MSG_MID_TIMER = 0x01;
+    private static final int MSG_MID_TIMER = 0x01;
     private static final int MSG_MID_DRIVER_ASSIGNMENT = 0x02;
     private static final int MSG_MID_IGNITION_OF_POWER_SUPP_DISCONNECTION = 0x03;
     private static final int MSG_MID_IGNITION_TURNING_ON = 0x04;
@@ -372,17 +372,9 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     }
 
     private void readMessageIDs(OmnicommMessageOuterClass.OmnicommMessage message, Position position) {
-        List<String> messageIDs = new ArrayList<>();
-
-        position.setValid(false);
-
-        for (int mid : message.getMIDList()) {
-            if (mid == MSG_MID_TIMER && position.getValid()) {
-                position.setValid(true);
-            }
-            messageIDs.add(MSG_MID_DESCRIPTIONS.get(mid));
-        }
-
+        position.setValid(message.getMIDList().contains(MSG_MID_TIMER));
+        List<String> messageIDs = message.getMIDList().stream().map(mid -> MSG_MID_DESCRIPTIONS.get(mid))
+                .collect(Collectors.toList());
         position.set(Position.KEY_TYPE, String.join(",", messageIDs));
     }
 
