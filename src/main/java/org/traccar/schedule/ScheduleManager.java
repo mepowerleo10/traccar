@@ -33,9 +33,9 @@ public class ScheduleManager implements LifecycleObject {
         new TaskDeviceInactivityCheck().schedule(executor);
         new TaskWebSocketKeepalive().schedule(executor);
         new TaskHealthCheck().schedule(executor);
-        /* new TaskNormalizeFuelLevels().shedule(executor);
+        new TaskNormalizeFuelLevels().shedule(executor);
         new TaskPopulateQueues().schedule(executor);
-        new TaskResetFuelQueues().shedule(executor); */
+        new TaskResetFuelQueues().shedule(executor);
     }
 
     @Override

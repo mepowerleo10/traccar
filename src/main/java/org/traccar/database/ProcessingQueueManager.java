@@ -64,15 +64,6 @@ public class ProcessingQueueManager extends ExtendedObjectManager<ProcessingQueu
       return null;
     }).filter(position -> position != null).collect(Collectors.toList());
 
-    /*
-     * for (long itemId : itemIds) {
-     * Position item = Context.getDataManager().getObject(Position.class, itemId);
-     * if (item != null) {
-     * result.add(item);
-     * }
-     * }
-     */
-
     return result;
   }
 

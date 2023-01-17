@@ -31,6 +31,7 @@ import org.traccar.handler.HemisphereHandler;
 import org.traccar.handler.MotionHandler;
 import org.traccar.handler.NetworkMessageHandler;
 import org.traccar.handler.OpenChannelHandler;
+import org.traccar.handler.QueueDataHandler;
 import org.traccar.handler.RemoteAddressHandler;
 import org.traccar.handler.SpeedLimitHandler;
 import org.traccar.handler.StandardLoggingHandler;
@@ -39,6 +40,8 @@ import org.traccar.handler.events.AlertEventHandler;
 import org.traccar.handler.events.BehaviorEventHandler;
 import org.traccar.handler.events.CommandResultEventHandler;
 import org.traccar.handler.events.DriverEventHandler;
+import org.traccar.handler.events.FuelDropEventHandler;
+import org.traccar.handler.events.FuelRefillEventHandler;
 import org.traccar.handler.events.GeofenceEventHandler;
 import org.traccar.handler.events.IgnitionEventHandler;
 import org.traccar.handler.events.MaintenanceEventHandler;
@@ -137,10 +140,10 @@ public abstract class BasePipelineFactory extends ChannelInitializer<Channel> {
                 FuelLevelHandler.class,
                 WebDataHandler.class,
                 DefaultDataHandler.class,
-                // QueueDataHandler.class,
+                QueueDataHandler.class,
                 CommandResultEventHandler.class,
-                // FuelDropEventHandler.class,
-                // FuelRefillEventHandler.class,
+                FuelDropEventHandler.class,
+                FuelRefillEventHandler.class,
                 OverspeedEventHandler.class,
                 BehaviorEventHandler.class,
                 MotionEventHandler.class,

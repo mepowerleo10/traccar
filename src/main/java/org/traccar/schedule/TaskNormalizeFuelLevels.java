@@ -24,13 +24,13 @@ public class TaskNormalizeFuelLevels implements Runnable {
   private MovingModeFilter filter;
 
   public TaskNormalizeFuelLevels() {
-    periodMinutes = Context.getConfig().getInteger(Keys.FUEL_QUEUE_FILTERING_PERIOD, 5);
+    periodMinutes = Context.getConfig().getInteger(Keys.FUEL_QUEUE_FILTERING_PERIOD, 10 * 60);
     int windowSize = Context.getConfig().getInteger(Keys.FUEL_QUEUE_FILTERING_WINDOW);
     filter = new MovingModeFilter(windowSize);
   }
 
   public void shedule(ScheduledExecutorService executor) {
-    executor.scheduleAtFixedRate(this, periodMinutes, periodMinutes, TimeUnit.MINUTES);
+    executor.scheduleAtFixedRate(this, periodMinutes, periodMinutes, TimeUnit.SECONDS);
   }
 
   @Override
