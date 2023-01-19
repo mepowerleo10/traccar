@@ -26,7 +26,7 @@
 
     <entry key='queues.recompute'>true</entry>
     <entry key='queues.filteringWindow'>15</entry>
-    <entry key='queues.filteringPeriod'>1</entry>
+    <entry key='queues.filteringPeriod'>30</entry>
 
     <entry key='logger.level'>warning</entry>
 

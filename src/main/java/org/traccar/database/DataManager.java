@@ -187,6 +187,18 @@ public class DataManager {
                 new Order("fixTime")));
     }
 
+    public Collection<Position> getPositions(long deviceId, Date from, Date to, long id, int limit)
+            throws StorageException {
+        Condition condition = Condition.merge(List.of(new Condition.Equals("deviceId", "deviceId", deviceId),
+                new Condition.Between("fixTime", "from", from, "to", to)));
+
+        return storage.getObjects(Position.class, new Request(
+                new Columns.All(),
+                condition,
+                new Order("fixTime"),
+                new Limit(limit)));
+    }
+
     public Position getPrecedingPosition(long deviceId, Date date) throws StorageException {
         return storage.getObject(Position.class, new Request(
                 new Columns.All(),

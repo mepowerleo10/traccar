@@ -430,8 +430,8 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
                 }
 
                 long classId = device.getClassId();
-                if (groupId == 0 && classId != 0) {
-                    DeviceClass deviceClass = Context.getDeviceClassManager().getById(groupId);
+                if (classId != 0) {
+                    DeviceClass deviceClass = Context.getDeviceClassManager().getById(classId);
                     result = deviceClass != null ? deviceClass.getAttributes().get(attributeName) : result;
                 }
             }

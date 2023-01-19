@@ -29,16 +29,17 @@ public class TaskPopulateQueues implements Runnable {
     LOGGER.warn("Populating Processing Queues");
     try {
       DirtyPositionManager dirtyPositionManager = Context.getDirtyPositionManager();
-      for (DirtyPosition dirtyPosition : dirtyPositionManager.getIterator()) {
+      for (Long dirtyPositionId : dirtyPositionManager.getAllItems()) {
+        DirtyPosition dirtyPosition = dirtyPositionManager.getById(dirtyPositionId);
         if (dirtyPosition != null) {
           addPositionToQueue(dirtyPosition);
           dirtyPositionManager.removeItem(dirtyPosition.getId());
         }
       }
+      LOGGER.warn("Done populating Processing Queues");
     } catch (Throwable t) {
-      LOGGER.error("Failed to Populate Queues", t);
+      LOGGER.error("Failed to Populate Queues", t.getMessage());
     }
-    LOGGER.warn("Done populating Processing Queues");
   }
 
   private void addPositionToQueue(DirtyPosition dirtyPosition) throws Exception {

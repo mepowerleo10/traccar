@@ -1,7 +1,11 @@
 package org.traccar.database;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +24,23 @@ public class DirtyPositionManager extends BaseObjectManager<DirtyPosition> {
 
   public DirtyPositionManager(DataManager dataManager) {
     super(dataManager, DirtyPosition.class);
+  }
+
+  @Override
+  public Set<Long> getAllItems() {
+    Set<Long> items = new HashSet<>();
+    Request request = new Request(
+        new Columns.All(),
+        null,
+        new Order("id"), new Limit(2000));
+    try {
+      List<DirtyPosition> dirtyPositions = getDataManager().getStorage().getObjects(DirtyPosition.class,
+          request);
+      items = dirtyPositions.stream().map(position -> position.getId()).collect(Collectors.toSet());
+    } catch (Throwable t) {
+      LOGGER.error("Failed to read dirty positions", t);
+    }
+    return items;
   }
 
   public DirtyPositionIterable getIterator() {

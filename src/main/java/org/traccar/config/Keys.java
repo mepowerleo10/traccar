@@ -1455,21 +1455,21 @@ public final class Keys {
          * Recompute all existing queues for fuel
          */
         public static final ConfigKey<Boolean> FUEL_QUEUE_RECOMPUTE = new ConfigKey<>(
-                        Server.FUEL_QUEUE_RECOMPUTE,
+                        "queues.recompute",
                         Collections.singletonList(KeyType.GLOBAL));
 
         /**
          * Recompute all existing queues for fuel
          */
         public static final ConfigKey<Integer> FUEL_QUEUE_FILTERING_WINDOW = new ConfigKey<>(
-                        Server.FUEL_QUEUE_FILTERING_WINDOW,
+                        "queues.filteringWindow",
                         Collections.singletonList(KeyType.GLOBAL));
 
         /**
          * Recompute all existing queues for fuel
          */
         public static final ConfigKey<Integer> FUEL_QUEUE_FILTERING_PERIOD = new ConfigKey<>(
-                        Server.FUEL_QUEUE_FILTERING_PERIOD,
+                        "queues.filteringPeriod",
                         Collections.singletonList(KeyType.GLOBAL));
 
 }
