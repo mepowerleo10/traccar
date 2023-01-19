@@ -87,6 +87,7 @@ public final class ReportUtils {
         for (long groupId : groupIds) {
             result.addAll(Context.getPermissionsManager().getGroupDevices(groupId));
         }
+        result.removeIf(id -> id == 0);
         return result;
     }
 
