@@ -17,6 +17,8 @@ package org.traccar.config;
 
 import java.util.Collections;
 
+import org.traccar.model.Server;
+
 public final class Keys {
 
         private Keys() {
@@ -350,6 +352,20 @@ public final class Keys {
                         Collections.singletonList(KeyType.GLOBAL));
 
         /**
+         * Database host address. Default administrator host for H2 is localhost .
+         */
+        public static final ConfigKey<String> DATABASE_HOST = new ConfigKey<>(
+                        "database.host",
+                        Collections.singletonList(KeyType.GLOBAL));
+
+        /**
+         * Database name.
+         */
+        public static final ConfigKey<String> DATABASE_NAME = new ConfigKey<>(
+                        "database.name",
+                        Collections.singletonList(KeyType.GLOBAL));
+
+        /**
          * Database user password. Default password for H2 admin (sa) user is empty.
          */
         public static final ConfigKey<String> DATABASE_PASSWORD = new ConfigKey<>(
@@ -432,6 +448,13 @@ public final class Keys {
          */
         public static final ConfigKey<Boolean> DATABASE_SAVE_EMPTY = new ConfigKey<>(
                         "database.saveEmpty",
+                        Collections.singletonList(KeyType.GLOBAL));
+
+        /**
+         * Store empty messages as positions. For example, heartbeats.
+         */
+        public static final ConfigKey<String> DATABASE_BACKUP_FILE_PATH = new ConfigKey<>(
+                        "database.backupFilePath",
                         Collections.singletonList(KeyType.GLOBAL));
 
         /**
@@ -1432,21 +1455,21 @@ public final class Keys {
          * Recompute all existing queues for fuel
          */
         public static final ConfigKey<Boolean> FUEL_QUEUE_RECOMPUTE = new ConfigKey<>(
-                        "queues.recompute",
+                        Server.FUEL_QUEUE_RECOMPUTE,
                         Collections.singletonList(KeyType.GLOBAL));
 
         /**
          * Recompute all existing queues for fuel
          */
         public static final ConfigKey<Integer> FUEL_QUEUE_FILTERING_WINDOW = new ConfigKey<>(
-                        "queues.filteringWindow",
+                        Server.FUEL_QUEUE_FILTERING_WINDOW,
                         Collections.singletonList(KeyType.GLOBAL));
 
         /**
          * Recompute all existing queues for fuel
          */
         public static final ConfigKey<Integer> FUEL_QUEUE_FILTERING_PERIOD = new ConfigKey<>(
-                        "queues.filteringPeriod",
+                        Server.FUEL_QUEUE_FILTERING_PERIOD,
                         Collections.singletonList(KeyType.GLOBAL));
 
 }

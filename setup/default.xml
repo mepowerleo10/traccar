@@ -43,6 +43,7 @@
 
     <entry key='database.ignoreUnknown'>true</entry>
     <entry key='database.changelog'>./schema/changelog-master.xml</entry>
+    <entry key='database.backupFilePath'>schema/data</entry>
 
     <!-- <entry key='gps103.port'>5001</entry>
     <entry key='tk103.port'>5002</entry>

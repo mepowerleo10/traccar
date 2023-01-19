@@ -28,6 +28,8 @@
     <entry key='queues.filteringWindow'>15</entry>
     <entry key='queues.filteringPeriod'>1</entry>
 
+    <entry key='logger.level'>warning</entry>
+
     <!--<entry key='broadcast.address'>230.0.0.0</entry>
     <entry key='broadcast.port'>5000</entry>-->
 

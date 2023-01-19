@@ -13,3 +13,4 @@ build
 .vscode/settings.json
 **bin/
 .venv
+schema/data/db.sql
