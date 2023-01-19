@@ -57,6 +57,7 @@ public final class Summary {
 
             boolean ignoreOdometer = Context.getDeviceManager()
                     .lookupAttributeBoolean(deviceId, "report.ignoreOdometer", false, false, true);
+            result.setStartTime(firstPosition.getFixTime());
             result.setDistance(ReportUtils.calculateDistance(firstPosition, lastPosition, !ignoreOdometer));
             result.setMaxSpeed(fuelReport.getMaxSpeed());
             result.setSpentFuel(fuelReport.getFuelUsed());
