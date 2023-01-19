@@ -44,6 +44,7 @@ public final class LogAction {
     private static final String ACTION_LOGOUT = "logout";
 
     private static final String ACTION_DEVICE_ACCUMULATORS = "resetDeviceAccumulators";
+    private static final String ACTION_DEVICE_DATA = "resetDeviceData";
 
     private static final String PATTERN_OBJECT = "user: %d, action: %s, object: %s, id: %d";
     private static final String PATTERN_LINK = "user: %d, action: %s, owner: %s, id: %d, property: %s, id: %d";
@@ -85,6 +86,10 @@ public final class LogAction {
             remoteAddress = "unknown";
         }
         LOGGER.info(String.format(PATTERN_LOGIN_FAILED, remoteAddress));
+    }
+
+    public static void resetDeviceData(long userId, long deviceId) {
+        LOGGER.warn(String.format(PATTERN_DEVICE_ACCUMULATORS, userId, ACTION_DEVICE_DATA, deviceId));
     }
 
     public static void resetDeviceAccumulators(long userId, long deviceId) {
