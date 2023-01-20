@@ -47,7 +47,7 @@ public class ProcessingQueueManager extends ExtendedObjectManager<ProcessingQueu
 
     if (dirtyProcessingQueues != null && dirtyProcessingQueues.size() > 0) {
       return dirtyProcessingQueues.stream()
-          .map(queue -> queue.getId()).toList();
+          .map(queue -> queue.getId()).collect(Collectors.toList());
     }
 
     return Collections.emptyList();

@@ -17,11 +17,14 @@ import org.slf4j.LoggerFactory;
 public final class Backup {
   private static final Logger LOGGER = LoggerFactory.getLogger(Backup.class);
 
+  private Backup() {
+  }
+
   private static class StreamGobbler implements Runnable {
     private InputStream inputStream;
     private Consumer<String> consumer;
 
-    public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
+    StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
       this.inputStream = inputStream;
       this.consumer = consumer;
     }

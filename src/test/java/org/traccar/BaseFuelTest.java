@@ -63,6 +63,7 @@ public class BaseFuelTest {
         lastPosition.set(FUEL_KEY, lastVoltage);
         lastPosition.set(Position.KEY_ODOMETER, 500);
 
+        position.setFixTime(new Date(((Number) (lastPosition.getFixTime().getTime() + timeDiff)).longValue()));
         position.setValid(true);
         position.set(FUEL_KEY, currentVoltage);
         position.setDeviceId(device.getId());

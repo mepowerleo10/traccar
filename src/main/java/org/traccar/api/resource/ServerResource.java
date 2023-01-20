@@ -100,12 +100,13 @@ public class ServerResource extends BaseResource {
         List<Class<?>> ignoreTables = List.of(Position.class, ProcessingQueue.class);
 
         FileInputStream stream = new FileInputStream(Backup.getDatabaseBackup(
-                config.getString(Keys.DATABASE_BACKUP_FILE_PATH, ""), config.getString(Keys.DATABASE_USER),
+                config.getString(Keys.DATABASE_BACKUP_FILE_PATH, "schema/data"), config.getString(Keys.DATABASE_USER),
                 config.getString(Keys.DATABASE_PASSWORD),
                 config.getString(Keys.DATABASE_HOST, "localhost"), config.getString(Keys.DATABASE_NAME, "traccar"),
                 true,
                 ignoreTables.stream().map(model -> model.getAnnotation(StorageName.class).value())
                         .collect(Collectors.toList())));
-        return Response.ok(stream.readAllBytes()).header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_VALUE_SQL).build();
+        return Response.ok(stream.readAllBytes()).header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_VALUE_SQL)
+                .build();
     }
 }

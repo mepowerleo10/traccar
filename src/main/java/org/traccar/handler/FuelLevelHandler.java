@@ -207,25 +207,23 @@ public class FuelLevelHandler extends BaseDataHandler {
     }
 
     private void calculateFuelConsumption(Position lastPosition, Position position) {
-        if (lastPosition.getFixTime().before(position.getFixTime())) {
-            double fuelDifference = getFuelDifference(lastPosition, position);
-            double totalFuelUsed = position.getDouble(Position.KEY_TOTAL_FUEL_USED);
-            double totalFuelRefilled = position.getDouble(Position.KEY_TOTAL_FUEL_REFILLED);
+        double fuelDifference = getFuelDifference(lastPosition, position);
+        double totalFuelUsed = position.getDouble(Position.KEY_TOTAL_FUEL_USED);
+        double totalFuelRefilled = position.getDouble(Position.KEY_TOTAL_FUEL_REFILLED);
 
-            if (fuelDifference < 0) {
-                position.set(Position.KEY_FUEL_USED, fuelDifference);
+        if (fuelDifference < 0) {
+            position.set(Position.KEY_FUEL_USED, fuelDifference);
 
-                totalFuelUsed += fuelDifference;
-            } else {
-                totalFuelRefilled += fuelDifference;
-            }
-
-            position.set(Position.KEY_TOTAL_FUEL_USED, totalFuelUsed);
-            position.set(Position.KEY_TOTAL_FUEL_REFILLED, totalFuelRefilled);
-
-            calculateFuelConsumptonRatePerHour(lastPosition, position, fuelDifference);
-            calculateFuelConsumptionRateKmPerLitre(lastPosition, position, fuelDifference);
+            totalFuelUsed += fuelDifference;
+        } else {
+            totalFuelRefilled += fuelDifference;
         }
+
+        position.set(Position.KEY_TOTAL_FUEL_USED, totalFuelUsed);
+        position.set(Position.KEY_TOTAL_FUEL_REFILLED, totalFuelRefilled);
+
+        calculateFuelConsumptonRatePerHour(lastPosition, position, fuelDifference);
+        calculateFuelConsumptionRateKmPerLitre(lastPosition, position, fuelDifference);
     }
 
     private void calculateFuelConsumptonRatePerHour(Position lastPosition, Position position, double fuelDifference) {

@@ -17,8 +17,6 @@ package org.traccar.config;
 
 import java.util.Collections;
 
-import org.traccar.model.Server;
-
 public final class Keys {
 
         private Keys() {
@@ -451,7 +449,7 @@ public final class Keys {
                         Collections.singletonList(KeyType.GLOBAL));
 
         /**
-         * Store empty messages as positions. For example, heartbeats.
+         * Database backup file path.
          */
         public static final ConfigKey<String> DATABASE_BACKUP_FILE_PATH = new ConfigKey<>(
                         "database.backupFilePath",
