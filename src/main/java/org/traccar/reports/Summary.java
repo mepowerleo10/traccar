@@ -49,16 +49,18 @@ public final class Summary {
             Position firstPosition = positions.get(0);
             Position lastPosition = positions.get(length - 1);
 
-            BigDecimal fuelUsed = BigDecimal.valueOf(0.0);
-
             FuelStatisticsReport fuelReport = new FuelStatisticsReport(
-                    positions.stream().filter(p -> p.hasFuelData()).collect(Collectors.toList()));
+                    positions.parallelStream().filter(p -> p.hasFuelData()).collect(Collectors.toList()));
             fuelReport.compute();
+
+            double distance = positions.parallelStream()
+                    .filter(position -> position.getAttributes().containsKey(Position.KEY_DISTANCE))
+                    .reduce(0.0, (sum, position) -> position.getDouble(Position.KEY_DISTANCE) + sum, Double::sum);
 
             boolean ignoreOdometer = Context.getDeviceManager()
                     .lookupAttributeBoolean(deviceId, "report.ignoreOdometer", false, false, true);
             result.setStartTime(firstPosition.getFixTime());
-            result.setDistance(ReportUtils.calculateDistance(firstPosition, lastPosition, !ignoreOdometer));
+            result.setDistance(distance);
             result.setMaxSpeed(fuelReport.getMaxSpeed());
             result.setSpentFuel(fuelReport.getFuelUsed());
             result.setRefilledFuel(fuelReport.getFuelRefilled());
