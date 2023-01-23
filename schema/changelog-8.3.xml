@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+  logicalFilePath="changelog-8.3">
+
+  <changeSet id="changelog-8.3" author="author">
+    <preConditions onFail="HALT">
+      <not>
+        <tableExists tableName="tc_device_classes" />
+      </not>
+      <tableExists tableName="tc_devices" />
+    </preConditions>
+
+    <createTable tableName="tc_device_classes"
+      remarks="Calling the table device_class instead of model to avoid confusion with BseModel">
+      <column name="id" type="INT" autoIncrement="true">
+        <constraints nullable="false" primaryKey="true" />
+      </column>
+      <column name="name" type="VARCHAR(64)">
+        <constraints unique="true" nullable="false" />
+      </column>
+      <column name="attributes" type="JSON">
+        <constraints nullable="true" />
+      </column>
+    </createTable>
+
+    <addColumn tableName="tc_devices">
+      <column name="class" type="INT" afterColumn="model">
+        <constraints nullable="true" foreignKeyName="fk_devices_deviceClass"
+          references="tc_device_classes(id)" />
+      </column>
+    </addColumn>
+
+    <createTable tableName="tc_user_deviceClass">
+      <column name="userid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_user_deviceClass_userid"
+          references="tc_users(id)" />
+      </column>
+      <column name="deviceclassid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_user_deviceClass_deviceclassid"
+          references="tc_device_classes(id)" />
+      </column>
+    </createTable>
+
+    <createTable tableName="tc_group_deviceClass">
+      <column name="groupid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_group_deviceClass_groupid"
+          references="tc_groups(id)" />
+      </column>
+      <column name="deviceclassid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_group_deviceClass_deviceclassid"
+          references="tc_device_classes(id)" />
+      </column>
+    </createTable>
+
+    <createTable tableName="tc_device_deviceClass">
+      <column name="deviceid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_device_deviceClass_deviceid"
+          references="tc_devices(id)" />
+      </column>
+      <column name="deviceclassid" type="INT">
+        <constraints nullable="false" foreignKeyName="fk_device_deviceClass_deviceclassid"
+          references="tc_device_classes(id)" />
+      </column>
+    </createTable>
+
+  </changeSet>
+</databaseChangeLog>

@@ -123,6 +123,10 @@
       "description": "Retrieving server statistics"
     },
     {
+      "name": "Device Classes",
+      "description": "Device Class for configuring thresholds instead of Groups/Zones"
+    },
+    {
       "name": "Trips",
       "description": "Trips Management"
     }
@@ -3058,6 +3062,101 @@
         },
         "x-codegen-request-body-name": "body"
       }
+    },
+    "/device-classes": {
+      "get": {
+        "summary": "Fetch a list ofDevice Classs",
+        "description": "Without params, it returns a list of Device Class the user has access to",
+        "tags": [
+          "Class"
+        ],
+        "parameters": [
+          {
+            "name": "all",
+            "in": "query",
+            "description": "Can only be used by admins or managers to fetch all entities",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Standard users can use this only with their own _userId_",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "Standard users can use this only with _deviceId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "groupId",
+            "in": "query",
+            "description": "Standard users can use this only with _groupId_s, they have access to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeviceClass"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a Device Class",
+        "tags": [
+          "Fuel",
+          "Calibrations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceClass"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceClass"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
     }
   },
   "components": {
@@ -3302,6 +3401,11 @@
             "description": "in IS0 8601 format. eg. `1963-11-22T18:30:00Z`",
             "format": "date-time"
           },
+          "lastPositionUpdate": {
+            "type": "string",
+            "description": "in IS0 8601 format. eg. `1963-11-22T18:30:00Z`",
+            "format": "date-time"
+          },
           "positionId": {
             "type": "integer"
           },
@@ -3320,20 +3424,14 @@
           "category": {
             "type": "string"
           },
+          "sensors": {
+            "type": "array"
+          },
           "geofenceIds": {
             "type": "array",
             "items": {
               "type": "integer"
             }
-          },
-          "fuelSensorId": {
-            "type": "integer"
-          },
-          "fuelConstant": {
-            "type": "double"
-          },
-          "fuelSlope": {
-            "type": "double"
           },
           "attributes": {
             "type": "object",
@@ -3822,6 +3920,21 @@
           }
         }
       },
+      "DeviceClass": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
       "FuelPort": {
         "type": "object",
         "properties": {
@@ -4114,6 +4227,16 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/ReadingType"
+            }
+          }
+        },
+        "required": true
+      },
+      "DeviceClass": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeviceClass"
             }
           }
         },

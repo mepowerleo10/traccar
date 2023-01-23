@@ -59,6 +59,8 @@ public class Position extends Message {
     public static final String KEY_FUEL_NORMALIZED = "fuelNormalized"; // litres
     public static final String KEY_FUEL_USED = "fuelUsed"; // liters
     public static final String KEY_FUEL_CURRENT_MAX_VOLTAGE = "fuelCurrentMaxVoltage";
+    public static final String KEY_TOTAL_FUEL_USED = "totalfuelUsed"; // liters
+    public static final String KEY_TOTAL_FUEL_REFILLED = "totalFuelRefilled"; // litres
 
     public static final String KEY_FUEL_HISTORY = "fuelHistory";
     public static final String KEY_FUEL_FILTERED_VOLTAGE = "fuelFilteredVoltage";
@@ -90,6 +92,7 @@ public class Position extends Message {
     public static final String KEY_CHARGE = "charge";
     public static final String KEY_IP = "ip";
     public static final String KEY_ARCHIVE = "archive";
+    public static final String KEY_MILEAGE = "mileage"; // meters
     public static final String KEY_DISTANCE = "distance"; // meters
     public static final String KEY_TOTAL_DISTANCE = "totalDistance"; // meters
     public static final String KEY_RPM = "rpm";
@@ -112,6 +115,13 @@ public class Position extends Message {
     public static final String KEY_ICCID = "iccid";
     public static final String KEY_PHONE = "phone";
     public static final String KEY_SPEED_LIMIT = "speedLimit";
+    public static final String KEY_GSM_CONNECTION_AVAILABLE = "gsmConnectionAvailable";
+    public static final String KEY_GPS_DATA_ACCURATE = "gpsDataAccurate";
+    public static final String KEY_RESERVE_POWER = "reservePower";
+    public static final String KEY_PANIC_BUTTON_PRESSED = "panicButtonPressed";
+    public static final String KEY_DEVICE_OPENING = "deviceOpening";
+    public static final String KEY_DISCRETE_OUTPUT_ENABLED = "discreteOutputEnabled";
+    public static final String KEY_HAS_FUEL_DATA = "hasFuelData";
 
     public static final String KEY_DTCS = "dtcs";
     public static final String KEY_OBD_SPEED = "obdSpeed"; // knots
@@ -343,6 +353,33 @@ public class Position extends Message {
     @Override
     public void setType(String type) {
         super.setType(type);
+    }
+
+    @JsonIgnore
+    @QueryIgnore
+    public boolean hasFuelData() {
+        return getAttributes().containsKey(KEY_FUEL_LEVEL);
+    }
+
+    @JsonIgnore
+    @QueryIgnore
+    public double getFuelLevel() {
+        return getDouble(KEY_FUEL_LEVEL);
+    }
+
+    private boolean validGPS;
+
+    @QueryIgnore
+    public boolean isValidGPS() {
+        if (getAttributes().containsKey(Position.KEY_GPS_DATA_ACCURATE)) {
+            return getBoolean(Position.KEY_GPS_DATA_ACCURATE);
+        }
+        return true;
+    }
+
+    @QueryIgnore
+    public void setValidGPS(boolean validGPS) {
+        this.validGPS = validGPS;
     }
 
 }

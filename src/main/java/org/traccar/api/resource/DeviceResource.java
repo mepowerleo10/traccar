@@ -92,6 +92,19 @@ public class DeviceResource extends BaseObjectResource<Device> {
         return deviceManager.getItems(result);
     }
 
+    @Path("{id}/reset")
+    @POST
+    public Collection<Device> resetDevice(@PathParam("id") long id) throws StorageException {
+        if (!Context.getPermissionsManager().getUserAdmin(getUserId())) {
+            Context.getPermissionsManager().checkManager(getUserId());
+            Context.getPermissionsManager().checkPermission(Device.class, getUserId(), id);
+        }
+        Context.getDeviceManager().resetDeviceData(id);
+        LogAction.resetDeviceData(id, getUserId());
+
+        return get(true, getUserId(), null, null);
+    }
+
     @Path("{id}/accumulators")
     @PUT
     public Response updateAccumulators(DeviceAccumulators entity) throws StorageException {

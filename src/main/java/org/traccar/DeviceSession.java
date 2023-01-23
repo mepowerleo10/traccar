@@ -25,6 +25,11 @@ public class DeviceSession {
         this.deviceId = deviceId;
     }
 
+    public DeviceSession(long deviceId, long recordNumber) {
+        this.deviceId = deviceId;
+        this.recordNumber = recordNumber;
+    }
+
     public long getDeviceId() {
         return deviceId;
     }
@@ -37,6 +42,16 @@ public class DeviceSession {
 
     public TimeZone getTimeZone() {
         return timeZone;
+    }
+
+    private long recordNumber;
+
+    public long getRecordNumber() {
+        return recordNumber;
+    }
+
+    public void setRecordNumber(long recordNumber) {
+        this.recordNumber = recordNumber;
     }
 
 }

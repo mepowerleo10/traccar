@@ -43,8 +43,9 @@
 
     <entry key='database.ignoreUnknown'>true</entry>
     <entry key='database.changelog'>./schema/changelog-master.xml</entry>
+    <entry key='database.backupFilePath'>schema/data</entry>
 
-    <entry key='gps103.port'>5001</entry>
+    <!-- <entry key='gps103.port'>5001</entry>
     <entry key='tk103.port'>5002</entry>
     <entry key='gl100.port'>5003</entry>
     <entry key='gl200.port'>5004</entry>
@@ -284,6 +285,6 @@
     <entry key='jido.port'>5237</entry>
     <entry key='armoli.port'>5238</entry>
     <entry key='teratrack.port'>5239</entry>
-    <entry key='envotech.port'>5240</entry>
+    <entry key='envotech.port'>5240</entry> -->
 
 </properties>

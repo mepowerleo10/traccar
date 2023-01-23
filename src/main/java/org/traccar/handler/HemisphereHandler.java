@@ -54,6 +54,12 @@ public class HemisphereHandler extends BaseDataHandler {
         if (longitudeFactor != 0) {
             position.setLongitude(Math.abs(position.getLongitude()) * longitudeFactor);
         }
+
+        if (!position.getAttributes().containsKey(Position.KEY_GPS_DATA_ACCURATE)) {
+            boolean isGPSDataAccurate = (int) position.getLatitude() == 0 || (int) position.getLongitude() == 0;
+            position.set(Position.KEY_GPS_DATA_ACCURATE, isGPSDataAccurate);
+        }
+
         return position;
     }
 

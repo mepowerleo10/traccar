@@ -34,6 +34,7 @@ import org.traccar.database.CalendarManager;
 import org.traccar.database.CommandsManager;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
+import org.traccar.database.DeviceClassManager;
 import org.traccar.database.DeviceManager;
 import org.traccar.database.DirtyPositionManager;
 import org.traccar.database.DriversManager;
@@ -63,6 +64,8 @@ import org.traccar.model.BaseModel;
 import org.traccar.model.Calendar;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
+import org.traccar.model.DeviceClass;
+import org.traccar.model.DirtyPosition;
 import org.traccar.model.Driver;
 import org.traccar.model.FuelCalibration;
 import org.traccar.model.FuelPort;
@@ -72,6 +75,7 @@ import org.traccar.model.Group;
 import org.traccar.model.Maintenance;
 import org.traccar.model.Notification;
 import org.traccar.model.Order;
+import org.traccar.model.ProcessingQueue;
 import org.traccar.model.ReadingType;
 import org.traccar.model.Trip;
 import org.traccar.model.User;
@@ -227,6 +231,12 @@ public final class Context {
 
     public static ReadingTypeManager getReadingTypeManager() {
         return readingTypeManager;
+    }
+
+    private static DeviceClassManager deviceClassManager;
+
+    public static DeviceClassManager getDeviceClassManager() {
+        return deviceClassManager;
     }
 
     private static FuelPortManager fuelPortManager;
@@ -435,6 +445,7 @@ public final class Context {
         fuelSensorManager = new FuelSensorManager(dataManager);
         sensorManager = new SensorManager(dataManager);
         readingTypeManager = new ReadingTypeManager(dataManager);
+        deviceClassManager = new DeviceClassManager(dataManager);
         fuelPortManager = new FuelPortManager(dataManager);
         fuelCalibrationManager = new FuelCalibrationManager(dataManager);
         processingQueueManager = new ProcessingQueueManager(dataManager);
@@ -504,10 +515,12 @@ public final class Context {
             return (BaseObjectManager<T>) fuelPortManager;
         } else if (clazz.equals(FuelCalibration.class)) {
             return (BaseObjectManager<T>) fuelCalibrationManager;
-        } else if (clazz.equals(ProcessingQueueManager.class)) {
+        } else if (clazz.equals(ProcessingQueue.class)) {
             return (BaseObjectManager<T>) processingQueueManager;
-        } else if (clazz.equals(DirtyPositionManager.class)) {
+        } else if (clazz.equals(DirtyPosition.class)) {
             return (BaseObjectManager<T>) dirtyPositionManager;
+        } else if (clazz.equals(DeviceClass.class)) {
+            return (BaseObjectManager<T>) deviceClassManager;
         }
         return null;
     }

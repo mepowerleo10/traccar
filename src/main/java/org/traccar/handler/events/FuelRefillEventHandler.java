@@ -42,7 +42,7 @@ public class FuelRefillEventHandler extends BaseEventHandler {
         }
 
         try {
-            if (position.getAttributes().containsKey(Position.KEY_FUEL_LEVEL)) {
+            if (position.hasFuelData()) {
                 double fuelRefillThreshold = identityManager.lookupAttributeDouble(device.getId(),
                         ATTRIBUTE_FUEL_REFILL_THRESHOLD, 0, true, false);
                 double fuelRefillTimer = position.getDouble(Position.KEY_FUEL_REFILL_TIMER);

@@ -87,6 +87,7 @@ public final class ReportUtils {
         for (long groupId : groupIds) {
             result.addAll(Context.getPermissionsManager().getGroupDevices(groupId));
         }
+        result.removeIf(id -> id == 0);
         return result;
     }
 
@@ -126,6 +127,10 @@ public final class ReportUtils {
         Position last = null;
 
         for (Position position : positions) {
+            if (!position.getValid()) {
+                continue;
+            }
+
             if (last != null && !last.getDeviceTime().equals(position.getDeviceTime())) {
 
                 fuelUsed = BigDecimal.valueOf(getFuelDifference(last, position) + fuelUsed.doubleValue());

@@ -15,14 +15,13 @@
  */
 package org.traccar.api.resource;
 
-import org.traccar.Context;
-import org.traccar.api.BaseResource;
-import org.traccar.helper.LogAction;
-import org.traccar.model.Server;
-import org.traccar.storage.Storage;
-import org.traccar.storage.StorageException;
-import org.traccar.storage.query.Columns;
-import org.traccar.storage.query.Request;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
@@ -32,16 +31,32 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.TimeZone;
+
+import org.traccar.Context;
+import org.traccar.api.BaseResource;
+import org.traccar.config.Config;
+import org.traccar.config.Keys;
+import org.traccar.database.Backup;
+import org.traccar.helper.LogAction;
+import org.traccar.model.Position;
+import org.traccar.model.ProcessingQueue;
+import org.traccar.model.Server;
+import org.traccar.storage.Storage;
+import org.traccar.storage.StorageException;
+import org.traccar.storage.StorageName;
+import org.traccar.storage.query.Columns;
+import org.traccar.storage.query.Request;
 
 @Path("server")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ServerResource extends BaseResource {
+
+    public static final String APPLICATION_SQL = "application/sql";
+    private static final String CONTENT_DISPOSITION_VALUE_SQL = "attachment; filename=backup.sql";
 
     @Inject
     private Storage storage;
@@ -76,4 +91,22 @@ public class ServerResource extends BaseResource {
         return Arrays.asList(TimeZone.getAvailableIDs());
     }
 
+    @Path("backup")
+    @GET
+    @Produces(APPLICATION_SQL)
+    public Response getServerBackup() throws StorageException, IOException, InterruptedException {
+        Context.getPermissionsManager().checkAdmin(getUserId());
+        Config config = Context.getConfig();
+        List<Class<?>> ignoreTables = List.of(Position.class, ProcessingQueue.class);
+
+        FileInputStream stream = new FileInputStream(Backup.getDatabaseBackup(
+                config.getString(Keys.DATABASE_BACKUP_FILE_PATH, "schema/data"), config.getString(Keys.DATABASE_USER),
+                config.getString(Keys.DATABASE_PASSWORD),
+                config.getString(Keys.DATABASE_HOST, "localhost"), config.getString(Keys.DATABASE_NAME, "traccar"),
+                true,
+                ignoreTables.stream().map(model -> model.getAnnotation(StorageName.class).value())
+                        .collect(Collectors.toList())));
+        return Response.ok(stream.readAllBytes()).header(HttpHeaders.CONTENT_DISPOSITION, CONTENT_DISPOSITION_VALUE_SQL)
+                .build();
+    }
 }
