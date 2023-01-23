@@ -24,6 +24,7 @@ import org.traccar.database.AttributesManager;
 import org.traccar.database.CalendarManager;
 import org.traccar.database.ConnectionManager;
 import org.traccar.database.DataManager;
+import org.traccar.database.DeviceClassManager;
 import org.traccar.database.DeviceManager;
 import org.traccar.database.DirtyPositionManager;
 import org.traccar.database.FuelCalibrationManager;
@@ -168,6 +169,11 @@ public class MainModule extends AbstractModule {
     @Provides
     public static ReadingTypeManager provideReadingTypeManager() {
         return Context.getReadingTypeManager();
+    }
+
+    @Provides
+    public static DeviceClassManager provideDeviceClassManager() {
+        return Context.getDeviceClassManager();
     }
 
     @Provides

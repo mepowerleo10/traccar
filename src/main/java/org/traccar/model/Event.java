@@ -15,6 +15,7 @@
  */
 package org.traccar.model;
 
+import org.traccar.storage.QueryIgnore;
 import org.traccar.storage.StorageName;
 
 import java.util.Date;
@@ -120,6 +121,30 @@ public class Event extends Message {
 
     public void setMaintenanceId(long maintenanceId) {
         this.maintenanceId = maintenanceId;
+    }
+
+    private String deviceUniqueId;
+
+    @QueryIgnore
+    public void setDeviceUniqueId(String uniqueId) {
+        this.deviceUniqueId = uniqueId;
+    }
+
+    @QueryIgnore
+    public String getDeviceUniqueId() {
+        return deviceUniqueId;
+    }
+
+    private Position position;
+
+    @QueryIgnore
+    public Position getPosition() {
+        return position;
+    }
+
+    @QueryIgnore
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
 }

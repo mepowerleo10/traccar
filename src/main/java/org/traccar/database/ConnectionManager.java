@@ -176,7 +176,7 @@ public class ConnectionManager {
         long deviceId = position.getDeviceId();
 
         for (long userId : Context.getPermissionsManager().getDeviceUsers(deviceId)) {
-            if (listeners.containsKey(userId)) {
+            if (listeners.containsKey(userId) && position.getValid()) {
                 for (UpdateListener listener : listeners.get(userId)) {
                     listener.onUpdatePosition(position);
                 }

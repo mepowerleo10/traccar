@@ -32,11 +32,18 @@ import org.traccar.config.Keys;
 import org.traccar.model.Command;
 import org.traccar.model.Device;
 import org.traccar.model.DeviceAccumulators;
+import org.traccar.model.DeviceClass;
 import org.traccar.model.DeviceState;
+import org.traccar.model.DirtyPosition;
+import org.traccar.model.Event;
 import org.traccar.model.Group;
 import org.traccar.model.Position;
+import org.traccar.model.ProcessingQueue;
 import org.traccar.model.Server;
+import org.traccar.storage.Storage;
 import org.traccar.storage.StorageException;
+import org.traccar.storage.query.Condition;
+import org.traccar.storage.query.Request;
 
 public class DeviceManager extends BaseObjectManager<Device> implements IdentityManager, ManagableObjects {
 
@@ -323,7 +330,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
     public void updateLatestPosition(Position position) throws StorageException {
 
-        if (isLatestPosition(position)) {
+        if (isLatestPosition(position) && position.getValid()) {
 
             getDataManager().updateLatestPosition(position);
 
@@ -427,6 +434,12 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
                         groupId = 0;
                     }
                 }
+
+                long classId = device.getClassId();
+                if (classId != 0) {
+                    DeviceClass deviceClass = Context.getDeviceClassManager().getById(classId);
+                    result = deviceClass != null ? deviceClass.getAttributes().get(attributeName) : result;
+                }
             }
             if (result == null && lookupServer) {
                 Server server = Context.getPermissionsManager().getServer();
@@ -441,7 +454,7 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
 
     public void resetDeviceAccumulators(DeviceAccumulators deviceAccumulators) throws StorageException {
         Position last = positions.get(deviceAccumulators.getDeviceId());
-        if (last != null) {
+        if (last != null && last.getValid()) {
             if (deviceAccumulators.getTotalDistance() != null) {
                 last.getAttributes().put(Position.KEY_TOTAL_DISTANCE, deviceAccumulators.getTotalDistance());
             }
@@ -453,6 +466,27 @@ public class DeviceManager extends BaseObjectManager<Device> implements Identity
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    public void resetDeviceData(long id) throws StorageException {
+        Storage storage = getDataManager().getStorage();
+        Device device = getById(id);
+        Condition isThisDevice = new Condition.Equals("deviceid", "deviceid", device.getId());
+
+        Request request = new Request(isThisDevice);
+        storage.removeObject(Position.class, request);
+        storage.removeObject(Event.class, request);
+        storage.removeObject(ProcessingQueue.class, request);
+        storage.removeObject(DirtyPosition.class, request);
+
+        device.setLastPositionUpdate(null);
+        device.setLastUpdate(null);
+        device.setPositionId(0);
+        device.set(Device.KEY_OMNICOMM_ATTEMPTS_TIMER, 0);
+        device.set(Device.KEY_OMNICOMM_RECORD_NUMBER, 0);
+        device.set(Device.KEY_OMNICOMM_LAST_IDENTIFICATION_TIME, 0);
+        device.set(Device.KEY_OMNICOMM_LAST_DELETE_TIME, 0);
+
     }
 
     public DeviceState getDeviceState(long deviceId) {

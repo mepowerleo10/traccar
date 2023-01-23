@@ -88,33 +88,24 @@ public class FuelDropEventHandler extends BaseEventHandler {
         double fuelConsumed = Math.abs(position.getDouble(Position.KEY_FUEL_CONSUMPTION_PER_KM));
 
         if (fuelConsumed != 0 && fuelConsumed > fuelDropKmPerLitre) {
-            event = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
+            event = new Event(Event.TYPE_DEVICE_FUEL_DROP, position);
+            event.set(ATTRIBUTE_FUEL_DROP_WITHIN_KM_THRESHOLD, fuelDropKmPerLitre);
+            event.set(Position.KEY_FUEL_USED, fuelConsumed);
         }
-
-        LOGGER.info(identityManager.getById(position.getDeviceId()).getName() + " Consumed: " + fuelConsumed
-                + ", Drop Threshold (KM): " + fuelDropKmPerLitre);
 
         return event;
     }
 
     private Event checkDropWithinHour(Position position, double fuelDropLitresPerHour) throws Exception {
-        Event dropWithinHourEvent = null;
+        Event event = null;
         double fuelConsumed = Math.abs(position.getDouble(Position.KEY_FUEL_CONSUMPTION_PER_HOUR));
 
         if (fuelConsumed != 0 && fuelConsumed > fuelDropLitresPerHour) {
-            dropWithinHourEvent = generateFuelDropEvent(position, ATTRIBUTE_FUEL_DROP_THRESHOLD,
-                    fuelDropLitresPerHour);
+            event = new Event(Event.TYPE_DEVICE_FUEL_DROP, position);
+            event.set(ATTRIBUTE_FUEL_DROP_THRESHOLD, fuelDropLitresPerHour);
+            event.set(Position.KEY_FUEL_USED, fuelConsumed);
         }
 
-        LOGGER.info(identityManager.getById(position.getDeviceId()).getName() + " Consumed: " + fuelConsumed
-                + ", Drop Threshold (HR): " + fuelDropLitresPerHour);
-
-        return dropWithinHourEvent;
-    }
-
-    private Event generateFuelDropEvent(Position position, String attributeName, double fuelDropThreshold) {
-        Event event = new Event(Event.TYPE_DEVICE_FUEL_DROP, position);
-        event.set(attributeName, fuelDropThreshold);
         return event;
     }
 

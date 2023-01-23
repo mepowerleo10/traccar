@@ -20,12 +20,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jxls.util.JxlsHelper;
 import org.traccar.Context;
@@ -39,44 +39,42 @@ public final class Summary {
     private Summary() {
     }
 
-    private static SummaryReport calculateSummaryResult(long deviceId, Collection<Position> positions) {
+    private static SummaryReport calculateSummaryResult(long deviceId, List<Position> positions) {
         SummaryReport result = new SummaryReport();
         result.setDeviceId(deviceId);
         result.setDeviceName(Context.getIdentityManager().getById(deviceId).getName());
         if (positions != null && !positions.isEmpty()) {
-            Position firstPosition = null;
-            Position previousPosition = null;
+            int length = positions.size();
+            Position firstPosition = positions.get(0);
+            Position lastPosition = positions.get(length - 1);
 
-            BigDecimal fuelUsed = BigDecimal.valueOf(0.0);
+            FuelStatisticsReport fuelReport = new FuelStatisticsReport(
+                    positions.parallelStream().filter(p -> p.hasFuelData()).collect(Collectors.toList()));
+            fuelReport.compute();
 
-            for (Position position : positions) {
-                if (firstPosition == null) {
-                    firstPosition = position;
-                }
+            double distance = positions.parallelStream()
+                    .filter(position -> position.getAttributes().containsKey(Position.KEY_DISTANCE))
+                    .reduce(0.0, (sum, position) -> position.getDouble(Position.KEY_DISTANCE) + sum, Double::sum);
 
-                if (previousPosition != null && !previousPosition.getDeviceTime().equals(position.getDeviceTime())) {
-                    fuelUsed = BigDecimal
-                            .valueOf((position.getDouble(Position.KEY_FUEL_USED) + fuelUsed.doubleValue()));
-                }
-
-                previousPosition = position;
-                if (position.getSpeed() > result.getMaxSpeed()) {
-                    result.setMaxSpeed(position.getSpeed());
-                }
-            }
             boolean ignoreOdometer = Context.getDeviceManager()
                     .lookupAttributeBoolean(deviceId, "report.ignoreOdometer", false, false, true);
-            result.setDistance(ReportUtils.calculateDistance(firstPosition, previousPosition, !ignoreOdometer));
-            result.setSpentFuel(Math.abs(fuelUsed.setScale(1, RoundingMode.HALF_EVEN).doubleValue()));
+            result.setStartTime(firstPosition.getFixTime());
+            result.setDistance(distance);
+            result.setMaxSpeed(fuelReport.getMaxSpeed());
+            result.setSpentFuel(fuelReport.getFuelUsed());
+            result.setRefilledFuel(fuelReport.getFuelRefilled());
+            result.setNumberOfRefills(fuelReport.getNumberOfRefills());
+            result.setStartFuel(fuelReport.getInitialFuelLevel());
+            result.setEndFuel(fuelReport.getFinalFuelLevel());
 
             long durationMilliseconds;
             if (firstPosition.getAttributes().containsKey(Position.KEY_HOURS)
-                    && previousPosition.getAttributes().containsKey(Position.KEY_HOURS)) {
-                durationMilliseconds = previousPosition.getLong(Position.KEY_HOURS)
+                    && lastPosition.getAttributes().containsKey(Position.KEY_HOURS)) {
+                durationMilliseconds = lastPosition.getLong(Position.KEY_HOURS)
                         - firstPosition.getLong(Position.KEY_HOURS);
                 result.setEngineHours(durationMilliseconds);
             } else {
-                durationMilliseconds = previousPosition.getFixTime().getTime() - firstPosition.getFixTime().getTime();
+                durationMilliseconds = lastPosition.getFixTime().getTime() - firstPosition.getFixTime().getTime();
             }
 
             if (durationMilliseconds > 0) {
@@ -86,16 +84,16 @@ public final class Summary {
 
             if (!ignoreOdometer
                     && firstPosition.getDouble(Position.KEY_ODOMETER) != 0
-                    && previousPosition.getDouble(Position.KEY_ODOMETER) != 0) {
+                    && lastPosition.getDouble(Position.KEY_ODOMETER) != 0) {
                 result.setStartOdometer(firstPosition.getDouble(Position.KEY_ODOMETER));
-                result.setEndOdometer(previousPosition.getDouble(Position.KEY_ODOMETER));
+                result.setEndOdometer(lastPosition.getDouble(Position.KEY_ODOMETER));
             } else {
                 result.setStartOdometer(firstPosition.getDouble(Position.KEY_TOTAL_DISTANCE));
-                result.setEndOdometer(previousPosition.getDouble(Position.KEY_TOTAL_DISTANCE));
+                result.setEndOdometer(lastPosition.getDouble(Position.KEY_TOTAL_DISTANCE));
             }
 
             result.setStartTime(firstPosition.getFixTime());
-            result.setEndTime(previousPosition.getFixTime());
+            result.setEndTime(lastPosition.getFixTime());
         }
         return result;
     }

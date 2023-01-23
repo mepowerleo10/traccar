@@ -15,15 +15,17 @@
  */
 package org.traccar.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.traccar.Context;
 import org.traccar.storage.QueryIgnore;
 import org.traccar.storage.StorageName;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @StorageName("tc_servers")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Server extends ExtendedModel {
-
+    public static final String FUEL_QUEUE_FILTERING_WINDOW = "queues.filteringWindow";
+    public static final String FUEL_QUEUE_FILTERING_PERIOD = "queues.filteringPeriod";
     private boolean registration;
 
     public boolean getRegistration() {

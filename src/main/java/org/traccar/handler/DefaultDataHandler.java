@@ -15,8 +15,6 @@
  */
 package org.traccar.handler;
 
-import io.netty.channel.ChannelHandler;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -25,7 +23,11 @@ import org.slf4j.LoggerFactory;
 import org.traccar.BaseDataHandler;
 import org.traccar.database.DataManager;
 import org.traccar.database.IdentityManager;
+import org.traccar.model.Device;
 import org.traccar.model.Position;
+import org.traccar.storage.StorageException;
+
+import io.netty.channel.ChannelHandler;
 
 @ChannelHandler.Sharable
 public class DefaultDataHandler extends BaseDataHandler {
@@ -46,17 +48,28 @@ public class DefaultDataHandler extends BaseDataHandler {
 
         try {
             Position last = identityManager.getLastPosition(position.getDeviceId());
-            if (!last.getDeviceTime().equals(position.getDeviceTime())) {
+
+            if (last == null || !last.getDeviceTime().equals(position.getDeviceTime())) {
                 dataManager.addObject(position);
+                updateDeviceLastPositionTime(position, last);
             } else {
                 throw new Exception("Device ID: " + position.getDeviceId() + " position time is repeated at Time: "
                         + dateFormat.format(position.getDeviceTime()));
             }
         } catch (Exception error) {
+            position = null;
             LOGGER.warn("Failed to store position", error);
         }
 
         return position;
+    }
+
+    private void updateDeviceLastPositionTime(Position position, Position last) throws StorageException {
+        if ((last == null || last.getDeviceTime().before(position.getDeviceTime())) && position.getValid()) {
+            Device device = identityManager.getById(position.getDeviceId());
+            device.setLastPositionUpdate(position.getDeviceTime());
+            dataManager.updateObject(device);
+        }
     }
 
 }

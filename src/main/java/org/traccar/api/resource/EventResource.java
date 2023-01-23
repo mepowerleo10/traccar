@@ -15,10 +15,8 @@
  */
 package org.traccar.api.resource;
 
-import org.traccar.Context;
-import org.traccar.api.BaseResource;
-import org.traccar.model.Event;
-import org.traccar.storage.StorageException;
+import java.util.Collection;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -28,6 +26,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.traccar.Context;
+import org.traccar.api.BaseResource;
+import org.traccar.database.DataManager;
+import org.traccar.model.Event;
+import org.traccar.storage.StorageException;
 
 @Path("events")
 @Produces(MediaType.APPLICATION_JSON)
@@ -43,6 +47,19 @@ public class EventResource extends BaseResource {
         }
         Context.getPermissionsManager().checkDevice(getUserId(), event.getDeviceId());
         return event;
+    }
+
+    @Path("page/{lastId}")
+    @GET
+    public Collection<Event> getEventsByPage(@PathParam("lastId") long lastId) throws StorageException {
+        List<String> ignoreTypes = List.of(
+                Event.TYPE_DEVICE_OFFLINE,
+                Event.TYPE_DEVICE_ONLINE,
+                Event.TYPE_DEVICE_UNKNOWN);
+
+        DataManager dataManager = Context.getDataManager();
+        return dataManager.getEventsByPage(lastId, ignoreTypes);
+
     }
 
 }
