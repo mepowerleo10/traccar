@@ -199,7 +199,6 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
                 break;
             default:
                 LOGGER.warn("We have no idea what this is. Received command: " + commandType);
-
                 deviceSession = getDeviceSession(channel, remoteAddress);
                 sendResponse(channel, MSG_ARCHIVE_INQUIRY, deviceSession.getRecordNumber());
                 break;
@@ -244,7 +243,7 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
                         getFormattedNowTime());
 
                 long recordNumber = device.getLong(Device.KEY_OMNICOMM_RECORD_NUMBER);
-                recordNumber = recordNumber == 0 ? 0 : getRandomRecordBetween(0, 20, recordNumber);
+                recordNumber = recordNumber == 0 ? 0 : getRandomRecordBetween(10, 200, recordNumber);
                 deviceSession.setRecordNumber(recordNumber);
 
                 sendResponse(channel, MSG_ARCHIVE_INQUIRY, deviceSession.getRecordNumber());
@@ -257,11 +256,10 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
 
     private long getRandomRecordBetween(int min, int max, long currentRecordNumber) {
         if (currentRecordNumber > max) {
-            return currentRecordNumber - Math.round(Math.random() * (max - min + 1) + max);
+            // back compute random record number,
+            currentRecordNumber -= Math.round(Math.random() * (max - min + 1) + max);
         }
-
-        return currentRecordNumber + 1;
-
+        return currentRecordNumber < 0 ? 0 : currentRecordNumber + 1;
     }
 
     private Device getDeviceFromSession(DeviceSession deviceSession) {
@@ -388,7 +386,6 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOGGER.error(getProtocolName(), cause);
-
         super.exceptionCaught(ctx, cause);
     }
 
