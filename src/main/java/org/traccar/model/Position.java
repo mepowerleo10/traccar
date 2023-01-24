@@ -184,6 +184,7 @@ public class Position extends Message {
     public static final String KEY_X_HAT_MINUS = "xHatMinus";
     public static final String KEY_K = "K"; // Kalman Gain
     public static final String KEY_P_MINUS = "pMinus";
+    public static final String KEY_SENSOR_DOES_NOT_EXIST = "fuelSensorDoesNotExist";
 
     public Position() {
     }
