@@ -201,7 +201,7 @@ public class OmnicommProtocolDecoder extends BaseProtocolDecoder {
                 LOGGER.warn("We have no idea what this is. Received command: " + commandType);
                 deviceSession = getDeviceSession(channel, remoteAddress);
                 device = getDeviceFromSession(deviceSession);
-                sendArchiveInquiryCommand(channel,device,deviceSession);
+                sendArchiveInquiryCommand(channel, device, deviceSession);
                 break;
         }
 
