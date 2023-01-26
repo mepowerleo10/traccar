@@ -23,6 +23,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.traccar.Context;
@@ -41,9 +43,36 @@ public final class Route {
             Date from, Date to) throws StorageException {
         ReportUtils.checkPeriodLimit(from, to);
         ArrayList<Position> result = new ArrayList<>();
-        for (long deviceId: ReportUtils.getDeviceList(deviceIds, groupIds)) {
+        for (long deviceId : ReportUtils.getDeviceList(deviceIds, groupIds)) {
             Context.getPermissionsManager().checkDevice(userId, deviceId);
             result.addAll(Context.getDataManager().getPositions(deviceId, from, to));
+        }
+        return result;
+    }
+
+    public static Collection<Position> getObjects(long userId, Collection<Long> deviceIds, Collection<Long> groupIds,
+            Date from, Date to, long lastId, int limit) throws StorageException {
+        ReportUtils.checkPeriodLimit(from, to);
+        ArrayList<Position> result = new ArrayList<>();
+        for (long deviceId : ReportUtils.getDeviceList(deviceIds, groupIds)) {
+            Context.getPermissionsManager().checkDevice(userId, deviceId);
+            result.addAll(Context.getDataManager().getPositions(deviceId, from, to, lastId, limit));
+        }
+        return result;
+    }
+
+    public static Map<String, Object> getObjectsWithCount(long userId, Collection<Long> deviceIds,
+            Collection<Long> groupIds,
+            Date from, Date to, long lastId, int limit) throws StorageException {
+        ReportUtils.checkPeriodLimit(from, to);
+        Map<String, Object> result = new HashMap<>();
+        ArrayList<Position> positions = new ArrayList<>();
+        for (long deviceId : ReportUtils.getDeviceList(deviceIds, groupIds)) {
+            Long count = Context.getDataManager().getPositionsCount(deviceId, from, to);
+            Context.getPermissionsManager().checkDevice(userId, deviceId);
+            positions.addAll(Context.getDataManager().getPositions(deviceId, from, to, lastId, limit));
+            result.put("count", count);
+            result.put("positions", positions);
         }
         return result;
     }
@@ -54,7 +83,7 @@ public final class Route {
         ReportUtils.checkPeriodLimit(from, to);
         ArrayList<DeviceReport> devicesRoutes = new ArrayList<>();
         ArrayList<String> sheetNames = new ArrayList<>();
-        for (long deviceId: ReportUtils.getDeviceList(deviceIds, groupIds)) {
+        for (long deviceId : ReportUtils.getDeviceList(deviceIds, groupIds)) {
             Context.getPermissionsManager().checkDevice(userId, deviceId);
             Collection<Position> positions = Context.getDataManager()
                     .getPositions(deviceId, from, to);

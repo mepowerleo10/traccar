@@ -15,10 +15,12 @@
  */
 package org.traccar.api.resource;
 
-import org.traccar.Context;
-import org.traccar.api.BaseResource;
-import org.traccar.model.Position;
-import org.traccar.storage.StorageException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -26,12 +28,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import org.traccar.Context;
+import org.traccar.api.BaseResource;
+import org.traccar.model.Position;
+import org.traccar.storage.StorageException;
 
 @Path("positions")
 @Produces(MediaType.APPLICATION_JSON)
@@ -41,7 +42,8 @@ public class PositionResource extends BaseResource {
     @GET
     public Collection<Position> getJson(
             @QueryParam("deviceId") long deviceId, @QueryParam("id") List<Long> positionIds,
-            @QueryParam("from") Date from, @QueryParam("to") Date to)
+            @QueryParam("from") Date from, @QueryParam("to") Date to, @QueryParam("limit") Integer limit,
+            @QueryParam("lastId") Long lastId)
             throws StorageException {
         if (!positionIds.isEmpty()) {
             ArrayList<Position> positions = new ArrayList<>();
@@ -57,6 +59,12 @@ public class PositionResource extends BaseResource {
             Context.getPermissionsManager().checkDevice(getUserId(), deviceId);
             if (from != null && to != null) {
                 permissionsService.checkReports(getUserId());
+
+                if (limit > 0 && lastId > 0) {
+                    return Context.getDataManager().getPositions(deviceId, from, to, lastId, limit).stream()
+                            .filter(position -> position.getValid()).collect(Collectors.toList());
+                }
+
                 return Context.getDataManager().getPositions(deviceId, from, to).stream()
                         .filter(position -> position.getValid()).collect(Collectors.toList());
             } else {

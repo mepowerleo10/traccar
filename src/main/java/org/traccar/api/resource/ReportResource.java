@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
@@ -43,6 +44,8 @@ import org.traccar.helper.LogAction;
 import org.traccar.model.Event;
 import org.traccar.model.Position;
 import org.traccar.reports.Events;
+import org.traccar.reports.Route;
+import org.traccar.reports.Stops;
 import org.traccar.reports.Summary;
 import org.traccar.reports.Trips;
 import org.traccar.reports.model.AssetReport;
@@ -50,14 +53,14 @@ import org.traccar.reports.model.AssetsSummary;
 import org.traccar.reports.model.StopReport;
 import org.traccar.reports.model.SummaryReport;
 import org.traccar.reports.model.TripReport;
-import org.traccar.reports.Route;
-import org.traccar.reports.Stops;
 import org.traccar.storage.StorageException;
 
 @Path("reports")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ReportResource extends BaseResource {
+
+    private static final String HTTP_HEADER_DATA_LENGTH = "data-legnth";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportResource.class);
 
@@ -98,12 +101,19 @@ public class ReportResource extends BaseResource {
 
     @Path("route")
     @GET
-    public Collection<Position> getRoute(
+    public Response getRoute(
             @QueryParam("deviceId") final List<Long> deviceIds, @QueryParam("groupId") final List<Long> groupIds,
-            @QueryParam("from") Date from, @QueryParam("to") Date to) throws StorageException {
+            @QueryParam("from") Date from, @QueryParam("to") Date to, @QueryParam("lastId") Long lastId,
+            @QueryParam("limit") Integer limit) throws StorageException {
         permissionsService.checkReports(getUserId());
         LogAction.logReport(getUserId(), "route", from, to, deviceIds, groupIds);
-        return Route.getObjects(getUserId(), deviceIds, groupIds, from, to);
+
+        Map<String, Object> result = Route.getObjectsWithCount(getUserId(), deviceIds, groupIds, from, to, lastId,
+                limit);
+        Long count = (Long) result.get("count");
+        List<Position> positions = (List<Position>) result.get("positions");
+
+        return Response.ok(positions.toArray()).header(HTTP_HEADER_DATA_LENGTH, count).build();
     }
 
     @Path("route")
