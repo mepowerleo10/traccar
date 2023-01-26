@@ -15,16 +15,16 @@
  */
 package org.traccar.storage;
 
-import org.traccar.model.Pair;
-import org.traccar.model.Permission;
-import org.traccar.storage.query.Request;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.traccar.model.Pair;
+import org.traccar.model.Permission;
+import org.traccar.storage.query.Request;
 
 public class MemoryStorage extends Storage {
 
@@ -46,6 +46,11 @@ public class MemoryStorage extends Storage {
 
     @Override
     public void removeObject(Class<?> clazz, Request request) {
+    }
+
+    @Override
+    public <T> Long getRowCount(Class<T> clazz, Request request) throws StorageException {
+        return null;
     }
 
     private Set<Pair<Long, Long>> getPermissionsSet(Class<?> ownerClass, Class<?> propertyClass) {

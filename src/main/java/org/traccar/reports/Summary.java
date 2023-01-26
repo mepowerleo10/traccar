@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -85,14 +84,14 @@ public final class Summary {
                         - firstPosition.getLong(Position.KEY_HOURS);
                 result.setEngineHours(durationMilliseconds);
             } else {
-                durationMilliseconds = lastPosition.getFixTime().getTime() -
-                        firstPosition.getFixTime().getTime();
+                durationMilliseconds = lastPosition.getFixTime().getTime()
+                        - firstPosition.getFixTime().getTime();
             }
 
             if (durationMilliseconds > 0) {
                 result.setAverageSpeed(
-                        UnitsConverter.knotsFromMps(result.getDistance() * 1000 /
-                                durationMilliseconds));
+                        UnitsConverter.knotsFromMps(result.getDistance() * 1000
+                                / durationMilliseconds));
             }
 
             if (!ignoreOdometer
@@ -112,10 +111,10 @@ public final class Summary {
     }
 
     private static double computeAverageSpeed(List<Position> positions) throws StorageException {
-        final double SPEED_THRESHOLD = Context.getDataManager().getServer().getDouble(Server.REPORT_SPEED_THRESHOLD);
+        final double speedThreshold = Context.getDataManager().getServer().getDouble(Server.REPORT_SPEED_THRESHOLD);
 
         List<Position> filteredPositions = positions.parallelStream()
-                .filter(position -> UnitsConverter.mpsFromKnots(position.getSpeed()) > SPEED_THRESHOLD)
+                .filter(position -> UnitsConverter.mpsFromKnots(position.getSpeed()) > speedThreshold)
                 .collect(Collectors.toList());
 
         long count = filteredPositions.stream().count();
