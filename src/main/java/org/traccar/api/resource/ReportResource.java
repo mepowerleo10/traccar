@@ -28,6 +28,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -103,8 +104,9 @@ public class ReportResource extends BaseResource {
     @GET
     public Response getRoute(
             @QueryParam("deviceId") final List<Long> deviceIds, @QueryParam("groupId") final List<Long> groupIds,
-            @QueryParam("from") Date from, @QueryParam("to") Date to, @QueryParam("lastId") Long lastId,
-            @QueryParam("limit") Integer limit) throws StorageException {
+            @QueryParam("from") Date from, @QueryParam("to") Date to,
+            @DefaultValue("0") @QueryParam("lastId") Long lastId,
+            @DefaultValue("0") @QueryParam("limit") Integer limit) throws StorageException {
         permissionsService.checkReports(getUserId());
         LogAction.logReport(getUserId(), "route", from, to, deviceIds, groupIds);
 

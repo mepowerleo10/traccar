@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -42,8 +43,9 @@ public class PositionResource extends BaseResource {
     @GET
     public Collection<Position> getJson(
             @QueryParam("deviceId") long deviceId, @QueryParam("id") List<Long> positionIds,
-            @QueryParam("from") Date from, @QueryParam("to") Date to, @QueryParam("limit") Integer limit,
-            @QueryParam("lastId") Long lastId)
+            @QueryParam("from") Date from, @QueryParam("to") Date to,
+            @DefaultValue("0") @QueryParam("limit") Integer limit,
+            @DefaultValue("0") @QueryParam("lastId") Long lastId)
             throws StorageException {
         if (!positionIds.isEmpty()) {
             ArrayList<Position> positions = new ArrayList<>();
