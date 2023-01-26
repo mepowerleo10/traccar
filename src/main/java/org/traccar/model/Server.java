@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Server extends ExtendedModel {
     public static final String FUEL_QUEUE_FILTERING_WINDOW = "queues.filteringWindow";
     public static final String FUEL_QUEUE_FILTERING_PERIOD = "queues.filteringPeriod";
+    public static final String REPORT_SPEED_THRESHOLD = "report.speedThreshold";
+    
     private boolean registration;
 
     public boolean getRegistration() {

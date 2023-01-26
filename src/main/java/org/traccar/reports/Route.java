@@ -70,7 +70,13 @@ public final class Route {
         for (long deviceId : ReportUtils.getDeviceList(deviceIds, groupIds)) {
             Long count = Context.getDataManager().getPositionsCount(deviceId, from, to);
             Context.getPermissionsManager().checkDevice(userId, deviceId);
-            positions.addAll(Context.getDataManager().getPositions(deviceId, from, to, lastId, limit));
+
+            if (limit > 0) {
+                positions.addAll(Context.getDataManager().getPositions(deviceId, from, to, lastId, limit));
+            } else {
+                positions.addAll(Context.getDataManager().getPositions(deviceId, from, to));
+            }
+
             result.put("count", count);
             result.put("positions", positions);
         }
