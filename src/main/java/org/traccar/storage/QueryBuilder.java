@@ -15,14 +15,6 @@
  */
 package org.traccar.storage;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.traccar.Context;
-import org.traccar.config.Keys;
-import org.traccar.model.Permission;
-
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,6 +32,16 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.traccar.Context;
+import org.traccar.config.Keys;
+import org.traccar.model.Permission;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public final class QueryBuilder {
 
@@ -471,6 +473,25 @@ public final class QueryBuilder {
             }
         }
         return 0;
+    }
+
+    public <T> Long getRowsCount() throws SQLException {
+        Long count = Long.valueOf(0);
+        if (query != null) {
+            try {
+                logQuery();
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        count = resultSet.getLong(1);
+                    }
+                }
+            } finally {
+                statement.close();
+                connection.close();
+            }
+        }
+
+        return count;
     }
 
     public List<Permission> executePermissionsQuery() throws SQLException {

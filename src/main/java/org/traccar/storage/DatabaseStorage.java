@@ -15,6 +15,16 @@
  */
 package org.traccar.storage;
 
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
 import org.traccar.model.Device;
 import org.traccar.model.Group;
 import org.traccar.model.GroupedModel;
@@ -24,15 +34,6 @@ import org.traccar.storage.query.Condition;
 import org.traccar.storage.query.Limit;
 import org.traccar.storage.query.Order;
 import org.traccar.storage.query.Request;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class DatabaseStorage extends Storage {
 
@@ -135,6 +136,25 @@ public class DatabaseStorage extends Storage {
         } catch (SQLException e) {
             throw new StorageException(e);
         }
+    }
+
+    @Override
+    public <T> Long getRowCount(Class<T> clazz, Request request) throws StorageException {
+
+        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM ");
+        query.append(getStorageName(clazz));
+        query.append(formatCondition(request.getCondition()));
+
+        try {
+            QueryBuilder builder = QueryBuilder.create(dataSource, query.toString());
+            for (Map.Entry<String, Object> variable : getConditionVariables(request.getCondition()).entrySet()) {
+                builder.setValue(variable.getKey(), variable.getValue());
+            }
+            return builder.getRowsCount();
+        } catch (SQLException e) {
+            throw new StorageException(e);
+        }
+
     }
 
     @Override
