@@ -152,8 +152,9 @@ public class FuelStatisticsReport {
   private void checkAndUpdateRefill(double difference) {
     refilledWithinTimer += difference;
 
-    if (refillTimer % REFILL_TIMER_MAX >= 0) {
-      refillTimer = refillTimer % REFILL_TIMER_MAX;
+    long refillTimerMod = refillTimer % REFILL_TIMER_MAX;
+    if (refillTimerMod >= 0) {
+      refillTimer = refillTimerMod;
 
       if (refilledWithinTimer >= REFILL_THRESHOLD) {
         fuelRefilled = BigDecimal.valueOf(refilledWithinTimer + fuelRefilled.doubleValue());
