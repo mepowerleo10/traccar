@@ -15,15 +15,18 @@
  */
 package org.traccar.database;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import liquibase.Contexts;
-import liquibase.Liquibase;
-import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.FileSystemResourceAccessor;
-import liquibase.resource.ResourceAccessor;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
 import org.traccar.Context;
 import org.traccar.config.Config;
 import org.traccar.config.Keys;
@@ -44,16 +47,16 @@ import org.traccar.storage.query.Limit;
 import org.traccar.storage.query.Order;
 import org.traccar.storage.query.Request;
 
-import javax.sql.DataSource;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import liquibase.Contexts;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.FileSystemResourceAccessor;
+import liquibase.resource.ResourceAccessor;
 
 public class DataManager {
 
@@ -178,6 +181,12 @@ public class DataManager {
                 new Condition.Equals("id", "id")));
     }
 
+    public Long getPositionsCount(long deviceId, Date from, Date to) throws StorageException {
+        return storage.getRowCount(Position.class, new Request(new Condition.And(
+                new Condition.Equals("deviceId", "deviceId", deviceId),
+                new Condition.Between("fixTime", "from", from, "to", to))));
+    }
+
     public Collection<Position> getPositions(long deviceId, Date from, Date to) throws StorageException {
         return storage.getObjects(Position.class, new Request(
                 new Columns.All(),
@@ -187,10 +196,22 @@ public class DataManager {
                 new Order("fixTime")));
     }
 
+    public Collection<Position> getPositions(long deviceId, Date from, Date to, int limit) throws StorageException {
+        return storage.getObjects(Position.class, new Request(
+                new Columns.All(),
+                new Condition.And(
+                        new Condition.Equals("deviceId", "deviceId", deviceId),
+                        new Condition.Between("fixTime", "from", from, "to", to)),
+                new Order("fixTime"), new Limit(limit)));
+    }
+
     public Collection<Position> getPositions(long deviceId, Date from, Date to, long id, int limit)
             throws StorageException {
-        Condition condition = Condition.merge(List.of(new Condition.Equals("deviceId", "deviceId", deviceId),
-                new Condition.Between("fixTime", "from", from, "to", to)));
+        Condition equalsDeviceId = new Condition.Equals("deviceId", "deviceId", deviceId);
+        Condition fromAndTo = new Condition.Between("fixTime", "from", from, "to", to);
+        Condition greaterThanId = new Condition.Compare("id", ">", "id", id);
+        Condition condition = Condition.merge(List.of(equalsDeviceId,
+                fromAndTo, greaterThanId));
 
         return storage.getObjects(Position.class, new Request(
                 new Columns.All(),

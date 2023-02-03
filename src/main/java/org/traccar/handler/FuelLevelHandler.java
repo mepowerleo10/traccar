@@ -71,7 +71,12 @@ public class FuelLevelHandler extends BaseDataHandler {
                             try {
                                 calculateSensorFuelAtPosition(i, position, lastPosition, deviceId, sensor, groups);
                             } catch (Exception e) {
-                                LOGGER.error("DeviceId: " + deviceId + ", Sensor Fuel Error",
+                                String warning = position.getString(Position.KEY_SENSOR_DOES_NOT_EXIST);
+                                warning = warning != null ? warning + ",\n" : "";
+                                warning += sensor.getName();
+
+                                position.set(Position.KEY_SENSOR_DOES_NOT_EXIST, warning);
+                                LOGGER.warn("DeviceId: " + deviceId + ", Sensor Fuel Error",
                                         e);
                             }
                         }
@@ -82,8 +87,6 @@ public class FuelLevelHandler extends BaseDataHandler {
                                     / groups.count.getOrDefault(group, 0);
                             fuelLevel += tankFuelLevel; // update the total fuel level
                             position.set(Position.KEY_TANK + group, tankFuelLevel); // update tank fuel level
-                            LOGGER.info("[" + position.getDeviceTime() + "] DeviceId: " + deviceId + ", tank" + group
-                                    + "FuelLevel: " + tankFuelLevel);
                         }
 
                         boolean hasFuelData = groups.count.keySet().size() > 0;
@@ -99,7 +102,7 @@ public class FuelLevelHandler extends BaseDataHandler {
                     }
 
                 } catch (Exception e) {
-                    LOGGER.error(e.getStackTrace().toString());
+                    LOGGER.warn(e.getStackTrace().toString());
                 }
             }
         }
@@ -133,10 +136,6 @@ public class FuelLevelHandler extends BaseDataHandler {
                     .getById(sensor.getCalibrationId());
             fuelLevel = getCalibratedSensorFuelLevel(position, currentVoltageReading,
                     fuelCalibration);
-
-            LOGGER.info("Computed fuel for: " + " DeviceID: " + deviceId + ", Sensor ID: " + sensor.getId()
-                    + ", Calibration ID: " + fuelCalibration.getId());
-            position.set("fuelSensor" + sensorIndex, sensor.toString());
 
         } else {
             fuelLevel = currentVoltageReading * readingType.getConversionMultiplier();
@@ -190,11 +189,6 @@ public class FuelLevelHandler extends BaseDataHandler {
         if (0 <= fuelLevel && fuelLevel < 1) {
             fuelLevel = 0;
         }
-
-        LOGGER.info("[" + position.getDeviceTime() + "] Done computing fuel level for deviceid: "
-                + position.getDeviceId() + ", calibration: "
-                + lastLeastCalibration + "fuelLevel: " + fuelLevel);
-        position.set("fuelCalibration" + fuelCalibration.getId(), lastLeastCalibration.toString());
 
         return fuelLevel;
     }

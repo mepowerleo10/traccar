@@ -23,14 +23,17 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.jxls.util.JxlsHelper;
 import org.traccar.Context;
 import org.traccar.helper.UnitsConverter;
 import org.traccar.model.Position;
+import org.traccar.model.Server;
 import org.traccar.reports.model.SummaryReport;
 import org.traccar.storage.StorageException;
 
@@ -39,7 +42,8 @@ public final class Summary {
     private Summary() {
     }
 
-    private static SummaryReport calculateSummaryResult(long deviceId, List<Position> positions) {
+    private static SummaryReport calculateSummaryResult(long deviceId, List<Position> positions)
+            throws StorageException {
         SummaryReport result = new SummaryReport();
         result.setDeviceId(deviceId);
         result.setDeviceName(Context.getIdentityManager().getById(deviceId).getName());
@@ -47,6 +51,11 @@ public final class Summary {
             int length = positions.size();
             Position firstPosition = positions.get(0);
             Position lastPosition = positions.get(length - 1);
+
+            positions = positions.stream()
+                    .collect(Collectors.collectingAndThen(
+                            Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Position::getFixTime))),
+                            ArrayList::new));
 
             FuelStatisticsReport fuelReport = new FuelStatisticsReport(
                     positions.parallelStream().filter(p -> p.hasFuelData()).collect(Collectors.toList()));
@@ -66,20 +75,23 @@ public final class Summary {
             result.setNumberOfRefills(fuelReport.getNumberOfRefills());
             result.setStartFuel(fuelReport.getInitialFuelLevel());
             result.setEndFuel(fuelReport.getFinalFuelLevel());
+            result.setAverageSpeed(computeAverageSpeed(positions));
 
-            long durationMilliseconds;
+            long durationMilliseconds = 0;
             if (firstPosition.getAttributes().containsKey(Position.KEY_HOURS)
                     && lastPosition.getAttributes().containsKey(Position.KEY_HOURS)) {
                 durationMilliseconds = lastPosition.getLong(Position.KEY_HOURS)
                         - firstPosition.getLong(Position.KEY_HOURS);
                 result.setEngineHours(durationMilliseconds);
             } else {
-                durationMilliseconds = lastPosition.getFixTime().getTime() - firstPosition.getFixTime().getTime();
+                durationMilliseconds = lastPosition.getFixTime().getTime()
+                        - firstPosition.getFixTime().getTime();
             }
 
             if (durationMilliseconds > 0) {
                 result.setAverageSpeed(
-                        UnitsConverter.knotsFromMps(result.getDistance() * 1000 / durationMilliseconds));
+                        UnitsConverter.knotsFromMps(result.getDistance() * 1000
+                                / durationMilliseconds));
             }
 
             if (!ignoreOdometer
@@ -96,6 +108,22 @@ public final class Summary {
             result.setEndTime(lastPosition.getFixTime());
         }
         return result;
+    }
+
+    private static double computeAverageSpeed(List<Position> positions) throws StorageException {
+        final double speedThreshold = Context.getDataManager().getServer().getDouble(Server.REPORT_SPEED_THRESHOLD);
+
+        List<Position> filteredPositions = positions.parallelStream()
+                .filter(position -> UnitsConverter.mpsFromKnots(position.getSpeed()) > speedThreshold)
+                .collect(Collectors.toList());
+
+        long count = filteredPositions.stream().count();
+        double totalSpeeds = filteredPositions.parallelStream().reduce(0.0,
+                (sum, position) -> position.getSpeed() + sum, Double::sum);
+
+        double averageSpeed = count > 0 ? totalSpeeds / count : 0.0;
+
+        return averageSpeed;
     }
 
     private static int getDay(long userId, Date date) {
