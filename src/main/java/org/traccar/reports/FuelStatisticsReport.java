@@ -8,6 +8,7 @@ import org.traccar.filter.MovingModeFilter;
 import org.traccar.model.Position;
 
 public class FuelStatisticsReport {
+  private static final double TO_MINUTES_DIVISOR = 1.6667e-5;
   private static final int REFILL_THRESHOLD = 30; // litres
   private static final int REFILL_TIMER_MAX = 30; // minutes
 
@@ -135,7 +136,7 @@ public class FuelStatisticsReport {
     finalFuelLevel = currentLevel > 0 ? currentLevel : finalFuelLevel;
 
     double millisecondsBetween = (position.getFixTime().getTime() - previousPosition.getFixTime().getTime());
-    refillTimer += millisecondsBetween * 1.6667e-5;
+    refillTimer += millisecondsBetween * TO_MINUTES_DIVISOR;
 
     if (previousLevel > 0 && currentLevel > 0) {
       double difference = Math.round(currentLevel - previousLevel);
