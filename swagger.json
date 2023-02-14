@@ -3384,6 +3384,9 @@
           "id": {
             "type": "integer"
           },
+          "externalIdentifier": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
@@ -3418,6 +3421,9 @@
           "model": {
             "type": "string"
           },
+          "classId": {
+            "type": "integer"
+          },
           "contact": {
             "type": "string"
           },
@@ -3444,6 +3450,9 @@
         "properties": {
           "id": {
             "type": "integer"
+          },
+          "externalIdentifier": {
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -3925,6 +3934,9 @@
         "properties": {
           "id": {
             "type": "integer"
+          },
+          "externalIdentifier": {
+            "type": "string"
           },
           "name": {
             "type": "string"

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd"
+  logicalFilePath="changelog-8.5">
+
+  <changeSet id="changelog-8.5" author="author">
+    <preConditions onFail="CONTINUE">
+      <tableExists tableName="tc_devices" />
+      <tableExists tableName="tc_groups" />
+      <tableExists tableName="tc_device_classes" />
+    </preConditions>
+
+    <addColumn tableName="tc_devices">
+      <column name="externalidentifier" type="VARCHAR(256)" afterColumn="id">
+        <constraints unique="true" uniqueConstraintName="device_unique_external_identifier" />
+      </column>
+    </addColumn>
+
+    <addColumn tableName="tc_groups">
+      <column name="externalidentifier" type="VARCHAR(256)" afterColumn="id">
+        <constraints unique="true" uniqueConstraintName="group_unique_external_identifier" />
+      </column>
+    </addColumn>
+
+    <addColumn tableName="tc_device_classes">
+      <column name="externalidentifier" type="VARCHAR(256)" afterColumn="id">
+        <constraints unique="true" uniqueConstraintName="device_class_unique_external_identifier" />
+      </column>
+    </addColumn>
+
+  </changeSet>
+</databaseChangeLog>

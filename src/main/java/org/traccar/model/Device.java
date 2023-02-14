@@ -191,4 +191,15 @@ public class Device extends GroupedModel {
     public void setClassId(long classId) {
         this.classId = classId;
     }
+
+    private String externalIdentifier;
+
+    public String getExternalIdentifier() {
+        return externalIdentifier;
+    }
+
+    public void setExternalIdentifier(String externalIdentifier) {
+        this.externalIdentifier = externalIdentifier;
+    }
+
 }

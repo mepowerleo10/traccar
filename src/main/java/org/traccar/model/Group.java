@@ -30,4 +30,13 @@ public class Group extends GroupedModel {
         this.name = name;
     }
 
+    private String externalIdentifier;
+
+    public String getExternalIdentifier() {
+        return externalIdentifier;
+    }
+
+    public void setExternalIdentifier(String externalIdentifier) {
+        this.externalIdentifier = externalIdentifier;
+    }
 }
