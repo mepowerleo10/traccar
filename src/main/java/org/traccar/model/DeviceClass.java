@@ -13,4 +13,15 @@ public class DeviceClass extends ExtendedModel {
   public void setName(String name) {
     this.name = name;
   }
+
+  private String externalIdentifier;
+
+  public String getExternalIdentifier() {
+    return externalIdentifier;
+  }
+
+  public void setExternalIdentifier(String externalIdentifier) {
+    this.externalIdentifier = externalIdentifier;
+  }
+
 }
